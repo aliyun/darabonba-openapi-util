@@ -173,9 +173,11 @@ public class ClientTest {
         String style = "repeatList";
         List list = new ArrayList();
         list.add("test");
+        list.add("symbol");
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("test.1=test", result);
+        Assert.assertEquals("test.2=symbol&&test.1=test", result);
 
+        list.remove(1);
         style = "simple";
         list.add("testStyle");
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
