@@ -16,6 +16,11 @@
 ```xml
 <dependency>
     <groupId>com.aliyun</groupId>
+    <artifactId>tea</artifactId>
+    <version>[1.0.2, 2.0.0)</version>
+</dependency>
+<dependency>
+    <groupId>com.aliyun</groupId>
     <artifactId>openapiutil</artifactId>
     <version>使用maven标签所示版本</version>
 </dependency>

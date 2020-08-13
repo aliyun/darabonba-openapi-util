@@ -14,6 +14,11 @@ If you use `maven` to manage your dependence, you can use the following command:
 ```xml
 <dependency>
     <groupId>com.aliyun</groupId>
+    <artifactId>tea</artifactId>
+    <version>[1.0.2, 2.0.0)</version>
+</dependency>
+<dependency>
+    <groupId>com.aliyun</groupId>
     <artifactId>openapiutil</artifactId>
     <version>Use the version shown in the maven badge</version>
 </dependency>

@@ -142,6 +142,10 @@ public class Client {
      * @return the string
      */
     public static String toForm(java.util.Map<String, ?> filter) throws Exception {
+       return toFormWithSymbol(filter, "&");
+    }
+
+    private static String toFormWithSymbol(java.util.Map<String, ?> filter, String symbol) throws Exception {
         Map<String, String> map = query(filter);
         StringBuilder result = new StringBuilder();
         boolean first = true;
@@ -152,7 +156,7 @@ public class Client {
             if (first) {
                 first = false;
             } else {
-                result.append("&");
+                result.append(symbol);
             }
             result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
             result.append("=");
@@ -267,7 +271,7 @@ public class Client {
             case "repeatList":
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put(prefix, array);
-                return toForm(map);
+                return toFormWithSymbol(map, "&&");
             case "simple":
             case "spaceDelimited":
             case "pipeDelimited":

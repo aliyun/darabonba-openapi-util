@@ -6,6 +6,7 @@
 ## 安装
 
 - [Go](./golang/README-CN.md)
+- [Java](./java/README-CN.md)
 
 ## 问题
 
