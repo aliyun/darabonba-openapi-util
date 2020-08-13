@@ -8,19 +8,27 @@
     <packaging>jar</packaging>
     <name>openapiutil</name>
     <description>
+        Aliyun openapi util for Java
+
+        Copyright (C) Alibaba Cloud Computing
+        All rights reserved.
+
+        版权所有 （C）阿里云计算有限公司
+
+        http://www.aliyun.com
     </description>
-    <url></url>
+    <url>http://www.aliyun.com</url>
     <licenses>
         <license>
-            <name></name>
-            <url></url>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
     <developers>
         <developer>
-            <id></id>
-            <name></name>
-            <email></email>
+            <id>aliyunproducts</id>
+            <name>Aliyun SDK</name>
+            <email>aliyunsdk@aliyun.com</email>
         </developer>
     </developers>
     <distributionManagement>
@@ -34,9 +42,9 @@
         </repository>
     </distributionManagement>
     <scm>
-        <connection></connection>
-        <developerConnection></developerConnection>
-        <url></url>
+        <connection>scm:git:git://github.com/aliyun/arabonba-openapi-util.git</connection>
+        <developerConnection>scm:git:git@github.com:aliyun/darabonba-openapi-util.git</developerConnection>
+        <url>https://github.com/aliyun/darabonba-openapi-util</url>
     </scm>
     <dependencies>
         <dependency>

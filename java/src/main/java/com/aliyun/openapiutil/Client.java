@@ -289,11 +289,11 @@ public class Client {
             strs.add(String.valueOf(array.get(i)));
         }
         if ("simple".equalsIgnoreCase(sty)) {
-            return String.join(",", array);
+            return String.join(",", strs);
         } else if ("spaceDelimited".equalsIgnoreCase(sty)) {
-            return String.join(" ", array);
+            return String.join(" ", strs);
         } else {
-            return String.join("|", array);
+            return String.join("|", strs);
         }
     }
 }
