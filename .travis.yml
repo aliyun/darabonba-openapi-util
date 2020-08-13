@@ -15,10 +15,10 @@ jobs:
     # - language: php
     #   php: '7.3'
     #   env: TEA_UTIL_ENV="php"
-    # - language: csharp
-    #   mono: none
-    #   dist: xenial
-    #   env: TEA_UTIL_ENV="csharp"
+    - language: csharp
+      mono: none
+      dist: xenial
+      env: TEA_UTIL_ENV="csharp"
     # - language: java
     #   jdk: openjdk8
     #   env: TEA_UTIL_ENV="java"
