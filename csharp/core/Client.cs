@@ -100,7 +100,7 @@ namespace AlibabaCloud.OpenApiUtil
          * @param filter object
          * @return the string
          */
-        public static string ToForm(Dictionary<string, object> filter)
+        public static string ToForm(IDictionary filter)
         {
             if (filter == null)
             {
@@ -135,7 +135,7 @@ namespace AlibabaCloud.OpenApiUtil
          * @param filter query param
          * @return the object
          */
-        public static Dictionary<string, string> Query(Dictionary<string, object> filter)
+        public static Dictionary<string, string> Query(IDictionary filter)
         {
             Dictionary<string, string> outDict = new Dictionary<string, string>();
             TileDict(outDict, filter);
