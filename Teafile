@@ -18,7 +18,8 @@
     "python": "alibabacloud_openapi_util:0.0.1"
   },
   "csharp": {
-    "namespace": "AlibabaCloud.OpenApiUtil"
+    "namespace": "AlibabaCloud.OpenApiUtil",
+    "className": "Client"
   },
   "java": {
     "package": "com.aliyun.openapiutil"
