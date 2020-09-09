@@ -190,7 +190,7 @@ public class Client {
         return outMap;
     }
 
-    private static void processeObject(Map<String, String> map, String key, Object value) {
+    private static void processeObject(Map<String, String> map, String key, Object value) throws UnsupportedEncodingException {
         if (StringUtils.isEmpty(value)) {
             return;
         }
@@ -208,7 +208,11 @@ public class Client {
             if (key.startsWith(".")) {
                 key = key.substring(1);
             }
-            map.put(key, String.valueOf(value));
+            if (value instanceof byte[]) {
+                map.put(key, new String((byte[]) value, "UTF-8"));
+            } else {
+                map.put(key, String.valueOf(value));
+            }
         }
     }
 
