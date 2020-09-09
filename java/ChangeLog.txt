@@ -1,3 +1,6 @@
+2020-09-09 Version: 0.0.3
+1. Improve processeObject
+
 2020-08-13 Version: 0.0.2
 1. Improve toForm
 
