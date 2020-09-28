@@ -3,6 +3,9 @@
 
 ## Alibaba Cloud OpenApi Util
 
+[![Travis Build Status](https://travis-ci.org/aliyun/darabonba-openapi-util.svg?branch=master)](https://travis-ci.org/aliyun/darabonba-openapi-util)
+[![codecov](https://codecov.io/gh/aliyun/darabonba-openapi-util/branch/master/graph/badge.svg)](https://codecov.io/gh/aliyun/darabonba-openapi-util)
+
 ## 安装
 
 - [Go](./golang/README-CN.md)
