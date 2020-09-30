@@ -1,3 +1,6 @@
+2020-09-30 Version: 0.0.4
+1. Improve arrayToStringWithSpecifiedStyle
+
 2020-09-09 Version: 0.0.3
 1. Improve processeObject
 
