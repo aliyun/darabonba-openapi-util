@@ -281,6 +281,21 @@ public class Client {
             case "pipeDelimited":
                 return flatArray((List) array, style);
             case "json":
+                Class clazz = array.getClass();
+                List list = new ArrayList();
+                if (List.class.isAssignableFrom(clazz)) {
+                    list = (List) array;
+                }
+                if (list.size() > 0) {
+                    if (TeaModel.class.isAssignableFrom(list.get(0).getClass())) {
+                        List<TeaModel> teaModels = (List<TeaModel>) array;
+                        List<Map<String, Object>> mapList = new ArrayList<>();
+                        for (TeaModel teaModel: teaModels) {
+                            mapList.add(teaModel.toMap());
+                        }
+                        return new Gson().toJson(mapList);
+                    }
+                }
                 return new Gson().toJson(array);
             default:
                 return "";
