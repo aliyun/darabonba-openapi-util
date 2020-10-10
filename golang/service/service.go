@@ -303,6 +303,34 @@ func ArrayToStringWithSpecifiedStyle(array interface{}, prefix *string, style *s
 	return tea.String("")
 }
 
+func ParseToArray(in interface{}) []interface{} {
+	if tea.BoolValue(util.IsUnset(in)) {
+		return nil
+	}
+
+	tmp := make([]interface{}, 0)
+	byt, _ := json.Marshal(in)
+	err := json.Unmarshal(byt, &tmp)
+	if err != nil {
+		return nil
+	}
+	return tmp
+}
+
+func ParseToMap(in interface{}) map[string]interface{} {
+	if tea.BoolValue(util.IsUnset(in)) {
+		return nil
+	}
+
+	tmp := make(map[string]interface{})
+	byt, _ := json.Marshal(in)
+	err := json.Unmarshal(byt, &tmp)
+	if err != nil {
+		return nil
+	}
+	return tmp
+}
+
 func flatRepeatList(filter map[string]interface{}) (_result *string) {
 	tmp := make(map[string]interface{})
 	byt, _ := json.Marshal(filter)
