@@ -163,5 +163,38 @@ namespace tests
             style = "null";
             Assert.Empty(Client.ArrayToStringWithSpecifiedStyle(list, prefix, style));
         }
+
+        [Fact]
+        public void Test_ParseToMap()
+        {
+            Assert.Null(Client.ParseToMap(null));
+
+            TestConvertMapModel model = new TestConvertMapModel
+            {
+                RequestId = "requestId",
+                Dict = new Dictionary<string, object>
+                { { "key", "value" }
+                },
+                SubModel = new TestConvertMapModel.TestConvertSubModel
+                {
+                RequestId = "sub"
+                }
+            };
+
+            var dicModel = Client.ParseToMap(model);
+
+            Assert.Equal("requestId", dicModel["RequestId"]);
+            Assert.Equal("value", ((Dictionary<string, object>) dicModel["Dict"]) ["key"]);
+            Assert.Equal("sub", ((Dictionary<string, object>) dicModel["SubModel"]) ["RequestId"]);
+
+            Dictionary<string, object> dic = new Dictionary<string, object>
+            { 
+                { "model", model }
+            };
+
+            var dicMap = Client.ParseToMap(dic);
+
+            Assert.Equal(dicModel, dicMap["model"]);
+        }
     }
 }

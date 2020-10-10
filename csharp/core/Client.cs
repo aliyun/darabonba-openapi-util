@@ -213,6 +213,22 @@ namespace AlibabaCloud.OpenApiUtil
             }
         }
 
+        /**
+        * Transform input as map.
+        */
+        public static Dictionary<string, object> ParseToMap(object input)
+        {
+            if(input == null)
+            {
+                return null;
+            }
+            
+            Type type = input.GetType();
+            var map = (Dictionary<string, object>)TeaModelExtensions.ToMapFactory(type, input);
+
+            return map;
+        }
+
         internal static string GetCanonicalizedHeaders(Dictionary<string, string> headers)
         {
             string prefix = "x-acs-";
