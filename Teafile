@@ -15,7 +15,7 @@
     "csharp": "AlibabaCloud.OpenApiUtil:1.0.2",
     "java": "com.aliyun:openapiutil:0.0.5",
     "php": "alibabacloud/openapi-util:^0.1.0",
-    "python": "alibabacloud_openapi_util:0.0.1"
+    "python": "alibabacloud_openapi_util:0.0.2"
   },
   "csharp": {
     "namespace": "AlibabaCloud.OpenApiUtil",
