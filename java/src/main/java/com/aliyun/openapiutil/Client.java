@@ -315,4 +315,11 @@ public class Client {
             return String.join("|", strs);
         }
     }
+
+    public static Map<String, Object> parseToMap(Object o){
+        if (null == o) {
+            return null;
+        }
+        return (Map<String, Object>) TeaModel.parseObject(o);
+    }
 }

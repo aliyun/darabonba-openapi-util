@@ -1,6 +1,7 @@
 package com.aliyun.openapiutil;
 
 import com.aliyun.tea.TeaRequest;
+import com.aliyun.openapiutil.PaserObjectTest.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -165,7 +166,7 @@ public class ClientTest {
     }
 
     @Test
-    public void arrayToStringWithSpecifiedStyleTest() throws Exception{
+    public void arrayToStringWithSpecifiedStyleTest() throws Exception {
         String result = Client.arrayToStringWithSpecifiedStyle(null, null, null);
         Assert.assertEquals("", result);
 
@@ -198,5 +199,35 @@ public class ClientTest {
         style = "null";
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("", result);
+    }
+
+    @Test
+    public void parseToMapTest() {
+        Assert.assertNull(Client.parseToMap(null));
+
+        PaserObjectTest test = new PaserObjectTest();
+        List<String> stringList = new ArrayList<>();
+        stringList.add("listTest");
+
+        Map<String, Object> stringObjectMap = new HashMap<>();
+        stringObjectMap.put("mapTest", "test");
+
+        SubType subType = test.new SubType();
+        ListValue listValue = test.new ListValue();
+        MapValue mapValue = test.new MapValue();
+        Map<String, MapValue> mapValueMap = new HashMap<>();
+        mapValueMap.put("mapValueTest", mapValue);
+        listValue.map = mapValueMap;
+        List<ListValue> listValues = new ArrayList<>();
+        listValues.add(listValue);
+        subType.list = listValues;
+        test.subType = subType;
+
+        Map<String, Object> result = Client.parseToMap(test);
+        Map subMap = (Map) result.get("SubType");
+        List subList = (List) subMap.get("List");
+        Map subMapValue = (Map) subList.get(0);
+        Map map = (Map) subMapValue.get("Map");
+        Assert.assertEquals("string", ((Map) map.get("mapValueTest")).get("MapValueString"));
     }
 }
