@@ -8,6 +8,7 @@ from urllib.parse import quote_plus, quote
 
 from alibabacloud_tea_util.client import Client as Util
 from Tea.stream import STREAM_CLASS
+from Tea.model import TeaModel
 
 
 class Client(object):
@@ -247,3 +248,35 @@ class Client(object):
             v = quote_plus(query[i], encoding='utf-8')
             l.append(k + '=' + v)
         return '&&'.join(l)
+
+    @staticmethod
+    def parse_to_map(inp):
+        """
+        Transform input as map.
+        """
+        try:
+            result = Client._parse_to_dict(inp)
+            return copy.deepcopy(result)
+        except TypeError:
+            return
+
+    @staticmethod
+    def _parse_to_dict(val):
+        if isinstance(val, dict):
+            result = {}
+            for k, v in val.items():
+                if isinstance(v, (list, dict, TeaModel)):
+                    result[k] = Client._parse_to_dict(v)
+                else:
+                    result[k] = v
+            return result
+        elif isinstance(val, list):
+            result = []
+            for i in val:
+                if isinstance(i, (list, dict, TeaModel)):
+                    result.append(Client._parse_to_dict(i))
+                else:
+                    result.append(i)
+            return result
+        elif isinstance(val, TeaModel):
+            return val.to_map()

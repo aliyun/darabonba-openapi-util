@@ -3,11 +3,11 @@ import os
 
 from alibabacloud_openapi_util.client import Client
 from Tea.request import TeaRequest
+from Tea.model import TeaModel
 
 
 class TestClient(unittest.TestCase):
-
-    class TestConvertModel:
+    class TestConvertModel(TeaModel):
         def __init__(self):
             self.requestId = "test"
             self.dic = {}
@@ -25,7 +25,7 @@ class TestClient(unittest.TestCase):
             }
             return dic
 
-    class TestConvertSubModel:
+    class TestConvertSubModel(TeaModel):
         def __init__(self):
             self.requestId = "subTest"
             self.id = 2
@@ -37,7 +37,7 @@ class TestClient(unittest.TestCase):
             }
             return dic
 
-    class TestConvertMapModel:
+    class TestConvertMapModel(TeaModel):
         def __init__(self):
             self.requestId = ""
             self.extendId = 0
@@ -219,3 +219,37 @@ class TestClient(unittest.TestCase):
         self.assertEqual('ok|test|2|3', t5)
         self.assertEqual('', t6)
         self.assertEqual('', t7)
+
+    def test_parse_to_map(self):
+        self.assertIsNone(Client.parse_to_map(None))
+
+        module_path = os.path.dirname(__file__)
+        filename = module_path + "/test.txt"
+        res = Client.parse_to_map({'file': open(filename)})
+        self.assertIsNone(res)
+
+        res = Client.parse_to_map({"key": "value"})
+        self.assertEqual('value', res['key'])
+
+        model = self.TestConvertSubModel()
+        res = Client.parse_to_map(model)
+        self.assertEqual('subTest', res['requestId'])
+        self.assertEqual(2, res['id'])
+
+        res = Client.parse_to_map({
+            "key": "value",
+            'model': model
+        })
+        self.assertEqual('value', res['key'])
+        self.assertEqual('subTest', res['model']['requestId'])
+        self.assertEqual(2, res['model']['id'])
+
+        res = Client.parse_to_map({
+            'model_list': [model, model, 'model'],
+            'model_dict': {"model1": model, "model2": model}
+        })
+        self.assertEqual('subTest', res['model_list'][0]['requestId'])
+        self.assertEqual(2, res['model_list'][1]['id'])
+        self.assertEqual('model', res['model_list'][2])
+        self.assertEqual('subTest', res['model_dict']['model1']['requestId'])
+        self.assertEqual(2, res['model_dict']['model2']['id'])
