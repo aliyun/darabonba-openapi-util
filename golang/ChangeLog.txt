@@ -1,2 +1,5 @@
+2020-10-10 Version: v0.0.2
+- Add ParseToMap.
+
 2020-08-12 Version: v0.0.1
 - Init project.

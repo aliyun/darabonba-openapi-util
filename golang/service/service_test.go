@@ -158,25 +158,16 @@ type Str struct {
 	Key string `json:"key"`
 }
 
-func Test_ParseToArray(t *testing.T) {
-	in := []*Str{
-		&Str{
-			Key: "value",
-		},
-	}
-	res := ParseToArray(in)
-	utils.AssertEqual(t, res[0], map[string]interface{}{"key": "value"})
-
-	res = ParseToArray(nil)
-	utils.AssertNil(t, res)
-}
-
 func Test_ParseToMap(t *testing.T) {
 	in := &Str{
 		Key: "value",
 	}
 	res := ParseToMap(in)
 	utils.AssertEqual(t, res["key"], "value")
+
+	in0 := map[string]*Str{"test": in}
+	res = ParseToMap(in0)
+	utils.AssertEqual(t, res["test"], map[string]interface{}{"key": "value"})
 
 	res = ParseToMap(nil)
 	utils.AssertNil(t, res)
