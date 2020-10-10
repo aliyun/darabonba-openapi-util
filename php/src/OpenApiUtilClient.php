@@ -195,6 +195,34 @@ class OpenApiUtilClient
         return '';
     }
 
+    /**
+     * Transform input as array.
+     *
+     * @param mixed $input
+     *
+     * @return array
+     */
+    public static function parseToArray($input)
+    {
+        self::parse($input, $result);
+
+        return $result;
+    }
+
+    /**
+     * Transform input as map.
+     *
+     * @param mixed $input
+     *
+     * @return array
+     */
+    public static function parseToMap($input)
+    {
+        self::parse($input, $result);
+
+        return $result;
+    }
+
     private static function getRpcStrToSign($method, $query)
     {
         ksort($query);
@@ -275,6 +303,33 @@ class OpenApiUtilClient
         }
 
         return $pathname . '?' . implode('&', $tmp);
+    }
+
+    private static function parse($input, &$output)
+    {
+        if (null === $input || '' === $input) {
+            $output = [];
+        }
+        $recursive = function ($input) use (&$recursive) {
+            if ($input instanceof Model) {
+                $input = $input->toMap();
+            } elseif (\is_object($input)) {
+                $input = get_object_vars($input);
+            }
+            if (!\is_array($input)) {
+                return $input;
+            }
+            $data = [];
+            foreach ($input as $k => $v) {
+                $data[$k] = $recursive($v);
+            }
+
+            return $data;
+        };
+        $output    = $recursive($input);
+        if (!\is_array($output)) {
+            $output = [$output];
+        }
     }
 
     private static function filter($str)

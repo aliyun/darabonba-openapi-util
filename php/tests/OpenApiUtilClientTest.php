@@ -176,6 +176,76 @@ class OpenApiUtilClientTest extends TestCase
             )
         );
     }
+
+    public function testParseToArray()
+    {
+        $test     = $this->parseData();
+        $data     = $test['data'];
+        $expected = $test['expected'];
+        foreach ($data as $index => $item) {
+            $this->assertEquals($expected[$index], OpenApiUtilClient::parseToArray($item));
+        }
+    }
+
+    public function testParseToMap()
+    {
+        $test     = $this->parseData();
+        $data     = $test['data'];
+        $expected = $test['expected'];
+        foreach ($data as $index => $item) {
+            $this->assertEquals($expected[$index], OpenApiUtilClient::parseToMap($item));
+        }
+    }
+
+    private function parseData()
+    {
+        return [
+            'data'     => [
+                'NotArray',
+                new ParseModel([
+                    'str'   => 'A',
+                    'model' => new ParseModel(['str' => 'sub model']),
+                    'array' => [1, 2, 3],
+                ]),
+                [ // model item in array
+                    new ParseModel([
+                        'str' => 'A',
+                    ]),
+                ],
+                [ // model item in map
+                    'model' => new ParseModel([
+                        'str' => 'A',
+                    ]),
+                ],
+            ],
+            'expected' => [
+                ['NotArray'],
+                [
+                    'str'   => 'A',
+                    'model' => [
+                        'str'   => 'sub model',
+                        'model' => null,
+                        'array' => null,
+                    ],
+                    'array' => [1, 2, 3],
+                ],
+                [
+                    [
+                        'str'   => 'A',
+                        'model' => null,
+                        'array' => null,
+                    ],
+                ],
+                [
+                    'model' => [
+                        'str'   => 'A',
+                        'model' => null,
+                        'array' => null,
+                    ],
+                ],
+            ],
+        ];
+    }
 }
 
 class MockModel extends Model
@@ -192,4 +262,11 @@ class MockModel extends Model
         $this->_required['c'] = true;
         parent::__construct([]);
     }
+}
+
+class ParseModel extends Model
+{
+    public $str;
+    public $model;
+    public $array;
 }

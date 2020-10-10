@@ -23,7 +23,6 @@
         <log type="coverage-clover" target="cache/coverage.clover"/>
     </logging>
 
-
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./src</directory>
