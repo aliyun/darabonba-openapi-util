@@ -62,3 +62,13 @@ static function getRPCSignature(signedParams: map[string]string, method: string,
  * @return the string
  */
 static function arrayToStringWithSpecifiedStyle(array: any, prefix: string, style: string): string;
+
+/**
+ * Transform input as array.
+ */
+static function parseToArray(input: any): [ any ];
+
+/**
+ * Transform input as map.
+ */
+static function parseToMap(input: any): map[string]any;
