@@ -1,3 +1,6 @@
+2020-10-11 Version: 0.0.6
+1. Improve processeObject
+
 2020-10-10 Version: 0.0.5
 1. Add parseToMap
 

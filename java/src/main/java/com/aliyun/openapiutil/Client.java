@@ -191,7 +191,7 @@ public class Client {
     }
 
     private static void processeObject(Map<String, String> map, String key, Object value) throws UnsupportedEncodingException {
-        if (StringUtils.isEmpty(value)) {
+        if (null == value) {
             return;
         }
         if (value instanceof List) {
