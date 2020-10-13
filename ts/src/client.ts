@@ -136,7 +136,7 @@ function isModelClass(t: any): boolean {
 }
 
 function isObjectOrArray(t: any): boolean {
-  return Array.isArray(t) || (t instanceof Object && typeof t !== "function");
+  return Array.isArray(t) || (t instanceof Object && typeof t !== 'function');
 }
 
 function toMap(input: any) {
@@ -314,7 +314,7 @@ export default class Client {
   /**
    * Transform input as map.
    */
-  static parseToMap(input: any): {[key: string ]: any} {
+  static parseToMap(input: any): {[key: string]: any} {
     return toMap(input);
   }
 }
