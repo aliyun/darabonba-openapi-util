@@ -1,7 +1,7 @@
-import * as $tea from "@alicloud/tea-typescript";
+import * as $tea from '@alicloud/tea-typescript';
 import assert from 'assert';
 import 'mocha';
-import Client from "../src/client";
+import Client from '../src/client';
 
 describe('Tea Util', function () {
   it('Module should ok', function () {
@@ -275,33 +275,33 @@ describe('Tea Util', function () {
     assert.strictEqual(str, '');
   })
 
-  it("parseToMap should ok", function () {
+  it('parseToMap should ok', function () {
     assert.strictEqual(Client.parseToMap(null), null);
     assert.strictEqual(Client.parseToMap(1), null);
-    assert.strictEqual(Client.parseToMap("1"), null);
+    assert.strictEqual(Client.parseToMap('1'), null);
     assert.strictEqual(Client.parseToMap(true), null);
     assert.strictEqual(
       Client.parseToMap(() => {}),
       null
     );
 
-    let res = Client.parseToMap({ key: "value" });
-    assert.strictEqual("value", res["key"]);
+    let res = Client.parseToMap({ key: 'value' });
+    assert.strictEqual('value', res['key']);
 
     class SubRequest extends $tea.Model {
       requestId: string;
       id: number;
       static names(): { [key: string]: string } {
         return {
-          requestId: "requestId",
-          id: "id",
+          requestId: 'requestId',
+          id: 'id',
         };
       }
 
       static types(): { [key: string]: any } {
         return {
-          requestId: "string",
-          id: "number",
+          requestId: 'string',
+          id: 'number',
         };
       }
 
@@ -311,29 +311,29 @@ describe('Tea Util', function () {
     }
 
     const model = new SubRequest({
-      requestId: "subTest",
+      requestId: 'subTest',
       id: 2,
     });
     res = Client.parseToMap(model);
-    assert.strictEqual("subTest", res["requestId"]);
-    assert.strictEqual(2, res["id"]);
+    assert.strictEqual('subTest', res['requestId']);
+    assert.strictEqual(2, res['id']);
 
     res = Client.parseToMap({
-      key: "value",
+      key: 'value',
       model: model,
     });
-    assert.strictEqual("value", res["key"]);
-    assert.strictEqual("subTest", res["model"]["requestId"]);
-    assert.strictEqual(2, res["model"]["id"]);
+    assert.strictEqual('value', res['key']);
+    assert.strictEqual('subTest', res['model']['requestId']);
+    assert.strictEqual(2, res['model']['id']);
 
     res = Client.parseToMap({
-      model_list: [model, model, "model"],
+      model_list: [model, model, 'model'],
       model_dict: { model1: model, model2: model },
     });
-    assert.strictEqual("subTest", res["model_list"][0]["requestId"]);
-    assert.strictEqual(2, res["model_list"][1]["id"]);
-    assert.strictEqual("model", res["model_list"][2]);
-    assert.strictEqual("subTest", res["model_dict"]["model1"]["requestId"]);
-    assert.strictEqual(2, res["model_dict"]["model2"]["id"]);
+    assert.strictEqual('subTest', res['model_list'][0]['requestId']);
+    assert.strictEqual(2, res['model_list'][1]['id']);
+    assert.strictEqual('model', res['model_list'][2]);
+    assert.strictEqual('subTest', res['model_dict']['model1']['requestId']);
+    assert.strictEqual(2, res['model_dict']['model2']['id']);
   });
 });
