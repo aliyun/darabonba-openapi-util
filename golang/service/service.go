@@ -172,7 +172,9 @@ func GetROASignature(stringToSign *string, secret *string) (_result *string) {
 func ToForm(filter map[string]interface{}) (_result *string) {
 	tmp := make(map[string]interface{})
 	byt, _ := json.Marshal(filter)
-	_ = json.Unmarshal(byt, &tmp)
+	d := json.NewDecoder(bytes.NewReader(byt))
+	d.UseNumber()
+	_ = d.Decode(&tmp)
 
 	result := make(map[string]*string)
 	for key, value := range tmp {
@@ -221,7 +223,9 @@ func handleMap(valueField reflect.Value, result map[string]*string, prefix strin
 			var byt []byte
 			byt, _ = json.Marshal(valueField.Interface())
 			cache := make(map[string]interface{})
-			_ = json.Unmarshal(byt, &cache)
+			d := json.NewDecoder(bytes.NewReader(byt))
+			d.UseNumber()
+			_ = d.Decode(&cache)
 			for key, value := range cache {
 				pre := ""
 				if prefix != "" {
@@ -253,7 +257,9 @@ func GetTimestamp() (_result *string) {
 func Query(filter map[string]interface{}) (_result map[string]*string) {
 	tmp := make(map[string]interface{})
 	byt, _ := json.Marshal(filter)
-	_ = json.Unmarshal(byt, &tmp)
+	d := json.NewDecoder(bytes.NewReader(byt))
+	d.UseNumber()
+	_ = d.Decode(&tmp)
 
 	result := make(map[string]*string)
 	for key, value := range tmp {
@@ -310,7 +316,9 @@ func ParseToMap(in interface{}) map[string]interface{} {
 
 	tmp := make(map[string]interface{})
 	byt, _ := json.Marshal(in)
-	err := json.Unmarshal(byt, &tmp)
+	d := json.NewDecoder(bytes.NewReader(byt))
+	d.UseNumber()
+	err := d.Decode(&tmp)
 	if err != nil {
 		return nil
 	}
@@ -320,7 +328,9 @@ func ParseToMap(in interface{}) map[string]interface{} {
 func flatRepeatList(filter map[string]interface{}) (_result *string) {
 	tmp := make(map[string]interface{})
 	byt, _ := json.Marshal(filter)
-	_ = json.Unmarshal(byt, &tmp)
+	d := json.NewDecoder(bytes.NewReader(byt))
+	d.UseNumber()
+	_ = d.Decode(&tmp)
 
 	result := make(map[string]*string)
 	for key, value := range tmp {
