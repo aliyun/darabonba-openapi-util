@@ -37,5 +37,13 @@
   "python": {
     "package": "alibabacloud_openapi_util",
     "clientName": "client"
+  },
+  "cpp": {
+    "packageInfo": {
+      "git": {
+        "scope": "alibabacloud-sdk-cpp",
+        "project": "openapi-util"
+      }
+    }
   }
 }
