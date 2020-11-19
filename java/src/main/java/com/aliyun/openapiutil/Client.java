@@ -185,24 +185,24 @@ public class Client {
     public static java.util.Map<String, String> query(java.util.Map<String, ?> filter) throws Exception {
         Map<String, String> outMap = new HashMap<>();
         if (null != filter) {
-            processeObject(outMap, "", filter);
+            processObject(outMap, "", filter);
         }
         return outMap;
     }
 
-    private static void processeObject(Map<String, String> map, String key, Object value) throws UnsupportedEncodingException {
+    private static void processObject(Map<String, String> map, String key, Object value) throws UnsupportedEncodingException {
         if (null == value) {
             return;
         }
         if (value instanceof List) {
             List list = (List) value;
             for (int i = 0; i < list.size(); i++) {
-                processeObject(map, key + "." + (i + 1), list.get(i));
+                processObject(map, key + "." + (i + 1), list.get(i));
             }
         } else if (value instanceof Map) {
             Map<String, Object> subMap = (Map<String, Object>) value;
             for (Map.Entry<String, Object> entry : subMap.entrySet()) {
-                processeObject(map, key + "." + (entry.getKey()), entry.getValue());
+                processObject(map, key + "." + (entry.getKey()), entry.getValue());
             }
         } else {
             if (key.startsWith(".")) {
