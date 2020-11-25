@@ -229,6 +229,22 @@ namespace AlibabaCloud.OpenApiUtil
             return map;
         }
 
+        public static string GetEndpoint(string endpoint, bool? useAccelerate, string endpointType)
+        {
+            if (endpointType == "internal")
+            {
+                string[] strs = endpoint.Split('.');
+                strs[0] += "-internal";
+                endpoint = string.Join(".", strs);
+            }
+            if (useAccelerate == true && endpointType == "accelerate")
+            {
+                return "oss-accelerate.aliyuncs.com";
+            }
+
+            return endpoint;
+        }
+
         internal static string GetCanonicalizedHeaders(Dictionary<string, string> headers)
         {
             string prefix = "x-acs-";

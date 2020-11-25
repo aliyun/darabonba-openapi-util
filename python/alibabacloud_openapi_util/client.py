@@ -280,3 +280,23 @@ class Client(object):
             return result
         elif isinstance(val, TeaModel):
             return val.to_map()
+    @staticmethod
+    def get_endpoint(endpoint, server_use, endpoint_type):
+        """
+        If endpointType is internal, use internal endpoint
+        If serverUse is true and endpointType is accelerate, use accelerate endpoint
+        Default return endpoint
+        @param server_use whether use accelerate endpoint
+        @param endpoint_type value must be internal or accelerate
+        @return the final endpoint
+        """
+        if endpoint_type == "internal":
+            str_split = endpoint.split('.')
+            str_split[0] += "-internal"
+            endpoint = ".".join(str_split)
+
+        if server_use and endpoint_type == "accelerate":
+            return "oss-accelerate.aliyuncs.com"
+
+        return endpoint
+        

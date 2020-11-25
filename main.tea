@@ -67,3 +67,13 @@ static function arrayToStringWithSpecifiedStyle(array: any, prefix: string, styl
  * Transform input as map.
  */
 static function parseToMap(input: any): map[string]any;
+
+/**
+ * If endpointType is internal, use internal endpoint
+ * If serverUse is true and endpointType is accelerate, use accelerate endpoint
+ * Default return endpoint
+ * @param serverUse whether use accelerate endpoint
+ * @param endpointType value must be internal or accelerate
+ * @return the final endpoint
+ */
+static function getEndpoint(endpoint: string, serverUse: boolean, endpointType: string): string;

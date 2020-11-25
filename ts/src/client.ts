@@ -317,4 +317,17 @@ export default class Client {
   static parseToMap(input: any): {[key: string]: any} {
     return toMap(input);
   }
+
+  static getEndpoint(endpoint: string, serverUse: boolean, endpointType: string): string {
+    if (endpointType == "internal") {
+      let strs = endpoint.split(".");
+      strs[0] += "-internal";
+      endpoint = strs.join(".")
+    }
+    if (serverUse && endpointType == "accelerate") {
+      return "oss-accelerate.aliyuncs.com"
+    }
+
+    return endpoint
+  }
 }

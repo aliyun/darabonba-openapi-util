@@ -1,3 +1,6 @@
+2020-11-25 Version: 0.0.7
+1. Add getEndpoint
+
 2020-10-11 Version: 0.0.6
 1. Improve processeObject
 

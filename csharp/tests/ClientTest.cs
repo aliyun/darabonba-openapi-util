@@ -38,6 +38,16 @@ namespace tests
         }
 
         [Fact]
+        public void Test_GetEndpoint()
+        {
+            Assert.Equal("test", Client.GetEndpoint("test", false, ""));
+
+            Assert.Equal("test-internal.endpoint", Client.GetEndpoint("test.endpoint", false, "internal"));
+
+            Assert.Equal("oss-accelerate.aliyuncs.com", Client.GetEndpoint("test", true, "accelerate"));
+        }
+
+        [Fact]
         public void Test_GetStringToSign()
         {
             TeaRequest teaRequestEmpty = new TeaRequest();

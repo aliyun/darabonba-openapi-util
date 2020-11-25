@@ -253,3 +253,11 @@ class TestClient(unittest.TestCase):
         self.assertEqual('model', res['model_list'][2])
         self.assertEqual('subTest', res['model_dict']['model1']['requestId'])
         self.assertEqual(2, res['model_dict']['model2']['id'])
+
+    def test_get_endpoint(self):
+        self.assertEqual("test", Client.get_endpoint("test", False, ""))
+
+        self.assertEqual("test-internal.endpoint", Client.get_endpoint("test.endpoint", False, "internal"))
+
+        self.assertEqual("oss-accelerate.aliyuncs.com", Client.get_endpoint("test", True, "accelerate"))
+    

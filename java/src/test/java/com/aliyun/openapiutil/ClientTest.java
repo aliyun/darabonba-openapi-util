@@ -230,4 +230,16 @@ public class ClientTest {
         Map map = (Map) subMapValue.get("Map");
         Assert.assertEquals("string", ((Map) map.get("mapValueTest")).get("MapValueString"));
     }
+
+    @Test
+    public void getEndpointTest() {
+        Assert.assertEquals("cc-internal.abc.com",
+                Client.getEndpoint("cc.abc.com", false, "internal"));
+
+        Assert.assertEquals("oss-accelerate.aliyuncs.com",
+                Client.getEndpoint("", true, "accelerate"));
+
+        Assert.assertEquals("test",
+                Client.getEndpoint("test", true, "test"));
+    }
 }

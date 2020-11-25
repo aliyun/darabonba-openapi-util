@@ -172,3 +172,14 @@ func Test_ParseToMap(t *testing.T) {
 	res = ParseToMap(nil)
 	utils.AssertNil(t, res)
 }
+
+func Test_GetEndpoint(t *testing.T) {
+	endpoint := GetEndpoint(tea.String("common.aliyuncs.com"), tea.Bool(true), tea.String("internal"))
+	utils.AssertEqual(t, "common-internal.aliyuncs.com", tea.StringValue(endpoint))
+
+	endpoint = GetEndpoint(tea.String("common.aliyuncs.com"), tea.Bool(true), tea.String("accelerate"))
+	utils.AssertEqual(t, "oss-accelerate.aliyuncs.com", tea.StringValue(endpoint))
+
+	endpoint = GetEndpoint(tea.String("common.aliyuncs.com"), tea.Bool(true), tea.String(""))
+	utils.AssertEqual(t, "common.aliyuncs.com", tea.StringValue(endpoint))
+}

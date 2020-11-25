@@ -1,3 +1,6 @@
+### 2020-11-25 Version 0.0.3
+* Add get_endpoint.
+
 ### 2020-10-10 Version 0.0.2
 * Add parse_to_map.
 

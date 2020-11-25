@@ -322,4 +322,16 @@ public class Client {
         }
         return (Map<String, Object>) TeaModel.parseObject(o);
     }
+
+    public static String getEndpoint(String endpoint, boolean useAccelerate, String endpointType) {
+        if ("internal".equals(endpointType)) {
+            String[] strs = endpoint.split("\\.");
+            strs[0] += "-internal";
+            endpoint = StringUtils.join(".", Arrays.asList(strs));
+        }
+        if (useAccelerate && "accelerate".equals(endpointType)) {
+            return "oss-accelerate.aliyuncs.com";
+        }
+        return endpoint;
+    }
 }
