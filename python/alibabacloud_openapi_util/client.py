@@ -15,16 +15,17 @@ class Client(object):
     """
     This is for OpenApi Util
     """
+
     @staticmethod
     def convert(body, content):
         """
         Convert all params of body other than type of readable into content
 
-        :param body: source Model
+        @param body: source Model
 
-        :param content: target Model
+        @param content: target Model
 
-        :return: void
+        @return: void
         """
         pros = {}
         body_map = body.to_map()
@@ -66,9 +67,9 @@ class Client(object):
         """
         Get the string to be signed according to request
 
-        :param request:  which contains signed messages
+        @param request:  which contains signed messages
 
-        :return: the signed string
+        @return: the signed string
         """
         method, pathname, headers, query = request.method, request.pathname, request.headers, request.query
 
@@ -88,13 +89,13 @@ class Client(object):
         """
         Get signature according to stringToSign, secret
 
-        :type string_to_sign: str
-        :param string_to_sign:  the signed string
+        @type string_to_sign: str
+        @param string_to_sign:  the signed string
 
-        :type secret: str
-        :param secret: accesskey secret
+        @type secret: str
+        @param secret: accesskey secret
 
-        :return: the signature
+        @return: the signature
         """
         hash_val = hmac.new(secret.encode('utf-8'), string_to_sign.encode('utf-8'), hashlib.sha1).digest()
         signature = base64.b64encode(hash_val).decode('utf-8')
@@ -123,10 +124,10 @@ class Client(object):
         """
         Parse filter into a form string
 
-        :type filter: dict
-        :param filter: object
+        @type filter: dict
+        @param filter: object
 
-        :return: the string
+        @return: the string
         """
         result = {}
         if filter:
@@ -140,7 +141,7 @@ class Client(object):
         """
         Get timestamp
 
-        :return: the timestamp string
+        @return: the timestamp string
         """
         return datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -149,10 +150,10 @@ class Client(object):
         """
         Parse filter into a object which's type is map[string]string
 
-        :type filter: dict
-        :param filter: query param
+        @type filter: dict
+        @param filter: query param
 
-        :return: the object
+        @return: the object
         """
         out_dict = {}
         if filter:
@@ -164,16 +165,16 @@ class Client(object):
         """
         Get signature according to signedParams, method and secret
 
-        :type signed_params: dict
-        :param signed_params: params which need to be signed
+        @type signed_params: dict
+        @param signed_params: params which need to be signed
 
-        :type method: str
-        :param method: http method e.g. GET
+        @type method: str
+        @param method: http method e.g. GET
 
-        :type secret: str
-        :param secret: AccessKeySecret
+        @type secret: str
+        @param secret: AccessKeySecret
 
-        :return: the signature
+        @return: the signature
         """
         queries = signed_params.copy()
         keys = list(queries.keys())
@@ -209,15 +210,15 @@ class Client(object):
         """
         Parse array into a string with specified style
 
-        :type array: any
-        :param array: the array
+        @type array: any
+        @param array: the array
 
-        :type prefix: str
-        :param prefix: the prefix string
+        @type prefix: str
+        @param prefix: the prefix string
 
-        :param style: specified style e.g. repeatList
+        @param style: specified style e.g. repeatList
 
-        :return: the string
+        @return: the string
         """
         if array is None:
             return ''
@@ -280,6 +281,7 @@ class Client(object):
             return result
         elif isinstance(val, TeaModel):
             return val.to_map()
+
     @staticmethod
     def get_endpoint(endpoint, server_use, endpoint_type):
         """
@@ -299,4 +301,3 @@ class Client(object):
             return "oss-accelerate.aliyuncs.com"
 
         return endpoint
-        
