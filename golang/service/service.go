@@ -164,6 +164,19 @@ func GetROASignature(stringToSign *string, secret *string) (_result *string) {
 	return tea.String(signedStr)
 }
 
+func GetEndpoint(endpoint *string, server *bool, endpointType *string) *string {
+	if tea.StringValue(endpointType) == "internal" {
+		strs := strings.Split(tea.StringValue(endpoint), ".")
+		strs[0] += "-internal"
+		endpoint = tea.String(strings.Join(strs, "."))
+	}
+	if tea.BoolValue(server) && tea.StringValue(endpointType) == "accelerate" {
+		return tea.String("oss-accelerate.aliyuncs.com")
+	}
+
+	return endpoint
+}
+
 /**
  * Parse filter into a form string
  * @param filter object

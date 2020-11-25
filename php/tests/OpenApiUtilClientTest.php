@@ -197,6 +197,22 @@ class OpenApiUtilClientTest extends TestCase
         }
     }
 
+    public function testGetEndpoint()
+    {
+        $endpoint      = 'ecs.cn-hangzhou.aliyun.cs.com';
+        $useAccelerate = false;
+        $endpointType  = 'public';
+
+        $this->assertEquals('ecs.cn-hangzhou.aliyun.cs.com', OpenApiUtilClient::getEndpoint($endpoint, $useAccelerate, $endpointType));
+
+        $endpointType = 'internal';
+        $this->assertEquals('ecs-internal.cn-hangzhou.aliyun.cs.com', OpenApiUtilClient::getEndpoint($endpoint, $useAccelerate, $endpointType));
+
+        $useAccelerate = true;
+        $endpointType  = 'accelerate';
+        $this->assertEquals('oss-accelerate.aliyuncs.com', OpenApiUtilClient::getEndpoint($endpoint, $useAccelerate, $endpointType));
+    }
+
     private function parseData()
     {
         return [

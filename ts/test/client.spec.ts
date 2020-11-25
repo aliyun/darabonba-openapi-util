@@ -336,4 +336,15 @@ describe('Tea Util', function () {
     assert.strictEqual('subTest', res['model_dict']['model1']['requestId']);
     assert.strictEqual(2, res['model_dict']['model2']['id']);
   });
+
+  it('getEndpoint should ok', async function () {
+    const endpoint1 = Client.getEndpoint("common.aliyuncs.com", true, "internal")
+    assert.strictEqual("common-internal.aliyuncs.com", endpoint1)
+
+    const endpoint2 = Client.getEndpoint("common.aliyuncs.com", true, "accelerate")
+    assert.strictEqual("oss-accelerate.aliyuncs.com", endpoint2)
+
+    const endpoint3 = Client.getEndpoint("common.aliyuncs.com", true, "")
+    assert.strictEqual("common.aliyuncs.com", endpoint3)
+  });
 });
