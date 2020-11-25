@@ -260,4 +260,3 @@ class TestClient(unittest.TestCase):
         self.assertEqual("test-internal.endpoint", Client.get_endpoint("test.endpoint", False, "internal"))
 
         self.assertEqual("oss-accelerate.aliyuncs.com", Client.get_endpoint("test", True, "accelerate"))
-    
