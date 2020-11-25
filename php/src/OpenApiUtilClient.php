@@ -223,6 +223,20 @@ class OpenApiUtilClient
         return $result;
     }
 
+    public static function getEndpoint($endpoint, $useAccelerate, $endpointType = 'public')
+    {
+        if ('internal' == $endpointType) {
+            $tmp      = explode('.', $endpoint);
+            $tmp[0] .= '-internal';
+            $endpoint = implode('.', $tmp);
+        }
+        if ($useAccelerate && 'accelerate' == $endpointType) {
+            return 'oss-accelerate.aliyuncs.com';
+        }
+
+        return $endpoint;
+    }
+
     private static function getRpcStrToSign($method, $query)
     {
         ksort($query);
@@ -335,19 +349,5 @@ class OpenApiUtilClient
     private static function filter($str)
     {
         return str_replace(["\t", "\n", "\r", "\f"], '', $str);
-    }
-
-    public static function getEndpoint($endpoint, $useAccelerate, $endpointType = 'public')
-    {
-        if ('internal' == $endpointType) {
-            $tmp      = explode('.', $endpoint);
-            $tmp[0]   .= '-internal';
-            $endpoint = implode('.', $tmp);
-        }
-        if ($useAccelerate && 'accelerate' == $endpointType) {
-            return 'oss-accelerate.aliyuncs.com';
-        }
-
-        return $endpoint;
     }
 }
