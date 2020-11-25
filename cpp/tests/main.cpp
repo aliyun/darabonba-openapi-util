@@ -9,8 +9,7 @@ int main(int argc, char **argv) {
   return RUN_ALL_TESTS();
 }
 
-class TestCoverModel: public Darabonba::Model
-{
+class TestCoverModel : public Darabonba::Model {
 public:
   shared_ptr<string> requestId;
   shared_ptr<int> num;
@@ -30,7 +29,7 @@ public:
     return mp;
   }
 
-  void fromMap(map<string, boost::any> m) override{
+  void fromMap(map<string, boost::any> m) override {
     if (m.find("requestId") != m.end()) {
       requestId = make_shared<string>(boost::any_cast<string>(m["requestId"]));
     }
@@ -43,12 +42,10 @@ public:
       stream = make_shared<Darabonba::Stream>(boost::any_cast<Darabonba::Stream>(m["stream"]));
     }
   };
-  void validate() override{};
+  void validate() override {};
 };
 
-
-TEST(tests_Client, test_convert)
-{
+TEST(tests_Client, test_convert) {
   shared_ptr<TestCoverModel> model1(new TestCoverModel());
   shared_ptr<TestCoverModel> model2(new TestCoverModel());
   model1->requestId = make_shared<string>("req001x");
@@ -63,8 +60,7 @@ TEST(tests_Client, test_convert)
   ASSERT_TRUE(!model2->stream);
 }
 
-TEST(tests_Client, test_getStringToSign)
-{
+TEST(tests_Client, test_getStringToSign) {
   shared_ptr<Darabonba::Request> request(new Darabonba::Request());
   request->method = "POST";
   request->query = {
@@ -101,8 +97,7 @@ TEST(tests_Client, test_getStringToSign)
 
 }
 
-TEST(tests_Client, test_getROASignature)
-{
+TEST(tests_Client, test_getROASignature) {
   shared_ptr<Darabonba::Request> request(new Darabonba::Request());
   string string_to_sign = Alibabacloud_OpenApiUtil::Client::getStringToSign(request);
   ASSERT_EQ("GET\n\n\n\n\n", string_to_sign);
@@ -114,31 +109,30 @@ TEST(tests_Client, test_getROASignature)
   ASSERT_EQ("XGXDWA78AEvx/wmfxKoVCq/afWw=", signature);
 }
 
-TEST(tests_Client, test_toForm)
-{
+TEST(tests_Client, test_toForm) {
   shared_ptr<map<string, boost::any>> filter(new map<string, boost::any>({
-    {"client", string("test")},
-    {"client1", boost::any()},
-    {"strs", vector<boost::any>({"str1", "str2"})},
-    {"tag", map<string, boost::any>({{"key", "value"}})},
-  }));
+                                                                             {"client", string("test")},
+                                                                             {"client1", boost::any()},
+                                                                             {"strs",
+                                                                              vector<boost::any>({"str1", "str2"})},
+                                                                             {"tag", map<string, boost::any>({{"key",
+                                                                                                               "value"}})},
+                                                                         }));
   string result = Alibabacloud_OpenApiUtil::Client::toForm(filter);
   ASSERT_EQ("client=test&strs.1=str1&strs.2=str2&tag.key=value",
             result);
 }
 
-TEST(tests_Client, test_getTimestamp)
-{
+TEST(tests_Client, test_getTimestamp) {
   ASSERT_EQ(20, Alibabacloud_OpenApiUtil::Client::getTimestamp().size());
 }
 
-TEST(tests_Client, test_query)
-{
+TEST(tests_Client, test_query) {
   shared_ptr<map<string, boost::any>> filter(new map<string, boost::any>({
-       {"str_test", string("test")},
-       {"none_test", boost::any()},
-       {"int_test", 1}
-   }));
+                                                                             {"str_test", string("test")},
+                                                                             {"none_test", boost::any()},
+                                                                             {"int_test", 1}
+                                                                         }));
   map<string, string> result = Alibabacloud_OpenApiUtil::Client::query(filter);
   ASSERT_EQ("test", result["str_test"]);
   ASSERT_TRUE(result["none_test"].empty());
@@ -146,10 +140,10 @@ TEST(tests_Client, test_query)
 
   vector<boost::any> fl = {1, boost::any()};
   map<string, boost::any> sub_map_fl = {
-       {"str_test", string("test")},
-       {"none_test", boost::any()},
-       {"int_test", 2}
-   };
+      {"str_test", string("test")},
+      {"none_test", boost::any()},
+      {"int_test", 2}
+  };
   fl.push_back(sub_map_fl);
   vector<boost::any> sl = {1, boost::any()};
   fl.push_back(sl);
@@ -186,8 +180,7 @@ TEST(tests_Client, test_query)
   ASSERT_EQ("test", result2["map.first_map_map.str_test"]);
 }
 
-TEST(tests_Client, test_getRPCSignature)
-{
+TEST(tests_Client, test_getRPCSignature) {
   map<string, string> query = {
       {"query", "test"},
       {"body", "test"}
@@ -195,13 +188,12 @@ TEST(tests_Client, test_getRPCSignature)
   string signature = Alibabacloud_OpenApiUtil::Client::getRPCSignature(
       make_shared<map<string, string>>(query),
       make_shared<string>("GET"),
-          make_shared<string>("secret")
-      );
+      make_shared<string>("secret")
+  );
   ASSERT_EQ("XlUyV4sXjOuX5FnjUz9IF9tm5rU=", signature);
 }
 
-TEST(tests_Client, test_arrayToStringWithSpecifiedStyle)
-{
+TEST(tests_Client, test_arrayToStringWithSpecifiedStyle) {
   shared_ptr<vector<boost::any>> empty_ptr;
   vector<boost::any> array = {"ok", "test", 2, 3};
   shared_ptr<string> prefix(new string("instance"));
@@ -254,4 +246,83 @@ TEST(tests_Client, test_arrayToStringWithSpecifiedStyle)
   ASSERT_EQ("ok|test|2|3", t5);
   ASSERT_EQ("", t6);
   ASSERT_EQ("", t7);
+}
+
+TEST(tests, getEndpoint) {
+  shared_ptr<string> endpoint(new string("ecs.cn-hangzhou.aliyuncs.com"));
+  shared_ptr<bool> serverUse(new bool(false));
+  shared_ptr<string> endpointType(new string("public"));
+
+  ASSERT_EQ(string("ecs.cn-hangzhou.aliyuncs.com"),
+            Alibabacloud_OpenApiUtil::Client::getEndpoint(endpoint, serverUse, endpointType));
+  *endpointType = "internal";
+  ASSERT_EQ(string("ecs-internal.cn-hangzhou.aliyuncs.com"),
+            Alibabacloud_OpenApiUtil::Client::getEndpoint(endpoint, serverUse, endpointType));
+  *serverUse = true;
+  *endpointType = "accelerate";
+  ASSERT_EQ(string("oss-accelerate.aliyuncs.com"),
+            Alibabacloud_OpenApiUtil::Client::getEndpoint(endpoint, serverUse, endpointType));
+}
+
+class MockModel : public Darabonba::Model {
+public:
+  MockModel() {}
+  explicit MockModel(const std::map<string, boost::any> &config)
+      : Darabonba::Model(config) {
+    fromMap(config);
+  };
+
+  void validate() override {}
+
+  map<string, boost::any> toMap() override {
+    map<string, boost::any> res;
+    if (headers) {
+      res["headers"] = boost::any(*headers);
+    }
+    if (query) {
+      res["query"] = boost::any(*query);
+    }
+    if (body) {
+      res["body"] = boost::any(*body);
+    }
+    return res;
+  }
+
+  void fromMap(map<string, boost::any> m) override {
+    if (m.find("headers") != m.end()) {
+      map<string, string> map1 =
+          boost::any_cast<map<string, string>>(m["headers"]);
+      map<string, string> toMap1;
+      for (auto item : map1) {
+        toMap1[item.first] = item.second;
+      }
+      headers = make_shared<map<string, string>>(toMap1);
+    }
+    if (m.find("query") != m.end()) {
+      map<string, string> map1 =
+          boost::any_cast<map<string, string>>(m["query"]);
+      map<string, string> toMap1;
+      for (auto item : map1) {
+        toMap1[item.first] = item.second;
+      }
+      query = make_shared<map<string, string>>(toMap1);
+    }
+    if (m.find("body") != m.end()) {
+      body = make_shared<boost::any>(boost::any_cast<boost::any>(m["body"]));
+    }
+  }
+
+  shared_ptr<map<string, string>> headers{};
+  shared_ptr<map<string, string>> query{};
+  shared_ptr<boost::any> body{};
+
+  virtual ~MockModel() = default;
+};
+
+TEST(tests, parseToMap) {
+  shared_ptr<MockModel> m = make_shared<MockModel>();
+  m->headers = make_shared<map<string, string>>(map<string, string>({{"foo", "bar"}}));
+  map<string, boost::any> msa = Alibabacloud_OpenApiUtil::Client::parseToMap(m);
+  map<string, string> headers = boost::any_cast<map<string, string>>(msa["headers"]);
+  ASSERT_EQ(string("bar"), headers["foo"]);
 }

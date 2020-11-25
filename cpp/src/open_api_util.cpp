@@ -1,21 +1,19 @@
-// This file is auto-generated, don't edit it. Thanks.
-
+#include "crypt/base64.h"
+#include "crypt/hmac.h"
+#include "crypt/sha1.h"
 #include <alibabacloud/open_api_util.hpp>
-#include <boost/any.hpp>
-#include <boost/throw_exception.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/any.hpp>
 #include <darabonba/core.hpp>
 #include <darabonba/util.hpp>
 #include <iostream>
 #include <map>
-#include "crypt/hmac.h"
-#include "crypt/sha1.h"
-#include "crypt/base64.h"
 
 using namespace std;
 using namespace Alibabacloud_OpenApiUtil;
 
-void Alibabacloud_OpenApiUtil::Client::convert(shared_ptr<Darabonba::Model> body, shared_ptr<Darabonba::Model> content) {
+void Alibabacloud_OpenApiUtil::Client::convert(
+    shared_ptr<Darabonba::Model> body, shared_ptr<Darabonba::Model> content) {
   map<string, boost::any> props;
   map<std::string, boost::any> properties = body->toMap();
   for (const auto &it : properties) {
@@ -28,7 +26,7 @@ void Alibabacloud_OpenApiUtil::Client::convert(shared_ptr<Darabonba::Model> body
 
 string get_canonicalized_headers(map<string, string> headers) {
   string canon_header;
-  for (const auto& i : headers) {
+  for (const auto &i : headers) {
     if (boost::starts_with(i.first, "x-acs-")) {
       canon_header.append(i.first).append(":").append(i.second).append("\n");
     }
@@ -41,17 +39,18 @@ string get_canonicalized_resource(string pathname, map<string, string> query) {
     return pathname;
   }
   string resource = pathname + "?";
-  for (const auto& i : query) {
+  for (const auto &i : query) {
     if (i.second.empty()) {
       resource.append(i.first).append("&");
     } else {
       resource.append(i.first).append("=").append(i.second).append("&");
     }
   }
-  return resource.substr(0, resource.size() -1);
+  return resource.substr(0, resource.size() - 1);
 }
 
-string Alibabacloud_OpenApiUtil::Client::getStringToSign(shared_ptr<Darabonba::Request> request) {
+string Alibabacloud_OpenApiUtil::Client::getStringToSign(
+    shared_ptr<Darabonba::Request> request) {
   if (!request) {
     return "";
   }
@@ -65,13 +64,23 @@ string Alibabacloud_OpenApiUtil::Client::getStringToSign(shared_ptr<Darabonba::R
   string date = headers["date"];
 
   string sign_str;
-  sign_str.append(method).append("\n").append(accept).append("\n").append(content_md5)
-  .append("\n").append(content_type).append("\n").append(date).append("\n");
+  sign_str.append(method)
+      .append("\n")
+      .append(accept)
+      .append("\n")
+      .append(content_md5)
+      .append("\n")
+      .append(content_type)
+      .append("\n")
+      .append(date)
+      .append("\n");
 
-  return sign_str.append(get_canonicalized_headers(headers)).append(get_canonicalized_resource(pathname, query));
+  return sign_str.append(get_canonicalized_headers(headers))
+      .append(get_canonicalized_resource(pathname, query));
 }
 
-string Alibabacloud_OpenApiUtil::Client::getROASignature(shared_ptr<string> stringToSign, shared_ptr<string> secret) {
+string Alibabacloud_OpenApiUtil::Client::getROASignature(
+    shared_ptr<string> stringToSign, shared_ptr<string> secret) {
   boost::uint8_t hash_val[sha1::HASH_SIZE];
   hmac<sha1>::calc(*stringToSign, *secret, hash_val);
   return base64::encode_from_array(hash_val, sha1::HASH_SIZE);
@@ -132,7 +141,8 @@ void flatten(map<string, string> &res, std::string prefix, boost::any curr) {
   }
 }
 
-string Alibabacloud_OpenApiUtil::Client::toForm(shared_ptr<map<string, boost::any>> filter) {
+string Alibabacloud_OpenApiUtil::Client::toForm(
+    shared_ptr<map<string, boost::any>> filter) {
   if (!filter) {
     return "";
   }
@@ -145,9 +155,8 @@ string Alibabacloud_OpenApiUtil::Client::toForm(shared_ptr<map<string, boost::an
 
   return Darabonba_Util::Client::toFormString(
       make_shared<map<string, boost::any>>(
-        Darabonba_Util::Client::anyifyMapValue(make_shared<map<string, string>>(res))
-      )
-  );
+          Darabonba_Util::Client::anyifyMapValue(
+              make_shared<map<string, string>>(res))));
 }
 
 string Alibabacloud_OpenApiUtil::Client::getTimestamp() {
@@ -157,7 +166,8 @@ string Alibabacloud_OpenApiUtil::Client::getTimestamp() {
   return buf;
 }
 
-map<string, string> Alibabacloud_OpenApiUtil::Client::query(shared_ptr<map<string, boost::any>> filter) {
+map<string, string> Alibabacloud_OpenApiUtil::Client::query(
+    shared_ptr<map<string, boost::any>> filter) {
   if (!filter) {
     return map<string, string>();
   }
@@ -176,7 +186,6 @@ string uppercase(string str) {
                  [](unsigned char c) { return std::toupper(c); });
   return str;
 }
-
 
 string url_encode(const std::string &str) {
   std::stringstream escaped;
@@ -216,8 +225,8 @@ std::string strToSign(std::string method, const map<string, string> &query) {
   for (const auto &it : query) {
     std::string s;
     s = s.append(url_encode(it.first))
-        .append("=")
-        .append(url_encode(it.second));
+            .append("=")
+            .append(url_encode(it.second));
     tmp.push_back(s);
   }
   std::string str = implode(tmp, "&");
@@ -227,7 +236,9 @@ std::string strToSign(std::string method, const map<string, string> &query) {
       .append(url_encode(str));
 }
 
-string Alibabacloud_OpenApiUtil::Client::getRPCSignature(shared_ptr<map<string, string>> signedParams, shared_ptr<string> method, shared_ptr<string> secret) {
+string Alibabacloud_OpenApiUtil::Client::getRPCSignature(
+    shared_ptr<map<string, string>> signedParams, shared_ptr<string> method,
+    shared_ptr<string> secret) {
   map<string, string> sp;
   if (!signedParams) {
     sp = map<string, string>();
@@ -246,13 +257,11 @@ string Alibabacloud_OpenApiUtil::Client::getRPCSignature(shared_ptr<map<string, 
 
 string flat_repeat_vec(vector<boost::any> arr, string prefix) {
   map<string, string> flat;
-  map<string, boost::any> m = {
-      {prefix, arr}
-  };
+  map<string, boost::any> m = {{prefix, arr}};
   flatten(flat, string(""), boost::any(m));
 
   vector<string> vec;
-  for (const auto& i : flat) {
+  for (const auto &i : flat) {
     vec.push_back(url_encode(i.first) + "=" + url_encode(i.second));
   }
   return boost::join(vec, "&&");
@@ -282,10 +291,13 @@ string flat_vec(vector<boost::any> arr, string sep) {
   return boost::join(str_arr, sep);
 }
 
-string Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(const boost::any &array, shared_ptr<string> prefix, shared_ptr<string> style) {
+string Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
+    const boost::any &array, shared_ptr<string> prefix,
+    shared_ptr<string> style) {
   string result;
   if (typeid(shared_ptr<vector<boost::any>>) == array.type()) {
-    shared_ptr<vector<boost::any>> vec_ptr = boost::any_cast<shared_ptr<vector<boost::any>>>(array);
+    shared_ptr<vector<boost::any>> vec_ptr =
+        boost::any_cast<shared_ptr<vector<boost::any>>>(array);
     if (!style || !vec_ptr) {
       return result;
     }
@@ -295,13 +307,59 @@ string Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(const b
     } else if (*style == "simple") {
       return result = flat_vec(*vec_ptr, ",");
     } else if (*style == "spaceDelimited") {
-      return result = flat_vec(*vec_ptr, " ");;
+      return result = flat_vec(*vec_ptr, " ");
+      ;
     } else if (*style == "pipeDelimited") {
-      return result = flat_vec(*vec_ptr, "|");;
+      return result = flat_vec(*vec_ptr, "|");
+      ;
     } else if (*style == "json") {
       return result = Darabonba_Util::Client::toJSONString(array);
     }
     return result;
   }
+  return "";
 }
 
+std::vector<std::string> explode(const std::string &str,
+                                 const std::string &delimiter) {
+  int pos = str.find(delimiter, 0);
+  int pos_start = 0;
+  int split_n = pos;
+  string line_text(delimiter);
+
+  std::vector<std::string> dest;
+
+  while (pos > -1) {
+    line_text = str.substr(pos_start, split_n);
+    pos_start = pos + 1;
+    pos = str.find(delimiter, pos + 1);
+    split_n = pos - pos_start;
+    dest.push_back(line_text);
+  }
+  line_text = str.substr(pos_start, str.length() - pos_start);
+  dest.push_back(line_text);
+  return dest;
+}
+
+string
+Alibabacloud_OpenApiUtil::Client::getEndpoint(shared_ptr<string> endpoint,
+                                              shared_ptr<bool> serverUse,
+                                              shared_ptr<string> endpointType) {
+  string e = !endpoint ? "" : *endpoint;
+  bool s;
+  if (!serverUse) {
+    s = false;
+  } else {
+    s = *serverUse;
+  }
+  string et = !endpointType ? "" : *endpointType;
+  if (et == string("internal")) {
+    std::vector<std::string> tmp = explode(e, ".");
+    tmp.at(0) = tmp.at(0).append("-internal");
+    e = implode(tmp, ".");
+  }
+  if (s && et == string("accelerate")) {
+    e = "oss-accelerate.aliyuncs.com";
+  }
+  return e;
+}
