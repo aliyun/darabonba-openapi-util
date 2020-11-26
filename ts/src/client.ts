@@ -290,7 +290,7 @@ export default class Client {
    * @style specified style e.g. repeatList
    * @return the string
    */
-  static arrayToStringWithSpecifiedStyle(array: any[], prefix: string, style: string): string {
+  static arrayToStringWithSpecifiedStyle(array: any, prefix: string, style: string): string {
     if (!array) {
       return '';
     }
