@@ -129,6 +129,9 @@ public class Client {
      * @return the signature
      */
     public static String getROASignature(String stringToSign, String secret) throws Exception {
+        if (StringUtils.isEmpty(secret)) {
+            return secret;
+        }
         Mac mac = Mac.getInstance("HmacSHA1");
         mac.init(new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA1"));
         byte[] signData = mac.doFinal(stringToSign.getBytes("UTF-8"));
@@ -142,7 +145,7 @@ public class Client {
      * @return the string
      */
     public static String toForm(java.util.Map<String, ?> filter) throws Exception {
-       return toFormWithSymbol(filter, "&");
+        return toFormWithSymbol(filter, "&");
     }
 
     private static String toFormWithSymbol(java.util.Map<String, ?> filter, String symbol) throws Exception {
@@ -226,6 +229,9 @@ public class Client {
      * @return the signature
      */
     public static String getRPCSignature(java.util.Map<String, String> signedParams, String method, String secret) throws Exception {
+        if (StringUtils.isEmpty(secret)) {
+            return secret;
+        }
         Map<String, String> queries = signedParams;
         String[] sortedKeys = queries.keySet().toArray(new String[]{});
         Arrays.sort(sortedKeys);
@@ -290,7 +296,7 @@ public class Client {
                     if (TeaModel.class.isAssignableFrom(list.get(0).getClass())) {
                         List<TeaModel> teaModels = (List<TeaModel>) array;
                         List<Map<String, Object>> mapList = new ArrayList<>();
-                        for (TeaModel teaModel: teaModels) {
+                        for (TeaModel teaModel : teaModels) {
                             mapList.add(teaModel.toMap());
                         }
                         return new Gson().toJson(mapList);
@@ -316,7 +322,7 @@ public class Client {
         }
     }
 
-    public static Map<String, Object> parseToMap(Object o){
+    public static Map<String, Object> parseToMap(Object o) {
         if (null == o) {
             return null;
         }
