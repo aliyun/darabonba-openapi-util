@@ -6,13 +6,23 @@ package service
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/hmac"
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
+	"errors"
 	"fmt"
 	"hash"
 	"io"
+	"net/http"
+	"net/textproto"
 	"net/url"
 	"reflect"
 	"sort"
@@ -22,6 +32,12 @@ import (
 
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/tjfoc/gmsm/sm3"
+)
+
+const (
+	PEM_BEGIN = "-----BEGIN RSA PRIVATE KEY-----\n"
+	PEM_END   = "\n-----END RSA PRIVATE KEY-----"
 )
 
 type Sorter struct {
@@ -175,6 +191,163 @@ func GetEndpoint(endpoint *string, server *bool, endpointType *string) *string {
 	}
 
 	return endpoint
+}
+
+func HexEncode(raw []byte) *string {
+	return tea.String(hex.EncodeToString(raw))
+}
+
+func Hash(raw []byte, signatureAlgorithm *string) []byte {
+	signType := tea.StringValue(signatureAlgorithm)
+	if signType == "ACS3-HMAC-SHA256" || signType == "ACS3-RSA-SHA256" {
+		h := sha256.New()
+		h.Write(raw)
+		return h.Sum(nil)
+	} else if signType == "ACS3-HMAC-SM3" {
+		h := sm3.New()
+		h.Write(raw)
+		return h.Sum(nil)
+	}
+	return nil
+}
+
+func GetEncodePath(path *string) *string {
+	uri := tea.StringValue(path)
+	strs := strings.Split(uri, "/")
+	for i, v := range strs {
+		strs[i] = url.PathEscape(v)
+	}
+	uri = strings.Join(strs, "/")
+	return tea.String(uri)
+}
+
+func GetAuthorization(request *tea.Request, signatureAlgorithm, payload, acesskey, secret *string) *string {
+	canonicalURI := tea.StringValue(request.Pathname)
+	canonicalURI = strings.Replace(canonicalURI, "+", "%20", -1)
+	canonicalURI = strings.Replace(canonicalURI, "*", "%2A", -1)
+	canonicalURI = strings.Replace(canonicalURI, "%7E", "~", -1)
+
+	method := tea.StringValue(request.Method)
+	canonicalQueryString := getCanonicalQueryString(request.Query)
+	canonicalheaders, signedHeaders := getCanonicalHeaders(request.Headers)
+
+	canonicalRequest := method + "\n" + canonicalURI + "\n" + canonicalQueryString + "\n" + canonicalheaders + "\n" +
+		strings.Join(signedHeaders, ";") + "\n" + tea.StringValue(payload)
+
+	signType := tea.StringValue(signatureAlgorithm)
+	StringToSign := signType + "\n" + tea.StringValue(HexEncode(Hash([]byte(canonicalRequest), signatureAlgorithm)))
+	signature := tea.StringValue(HexEncode(SignatureMethod(tea.StringValue(secret), StringToSign, signType)))
+	auth := signType + " Credential=" + tea.StringValue(acesskey) + ",SignedHeaders=" +
+		strings.Join(signedHeaders, ";") + ",Signature=" + signature
+	return tea.String(auth)
+}
+
+func SignatureMethod(secret, source, signatureAlgorithm string) []byte {
+	if signatureAlgorithm == "ACS3-HMAC-SHA256" {
+		h := hmac.New(sha256.New, []byte(secret))
+		h.Write([]byte(source))
+		return h.Sum(nil)
+	} else if signatureAlgorithm == "ACS3-HMAC-SM3" {
+		h := hmac.New(sm3.New, []byte(secret))
+		h.Write([]byte(source))
+		return h.Sum(nil)
+	} else if signatureAlgorithm == "ACS3-RSA-SHA256" {
+		return rsaSign(source, secret)
+	}
+	return nil
+}
+
+func rsaSign(content, secret string) []byte {
+	h := crypto.SHA256.New()
+	h.Write([]byte(content))
+	hashed := h.Sum(nil)
+	priv, err := parsePrivateKey(secret)
+	if err != nil {
+		return nil
+	}
+	sign, err := rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, hashed)
+	if err != nil {
+		return nil
+	}
+	return sign
+}
+
+func parsePrivateKey(privateKey string) (*rsa.PrivateKey, error) {
+	privateKey = formatPrivateKey(privateKey)
+	block, _ := pem.Decode([]byte(privateKey))
+	if block == nil {
+		return nil, errors.New("PrivateKey is invalid")
+	}
+	priKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	switch priKey.(type) {
+	case *rsa.PrivateKey:
+		return priKey.(*rsa.PrivateKey), nil
+	default:
+		return nil, nil
+	}
+}
+
+func formatPrivateKey(privateKey string) string {
+	if !strings.HasPrefix(privateKey, PEM_BEGIN) {
+		privateKey = PEM_BEGIN + privateKey
+	}
+
+	if !strings.HasSuffix(privateKey, PEM_END) {
+		privateKey += PEM_END
+	}
+	return privateKey
+}
+
+func getCanonicalHeaders(headers map[string]*string) (string, []string) {
+	tmp := make(map[string]string)
+	tmpHeader := http.Header{}
+	for k, v := range headers {
+		if strings.HasPrefix(strings.ToLower(k), "x-acs-") || strings.ToLower(k) == "host" ||
+			strings.ToLower(k) == "content-type" {
+			tmp[strings.ToLower(k)] = strings.TrimSpace(tea.StringValue(v))
+			tmpHeader.Add(strings.ToLower(k), strings.TrimSpace(tea.StringValue(v)))
+		}
+	}
+	hs := newSorter(tmp)
+
+	// Sort the temp by the ascending order
+	hs.Sort()
+	canonicalheaders := ""
+	for _, key := range hs.Keys {
+		vals := tmpHeader[textproto.CanonicalMIMEHeaderKey(key)]
+		sort.Strings(vals)
+		canonicalheaders += key + ":" + strings.Join(vals, ",") + "\n"
+	}
+
+	return canonicalheaders, hs.Keys
+}
+
+func getCanonicalQueryString(query map[string]*string) string {
+	tmp := make(map[string]string)
+	for k, v := range query {
+		tmp[k] = tea.StringValue(v)
+	}
+
+	hs := newSorter(tmp)
+
+	// Sort the temp by the ascending order
+	hs.Sort()
+	canonicalQueryString := ""
+	for i := range hs.Keys {
+		if hs.Vals[i] != "" {
+			canonicalQueryString += "&" + hs.Keys[i] + "=" + url.QueryEscape(hs.Vals[i])
+		} else {
+			canonicalQueryString += "&" + hs.Keys[i]
+		}
+	}
+
+	if canonicalQueryString != "" {
+		canonicalQueryString = strings.TrimLeft(canonicalQueryString, "&")
+	}
+	return canonicalQueryString
 }
 
 /**
