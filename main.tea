@@ -77,3 +77,36 @@ static function parseToMap(input: any): map[string]any;
  * @return the final endpoint
  */
 static function getEndpoint(endpoint: string, serverUse: boolean, endpointType: string): string;
+
+/**
+ * Encode raw with base16
+ * @param raw encoding data
+ * @return encoded string
+ */
+static function hexEncode(raw: bytes): string;
+
+/**
+ * Hash the raw data with signatureAlgorithm
+ * @param raw hashing data
+ * @param signatureAlgorithm the autograph method
+ * @return hashed bytes
+ */
+static function hash(raw: bytes, signatureAlgorithm: string): bytes;
+
+/**
+ * Get the authorization 
+ * @param request request params
+ * @param signatureAlgorithm the autograph method
+ * @param payload the hashed request
+ * @param acesskey the acesskey string
+ * @param accessKeySecret the accessKeySecret string
+ * @return authorization string
+ */
+static function getAuthorization(request: $Request, signatureAlgorithm: string, payload: string, acesskey: string, accessKeySecret: string): string;
+
+/**
+ * Get encoded path
+ * @param path the raw path
+ * @return encoded path
+ */
+static function getEncodePath(path: string): string;
