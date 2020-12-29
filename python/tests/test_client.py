@@ -1,7 +1,8 @@
 import unittest
 import os
+import binascii
 
-from alibabacloud_openapi_util.client import Client
+from alibabacloud_openapi_util.client import Client, signature_method
 from Tea.request import TeaRequest
 from Tea.model import TeaModel
 
@@ -260,3 +261,97 @@ class TestClient(unittest.TestCase):
         self.assertEqual("test-internal.endpoint", Client.get_endpoint("test.endpoint", False, "internal"))
 
         self.assertEqual("oss-accelerate.aliyuncs.com", Client.get_endpoint("test", True, "accelerate"))
+
+    def test_hex_encode(self):
+        # ACS3 - HMAC - SHA256
+        res = Client.hex_encode(
+            Client.hash(b'test', 'ACS3-HMAC-SHA256')
+        )
+        self.assertEqual(
+            '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            res
+        )
+        # ACS3 - RSA - SHA256
+        res = Client.hex_encode(
+            Client.hash(b'test', 'ACS3-RSA-SHA256')
+        )
+        self.assertEqual(
+            '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            res
+        )
+        # ACS3 - HMAC - SM3
+        res = Client.hex_encode(
+            Client.hash(b'test', 'ACS3-HMAC-SM3')
+        )
+        self.assertEqual(
+            '55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23',
+            res
+        )
+
+        res = Client.hex_encode(
+            Client.hash(b'test', 'ACS3-SHA256')
+        )
+        self.assertEqual(
+            None,
+            res
+        )
+
+    def test_get_authorization(self):
+        # request method is 'GET'
+        request = TeaRequest()
+        request.query = {
+            'test': 'ok',
+            'empty': ''
+        }
+        request.headers = {
+            'x-acs-test': 'http',
+            'x-acs-TEST': 'https'
+        }
+
+        res = Client.get_authorization(
+            request,
+            'ACS3-HMAC-SHA256',
+            '55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23',
+            'acesskey',
+            'secret'
+        )
+        self.assertEqual(
+            'ACS3-HMAC-SHA256 Credential=acesskey,SignedHea'
+            'ders=x-acs-test,Signature=da772425f29289d3460d5fc961455d40c5e8c6afd0888b78a910c991e6a14846',
+            res
+        )
+
+    def test_get_encode_path(self):
+        res = Client.get_encode_path('/path/ test')
+        self.assertEqual('/path/%20test', res)
+
+    def test_signature_method(self):
+        pri_key = '-----BEGIN RSA PRIVATE KEY-----\nMIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAo' \
+                  'GBAKzSQmrnH0YnezZ98NK50WjMuci0hgGVcSthIZOTWMIy' \
+                  'SznY9Jj1hlvek7W0uYagtFHz03BHQnHAb5Xs0DZm0Sj9+5' \
+                  'r79GggwEzTJDYEsLyFwXM3ZOIxqxL4sRg94MHsa81M9NXG' \
+                  'HMyMvvffQTn1OBVLTVz5jgJ48foMn7j7r9kRAgMBAAECgY' \
+                  'EAnZppw3/ef2XF8Z3Mnv+iP0ZkLuqiQpN8TykXK7P1/7NJ' \
+                  '8wktlshhrSo/3jdf8axghVQsgHob2Ay8Nidugg4lsxILAU' \
+                  'BHvfQsQp1MAWvxslsVj+ddw01MQnt8kHmC/qhok+YuNqqA' \
+                  'GBcoD6cthRUjEri6hfs599EfPs2DcWW06qECQQDfNqUUhc' \
+                  'DQ/SQHRhfY9UIlaSEs2CVagDrSYFG1wyG+PXDSMes9ZRHs' \
+                  'vVVBmNGmtUTg/jioTU3yuPsis5s9ppbVAkEAxjTAQxv5lBB' \
+                  'm/ikMTzPShljxDZnXh6lKWG9gR1p5fKoQTzLyyhHzkBSFe' \
+                  '848sMm68HWCX2wgIpQLHj0GccYPTQJAduMKBeY/jpBlkiI' \
+                  '5LWtj8b0O2G2/Z3aI3ehDXQYzgLoEz0+bNbYRWAB32lpkv' \
+                  '+AocZW1455Y+ACichcrhiimiQJAW/6L5hoL4u8h/oFq1zAE' \
+                  'XJrXdyqaYLrwaM947mVN0dDVNQ0+pw9h7tO3iNkWTi+zdnv' \
+                  '0APociDASYPyOCyyUWQJACMNRM1/rboXuKfMmVjmmz0XhaD' \
+                  'UC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOnY' \
+                  'sx+1cwXO5cuZg==\n-----END RSA PRIVATE KEY-----'
+        res = signature_method("secret", "source", "ACS3-HMAC-SM3")
+        self.assertEqual(b'b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8', binascii.b2a_hex(res))
+
+        res = signature_method(pri_key, "source", "ACS3-RSA-SHA256")
+        self.assertEqual(b'a00b88ae04f651a8ab645e724949ff435bbb2cf9a'
+                         b'37aa54323024477f8031f4e13dc948484c5c5a81ba'
+                         b'53a55eb0571dffccc1e953c93269d6da23ed319e0f'
+                         b'1ef699bcc9823a646574628ae1b70ed569b5a07d13'
+                         b'9dda28996b5b9231f5ba96141f0893deec2fbf54a0'
+                         b'fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12', binascii.b2a_hex(res))

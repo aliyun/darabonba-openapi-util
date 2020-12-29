@@ -1,14 +1,90 @@
 # -*- coding: utf-8 -*-
+import binascii
 import datetime
 import hashlib
 import hmac
 import base64
 import copy
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
 from urllib.parse import quote_plus, quote
 
+from .sm3 import hash_sm3, Sm3
 from alibabacloud_tea_util.client import Client as Util
 from Tea.stream import STREAM_CLASS
 from Tea.model import TeaModel
+
+
+def to_str(val):
+    if val is None:
+        return val
+
+    if isinstance(val, bytes):
+        return str(val, encoding='utf-8')
+    else:
+        return str(val)
+
+
+def rsa_sign(plaintext, secret):
+    if not secret.startswith(b'-----BEGIN RSA PRIVATE KEY-----'):
+        secret = b'-----BEGIN RSA PRIVATE KEY-----\n%s' % secret
+    if not secret.endswith(b'-----END RSA PRIVATE KEY-----'):
+        secret = b'%s\n-----END RSA PRIVATE KEY-----' % secret
+
+    key = load_pem_private_key(secret, password=None, backend=default_backend())
+    return key.sign(plaintext, padding.PKCS1v15(), hashes.SHA256())
+
+
+def signature_method(secret, source, sign_type):
+    source = source.encode('utf-8')
+    secret = secret.encode('utf-8')
+    if sign_type == 'ACS3-HMAC-SHA256':
+        return hmac.new(secret, source, hashlib.sha256).digest()
+    elif sign_type == 'ACS3-HMAC-SM3':
+        return hmac.new(secret, source, Sm3).digest()
+    elif sign_type == 'ACS3-RSA-SHA256':
+        return rsa_sign(source, secret)
+
+
+def get_canonical_query_string(query):
+    canon_keys = []
+    for k, v in query.items():
+        if v is not None:
+            canon_keys.append(k)
+
+    canon_keys.sort()
+    query_string = ''
+    for key in canon_keys:
+        value = quote(query[key], safe='/~', encoding='utf-8')
+        if value == '':
+            s = f'{key}&'
+        else:
+            s = f'{key}={value}&'
+        query_string += s
+    return query_string[:-1]
+
+
+def get_canonicalized_headers(headers):
+    canon_keys = []
+    tmp_headers = {}
+    for k, v in headers.items():
+        if v is not None:
+            if k.lower() not in canon_keys:
+                canon_keys.append(k.lower())
+                tmp_headers[k.lower()] = [to_str(v).strip()]
+            else:
+                tmp_headers[k.lower()].append(to_str(v).strip())
+
+    canon_keys.sort()
+    canonical_headers = ''
+    for key in canon_keys:
+        header_entry = ','.join(sorted(tmp_headers[key]))
+        s = f'{key}:{header_entry}\n'
+        canonical_headers += s
+    return canonical_headers, ';'.join(canon_keys)
 
 
 class Client(object):
@@ -301,3 +377,37 @@ class Client(object):
             return "oss-accelerate.aliyuncs.com"
 
         return endpoint
+
+    @staticmethod
+    def hash(raw, sign_type):
+        if sign_type == 'ACS3-HMAC-SHA256' or sign_type == 'ACS3-RSA-SHA256':
+            return hashlib.sha256(raw).digest()
+        elif sign_type == 'ACS3-HMAC-SM3':
+            return hash_sm3(raw)
+
+    @staticmethod
+    def hex_encode(raw):
+        if raw:
+            return binascii.b2a_hex(raw).decode('utf-8')
+
+    @staticmethod
+    def get_authorization(request, sign_type, payload, ak, secret):
+        canonical_uri = quote(request.pathname, safe='/~', encoding="utf-8")
+        canonicalized_query = get_canonical_query_string(request.query)
+        canonicalized_headers, signed_headers = get_canonicalized_headers(request.headers)
+
+        canonical_request = f'{request.method}\n' \
+                            f'{canonical_uri}\n' \
+                            f'{canonicalized_query}\n' \
+                            f'{canonicalized_headers}\n' \
+                            f'{signed_headers}\n' \
+                            f'{payload}'
+
+        str_to_sign = f'{sign_type}\n{Client.hex_encode(Client.hash(canonical_request.encode("utf-8"), sign_type))}'
+        signature = Client.hex_encode(signature_method(secret, str_to_sign, sign_type))
+        auth = f'{sign_type} Credential={ak},SignedHeaders={signed_headers},Signature={signature}'
+        return auth
+
+    @staticmethod
+    def get_encode_path(path):
+        return quote(path, safe='/~', encoding="utf-8")

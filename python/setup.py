@@ -37,7 +37,7 @@ URL = "https://github.com/aliyun/darabonba-openapi-util"
 
 TOPDIR = os.path.dirname(__file__) or "."
 VERSION = __import__(PACKAGE).__version__
-REQUIRES = ["alibabacloud_tea_util>=0.0.2"]
+REQUIRES = ["alibabacloud_tea_util>=0.0.2", 'cryptography>=3.0.0']
 
 desc_file = open("README.md", encoding='utf-8')
 try:
@@ -65,9 +65,6 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
