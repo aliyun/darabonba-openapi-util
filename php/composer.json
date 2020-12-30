@@ -11,7 +11,9 @@
   ],
   "require": {
     "php": ">5.5",
-    "alibabacloud/tea": "^3.1"
+    "alibabacloud/tea": "^3.1",
+    "alibabacloud/tea-utils": "^0.2",
+    "ch4o5/sm3-php": "^1.1"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8.35|^5.4.3"
