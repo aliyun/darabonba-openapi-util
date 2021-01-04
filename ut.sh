@@ -79,8 +79,7 @@ function run_python {
   # install
   cd python || return 126
   pip install coverage
-  pip install alibabacloud-tea
-  pip install alibabacloud-tea-util
+  python setup.py install
 
   coverage run --source="./alibabacloud_openapi_util" -m pytest tests/test_* || return 126
   cd ../
