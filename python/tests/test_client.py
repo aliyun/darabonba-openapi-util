@@ -2,7 +2,7 @@ import unittest
 import os
 import binascii
 
-from alibabacloud_openapi_util.client import Client, signature_method
+from alibabacloud_openapi_util.client import Client, signature_method, get_canonical_query_string
 from Tea.request import TeaRequest
 from Tea.model import TeaModel
 
@@ -226,8 +226,9 @@ class TestClient(unittest.TestCase):
 
         module_path = os.path.dirname(__file__)
         filename = module_path + "/test.txt"
-        res = Client.parse_to_map({'file': open(filename)})
-        self.assertIsNone(res)
+        with open(filename) as f:
+            res = Client.parse_to_map({'file': f})
+            self.assertIsNone(res)
 
         res = Client.parse_to_map({"key": "value"})
         self.assertEqual('value', res['key'])
@@ -355,3 +356,6 @@ class TestClient(unittest.TestCase):
                          b'1ef699bcc9823a646574628ae1b70ed569b5a07d13'
                          b'9dda28996b5b9231f5ba96141f0893deec2fbf54a0'
                          b'fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12', binascii.b2a_hex(res))
+
+    def test_get_canonical_query_string(self):
+        self.assertEqual('test=%20~%2F%2A-%2B', get_canonical_query_string({'test': ' ~/*-+'}))

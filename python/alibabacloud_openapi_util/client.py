@@ -58,7 +58,7 @@ def get_canonical_query_string(query):
     canon_keys.sort()
     query_string = ''
     for key in canon_keys:
-        value = quote(query[key], safe='/~', encoding='utf-8')
+        value = quote(query[key], safe='~', encoding='utf-8')
         if value == '':
             s = f'{key}&'
         else:
@@ -260,19 +260,11 @@ class Client(object):
 
         for k in keys:
             if queries[k] is not None:
-                canonicalized_query_string += "&"
-                canonicalized_query_string += quote(k, safe='', encoding="utf-8")
-                canonicalized_query_string += "="
-                canonicalized_query_string += quote(queries[k], safe='', encoding="utf-8")
+                canonicalized_query_string += f'&{quote(k, safe="~", encoding="utf-8")}=' \
+                                              f'{quote(queries[k], safe="~", encoding="utf-8")}'
 
-        string_to_sign = ""
-        string_to_sign += method
-        string_to_sign += '&'
-        string_to_sign += quote_plus("/", encoding="utf-8")
-        string_to_sign += '&'
-        string_to_sign += quote_plus(
-            canonicalized_query_string[1:] if canonicalized_query_string.__len__() > 0 else canonicalized_query_string,
-            encoding="utf-8")
+        string_to_sign = f'{method}&%2F&{quote_plus(canonicalized_query_string[1:], safe="~",encoding="utf-8")}'
+
         digest_maker = hmac.new(bytes(secret + '&', encoding="utf-8"),
                                 bytes(string_to_sign, encoding="utf-8"),
                                 digestmod=hashlib.sha1)
