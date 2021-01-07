@@ -1,4 +1,7 @@
 2021-01-07 Version: 0.1.0
+1. Add getEncodePath 
+
+2021-01-07 Version: 0.1.0
 1. Add SM3 signature
 
 2020-11-25 Version: 0.0.7

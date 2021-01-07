@@ -512,7 +512,7 @@ public class Client {
         return bytes;
     }
 
-    public static String getEndpointPath(String path) throws UnsupportedEncodingException {
+    public static String getEncodePath(String path) throws UnsupportedEncodingException {
         String[] strs = path.split("/");
         for(int i = 0; i < strs.length; i++) {
             strs[i] = percentEncode(strs[i]);
