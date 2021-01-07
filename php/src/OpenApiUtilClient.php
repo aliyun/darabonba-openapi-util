@@ -444,38 +444,33 @@ class OpenApiUtilClient
             ",Signature=" . $signature;
     }
 
-    private static function sign($secret, $str, $algorithm)
+    public static function sign($secret, $str, $algorithm)
     {
         switch ($algorithm) {
             case "ACS3-HMAC-SHA256":
                 return hash_hmac("sha256", $str, $secret);
             case "ACS3-HMAC-SM3":
-                return self::hmac_sm3($str, $secret);
+                return bin2hex(self::hmac_sm3($str, $secret, true));
+            case "ACS3-RSA-SHA256":
+                $privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" . $secret . "\n-----END RSA PRIVATE KEY-----";
+                @openssl_sign($str, $result, $privateKey, OPENSSL_ALGO_SHA256);
+                return bin2hex($result);
         }
         return "";
     }
 
     private static function hmac_sm3($data, $key, $raw_output = false)
     {
-        $pack = 'H' . strlen(sm3('test'));
-        $size = 64;
-        $opad = str_repeat(chr(0x5C), $size);
-        $ipad = str_repeat(chr(0x36), $size);
-
-        if (strlen($key) > $size) {
-            $key = str_pad(pack($pack, sm3($key)), $size, chr(0x00));
-        } else {
-            $key = str_pad($key, $size, chr(0x00));
+        $pack      = 'H' . strlen(sm3('test'));
+        $blocksize = 64;
+        if (strlen($key) > $blocksize) {
+            $key = pack($pack, sm3($key));
         }
-
-        for ($i = 0; $i < strlen($key) - 1; $i++) {
-            $opad[$i] = $opad[$i] ^ $key[$i];
-            $ipad[$i] = $ipad[$i] ^ $key[$i];
-        }
-
-        $output = sm3($opad . pack($pack, sm3($ipad . $data)));
-
-        return ($raw_output) ? pack($pack, $output) : $output;
+        $key  = str_pad($key, $blocksize, chr(0x00));
+        $ipad = $key ^ str_repeat(chr(0x36), $blocksize);
+        $opad = $key ^ str_repeat(chr(0x5C), $blocksize);
+        $hmac = sm3($opad . pack($pack, sm3($ipad . $data)));
+        return $raw_output ? pack($pack, $hmac) : $hmac;
     }
 
     private static function getCanonicalQueryString($query)
