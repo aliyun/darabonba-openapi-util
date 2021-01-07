@@ -15,7 +15,7 @@
     "csharp": "AlibabaCloud.OpenApiUtil:1.0.3",
     "java": "com.aliyun:openapiutil:0.0.8",
     "php": "alibabacloud/openapi-util:^0.1.1",
-    "python": "alibabacloud_openapi_util:0.0.3",
+    "python": "alibabacloud_openapi_util:0.1.0",
     "python2": "alibabacloud_openapi_util_py2:0.0.1",
     "cpp": "alibabacloud-sdk-cpp/openapi-util:master"
   },
