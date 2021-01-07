@@ -347,4 +347,16 @@ describe('Tea Util', function () {
     const endpoint3 = Client.getEndpoint("common.aliyuncs.com", true, "")
     assert.strictEqual("common.aliyuncs.com", endpoint3)
   });
+
+  it('hexEncode should ok', function() {
+    const test = Buffer.from('test');
+    var res = Client.hexEncode(Client.hash(test, "ACS3-HMAC-SHA256"));
+    assert.strictEqual("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", res);
+
+    res = Client.hexEncode(Client.hash(test, "ACS3-RSA-SHA256"));
+    assert.strictEqual("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", res);
+
+    res = Client.hexEncode(Client.hash(test, "ACS3-HMAC-SM3"));
+    assert.strictEqual("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", res);
+  });
 });

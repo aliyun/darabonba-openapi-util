@@ -6,6 +6,8 @@ import * as $tea from '@alicloud/tea-typescript';
 import Util from '@alicloud/tea-util';
 import kitx from 'kitx';
 import querystring from 'querystring';
+import crypto from 'crypto';
+//const crypto = require('crypto');
 
 function replaceRepeatList(target: { [key: string]: string }, repeat: any[], prefix: string) {
   if (prefix) {
@@ -94,6 +96,10 @@ function getCanonicalizedResource(uriPattern: string, query: { [key: string]: st
   }
 
   return `${uriPattern}?${result.join('&')}`;
+}
+
+function getAuthorizationQueryString(query: { [key: string]: string }) {
+  let canonicalQueryString = "";
 }
 
 function encode(str: string) {
@@ -329,5 +335,48 @@ export default class Client {
     }
 
     return endpoint
+  }
+
+  /**
+  * Encode raw with base16
+  * @param raw encoding data
+  * @return encoded string
+  */
+  static hexEncode(raw: Buffer): string{
+    return raw.toString("hex");
+  }
+
+  /**
+   * Hash the raw data with signatureAlgorithm
+   * @param raw hashing data
+   * @param signatureAlgorithm the autograph method
+   * @return hashed bytes
+  */
+  static hash(raw: Buffer, signatureAlgorithm: string): Buffer{
+    if(signatureAlgorithm === "ACS3-HMAC-SHA256" || signatureAlgorithm === "ACS3-RSA-SHA256"){
+      const obj=crypto.createHash('sha256');
+      obj.update(raw);
+      return obj.digest();
+    } else if(signatureAlgorithm == "ACS3-HMAC-SM3") {
+      const obj=crypto.createHash('sm3');
+      obj.update(raw);
+      return obj.digest();
+    }
+  }
+
+  /**
+   * Get the authorization 
+   * @param request request params
+   * @param signatureAlgorithm the autograph method
+   * @param payload the hashed request
+   * @param acesskey the acesskey string
+   * @param accessKeySecret the accessKeySecret string
+   * @return authorization string
+   */
+  static function getAuthorization(request: $tea.Request, signatureAlgorithm: string, payload: string, acesskey: string, accessKeySecret: string): string {
+    const canonicalURI = (request.pathname || "").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
+    const method = request.method;
+
+
   }
 }
