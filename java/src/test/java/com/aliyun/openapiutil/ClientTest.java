@@ -259,12 +259,12 @@ public class ClientTest {
     }
 
     @Test
-    public void getEndpointPathTest() throws Exception {
-        String result = Client.getEndpointPath("/path/ test");
+    public void getEncodePathTest() throws Exception {
+        String result = Client.getEncodePath("/path/ test");
         Assert.assertEquals("/path/%20test", result);
-        result = Client.getEndpointPath("/path/#test");
+        result = Client.getEncodePath("/path/#test");
         Assert.assertEquals("/path/%23test", result);
-        result = Client.getEndpointPath("/path/\"test");
+        result = Client.getEncodePath("/path/\"test");
         Assert.assertEquals("/path/%22test", result);
     }
 
