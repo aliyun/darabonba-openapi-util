@@ -216,48 +216,50 @@ class OpenApiUtilClientTest extends TestCase
 
     public function testHexEncode()
     {
-        $data = OpenApiUtilClient::hash(Utils::toBytes("test"), "ACS3-HMAC-SHA256");
-        $this->assertEquals("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", Utils::toString($data));
+        $data = OpenApiUtilClient::hash(Utils::toBytes('test'), 'ACS3-HMAC-SHA256');
+        $this->assertEquals('9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', Utils::toString($data));
 
-        $data = OpenApiUtilClient::hash(Utils::toBytes("test"), "ACS3-RSA-SHA256");
-        $this->assertEquals("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", Utils::toString($data));
+        $data = OpenApiUtilClient::hash(Utils::toBytes('test'), 'ACS3-RSA-SHA256');
+        $this->assertEquals('9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', Utils::toString($data));
 
-        $data = OpenApiUtilClient::hash(Utils::toBytes("test"), "ACS3-HMAC-SM3");
-        $this->assertEquals("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", Utils::toString($data));
+        $data = OpenApiUtilClient::hash(Utils::toBytes('test'), 'ACS3-HMAC-SM3');
+        $this->assertEquals('55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23', Utils::toString($data));
 
-        $data = OpenApiUtilClient::hash(Utils::toBytes("test"), "ACS3-HM-SHA256");
-        $this->assertEquals("", Utils::toString($data));
+        $data = OpenApiUtilClient::hash(Utils::toBytes('test'), 'ACS3-HM-SHA256');
+        $this->assertEquals('', Utils::toString($data));
     }
 
     public function testGetEncodePath()
     {
-        $this->assertEquals("/path/%20test",
-            OpenApiUtilClient::getEncodePath("/path/ test"));
+        $this->assertEquals(
+            '/path/%20test',
+            OpenApiUtilClient::getEncodePath('/path/ test')
+        );
     }
 
     public function testGetAuthorization()
     {
         $request           = new Request();
-        $request->method   = "";
+        $request->method   = '';
         $request->pathname = '';
         $request->query    = [
-            "test"  => 'ok',
-            'empty' => ''
+            'test'  => 'ok',
+            'empty' => '',
         ];
         $request->headers  = [
             'x-acs-test' => 'http',
-            'x-acs-TEST' => 'https'
+            'x-acs-TEST' => 'https',
         ];
 
-        $res = OpenApiUtilClient::getAuthorization($request, "ACS3-HMAC-SHA256", "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
+        $res = OpenApiUtilClient::getAuthorization($request, 'ACS3-HMAC-SHA256', '55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23', 'acesskey', 'secret');
 
-        $this->assertEquals("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=11c1028124f311bfe9a789ec59a695b26db6f6e3d5ae32d818c3da613dad0e54", $res);
+        $this->assertEquals('ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=11c1028124f311bfe9a789ec59a695b26db6f6e3d5ae32d818c3da613dad0e54', $res);
     }
 
     public function testSign()
     {
-        $this->assertEquals("b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8", OpenApiUtilClient::sign("secret", "source", "ACS3-HMAC-SM3"));
-        $this->assertEquals("1d93c62698a1c26427265668e79fac099aa26c1df873669599a2fb2f272e64c9", OpenApiUtilClient::sign("secret", "source", "ACS3-HMAC-SHA256"));
+        $this->assertEquals('b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8', OpenApiUtilClient::sign('secret', 'source', 'ACS3-HMAC-SM3'));
+        $this->assertEquals('1d93c62698a1c26427265668e79fac099aa26c1df873669599a2fb2f272e64c9', OpenApiUtilClient::sign('secret', 'source', 'ACS3-HMAC-SHA256'));
     }
 
     private function parseData()
@@ -271,14 +273,14 @@ class OpenApiUtilClientTest extends TestCase
                     'array' => [1, 2, 3],
                 ]),
                 [ // model item in array
-                  new ParseModel([
-                      'str' => 'A',
-                  ]),
+                    new ParseModel([
+                        'str' => 'A',
+                    ]),
                 ],
                 [ // model item in map
-                  'model' => new ParseModel([
-                      'str' => 'A',
-                  ]),
+                    'model' => new ParseModel([
+                        'str' => 'A',
+                    ]),
                 ],
             ],
             'expected' => [

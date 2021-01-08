@@ -42,8 +42,8 @@ class OpenApiUtilClient
      */
     public static function getStringToSign($request)
     {
-        $pathname = $request->pathname ? $request->pathname : '';
-        $query    = $request->query ? $request->query : [];
+        $pathname = $request->pathname ?: '';
+        $query    = $request->query ?: [];
 
         $accept      = isset($request->headers['accept']) ? $request->headers['accept'] : '';
         $contentMD5  = isset($request->headers['content-md5']) ? $request->headers['content-md5'] : '';
@@ -179,11 +179,14 @@ class OpenApiUtilClient
         }
         if ('simple' == $style || 'spaceDelimited' == $style || 'pipeDelimited' == $style) {
             $strs = self::flatten($array);
+
             switch ($style) {
                 case 'spaceDelimited':
                     return implode(' ', $strs);
+
                 case 'pipeDelimited':
                     return implode('|', $strs);
+
                 default:
                     return implode(',', $strs);
             }
@@ -236,6 +239,141 @@ class OpenApiUtilClient
         return $endpoint;
     }
 
+    /**
+     * Encode raw with base16.
+     *
+     * @param int[] $raw encoding data
+     *
+     * @return string encoded string
+     */
+    public static function hexEncode($raw)
+    {
+        return Utils::toString($raw);
+    }
+
+    /**
+     * Hash the raw data with signatureAlgorithm.
+     *
+     * @param int[]  $raw                hashing data
+     * @param string $signatureAlgorithm the autograph method
+     *
+     * @return array hashed bytes
+     */
+    public static function hash($raw, $signatureAlgorithm)
+    {
+        $str = Utils::toString($raw);
+
+        switch ($signatureAlgorithm) {
+            case 'ACS3-HMAC-SHA256':
+            case 'ACS3-RSA-SHA256':
+                $res = hash('sha256', $str);
+
+                return Utils::toBytes($res);
+
+            case 'ACS3-HMAC-SM3':
+                $res = self::sm3($str);
+
+                return Utils::toBytes($res);
+        }
+
+        return [];
+    }
+
+    /**
+     * Get the authorization.
+     *
+     * @param Request $request            request params
+     * @param string  $signatureAlgorithm the autograph method
+     * @param string  $payload            the hashed request
+     * @param string  $accesskey          the accessKey string
+     * @param string  $accessKeySecret    the accessKeySecret string
+     *
+     * @return string authorization string
+     * @throws \ErrorException
+     *
+     */
+    public static function getAuthorization($request, $signatureAlgorithm, $payload, $accesskey, $accessKeySecret)
+    {
+        $canonicalURI = rawurlencode($request->pathname);
+
+        $method               = strtoupper($request->method);
+        $canonicalQueryString = self::getCanonicalQueryString($request->query);
+        $signHeaders          = [];
+        foreach ($request->headers as $k => $v) {
+            $k = strtolower($k);
+            if (0 === strpos($k, 'x-acs-') || 'host' === $k || 'content-type' === $k) {
+                $signHeaders[$k] = $v;
+            }
+        }
+        ksort($signHeaders);
+        $headers = [];
+        foreach ($request->headers as $k => $v) {
+            $k = strtolower($k);
+            if (0 === strpos($k, 'x-acs-') || 'host' === $k || 'content-type' === $k) {
+                if (!isset($headers[$k])) {
+                    $headers[$k] = [];
+                }
+                $headers[$k][] = trim($v);
+            }
+        }
+        $canonicalHeaderString = '';
+        ksort($headers);
+        foreach ($headers as $k => $v) {
+            sort($v);
+            $canonicalHeaderString .= $k . ':' . trim(self::filter(implode(',', $v))) . "\n";
+        }
+        if (empty($canonicalHeaderString)) {
+            $canonicalHeaderString = "\n";
+        }
+
+        $canonicalRequest = $method . "\n" . $canonicalURI . "\n" . $canonicalQueryString . "\n" .
+            $canonicalHeaderString . "\n" . implode(';', array_keys($signHeaders)) . "\n" . $payload;
+        $strtosign        = $signatureAlgorithm . "\n" . self::hexEncode(self::hash(Utils::toBytes($canonicalRequest), $signatureAlgorithm));
+        $signature        = self::sign($accessKeySecret, $strtosign, $signatureAlgorithm);
+        $signature        = self::hexEncode(Utils::toBytes($signature));
+
+        return $signatureAlgorithm .
+            ' Credential=' . $accesskey .
+            ',SignedHeaders=' . implode(';', array_keys($signHeaders)) .
+            ',Signature=' . $signature;
+    }
+
+    public static function sign($secret, $str, $algorithm)
+    {
+        switch ($algorithm) {
+            case 'ACS3-HMAC-SHA256':
+                return hash_hmac('sha256', $str, $secret);
+
+            case 'ACS3-HMAC-SM3':
+                return bin2hex(self::hmac_sm3($str, $secret, true));
+
+            case 'ACS3-RSA-SHA256':
+                $privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" . $secret . "\n-----END RSA PRIVATE KEY-----";
+                @openssl_sign($str, $result, $privateKey, OPENSSL_ALGO_SHA256);
+
+                return bin2hex($result);
+        }
+
+        return '';
+    }
+
+    /**
+     * Get encoded path.
+     *
+     * @param string $path the raw path
+     *
+     * @return string encoded path
+     */
+    public static function getEncodePath($path)
+    {
+        $tmp = explode('/', $path);
+        foreach ($tmp as &$t) {
+            $t = rawurlencode($t);
+        }
+
+        return implode('/', $tmp);
+    }
+
     private static function getRpcStrToSign($method, $query)
     {
         ksort($query);
@@ -247,7 +385,7 @@ class OpenApiUtilClient
                 $k = rawurlencode($k);
                 $v = rawurlencode($v);
                 //对编码后的参数名称和值使用英文等号（=）进行连接
-                array_push($params, $k . '=' . $v);
+                $params[] = $k . '=' . $v;
             }
         }
         $str = implode('&', $params);
@@ -260,6 +398,7 @@ class OpenApiUtilClient
         switch ($signMethod) {
             case 'HMAC-SHA256':
                 return base64_encode(hash_hmac('sha256', $strToSign, $secret, true));
+
             default:
                 return base64_encode(hash_hmac('sha1', $strToSign, $secret, true));
         }
@@ -312,7 +451,7 @@ class OpenApiUtilClient
         ksort($query);
         $tmp = [];
         foreach ($query as $k => $v) {
-            array_push($tmp, $k . '=' . $v);
+            $tmp[] = $k . '=' . $v;
         }
 
         return $pathname . '?' . implode('&', $tmp);
@@ -350,127 +489,25 @@ class OpenApiUtilClient
         return str_replace(["\t", "\n", "\r", "\f"], '', $str);
     }
 
-    /**
-     * Encode raw with base16
-     *
-     * @param int[] $raw encoding data
-     *
-     * @return string encoded string
-     */
-    public static function hexEncode($raw)
-    {
-        return Utils::toString($raw);
-    }
-
-    /**
-     * Hash the raw data with signatureAlgorithm
-     *
-     * @param int[]  $raw                hashing data
-     * @param string $signatureAlgorithm the autograph method
-     *
-     * @return array hashed bytes
-     * @throws \ErrorException
-     */
-    public static function hash($raw, $signatureAlgorithm)
-    {
-        $str = Utils::toString($raw);
-        switch ($signatureAlgorithm) {
-            case "ACS3-HMAC-SHA256":
-            case "ACS3-RSA-SHA256":
-                $res = hash("sha256", $str);
-                return Utils::toBytes($res);
-            case "ACS3-HMAC-SM3":
-                $res = sm3($str);
-                return Utils::toBytes($res);
-        }
-        return [];
-    }
-
-    /**
-     * Get the authorization
-     *
-     * @param Request $request            request params
-     * @param string  $signatureAlgorithm the autograph method
-     * @param string  $payload            the hashed request
-     * @param string  $accesskey          the accessKey string
-     * @param string  $accessKeySecret    the accessKeySecret string
-     *
-     * @return string authorization string
-     * @throws \ErrorException
-     */
-    public static function getAuthorization($request, $signatureAlgorithm, $payload, $accesskey, $accessKeySecret)
-    {
-        $canonicalURI = rawurlencode($request->pathname);
-
-        $method               = strtoupper($request->method);
-        $canonicalQueryString = self::getCanonicalQueryString($request->query);
-        $signHeaders          = [];
-        foreach ($request->headers as $k => $v) {
-            $k = strtolower($k);
-            if (0 === strpos($k, 'x-acs-') || $k === 'host' || $k === 'content-type') {
-                $signHeaders[$k] = $v;
-            }
-        }
-        ksort($signHeaders);
-        $headers = [];
-        foreach ($request->headers as $k => $v) {
-            $k = strtolower($k);
-            if (0 === strpos($k, 'x-acs-') || $k === 'host' || $k === 'content-type') {
-                if (!isset($headers[$k])) {
-                    $headers[$k] = [];
-                }
-                array_push($headers[$k], trim($v));
-            }
-        }
-        $canonicalHeaderString = "";
-        ksort($headers);
-        foreach ($headers as $k => $v) {
-            sort($v);
-            $canonicalHeaderString .= $k . ':' . trim(self::filter(implode(',', $v))) . "\n";
-        }
-        if (empty($canonicalHeaderString)) {
-            $canonicalHeaderString = "\n";
-        }
-
-        $canonicalRequest = $method . "\n" . $canonicalURI . "\n" . $canonicalQueryString . "\n" .
-            $canonicalHeaderString . "\n" . implode(";", array_keys($signHeaders)) . "\n" . $payload;
-        $strtosign        = $signatureAlgorithm . "\n" . self::hexEncode(self::hash(Utils::toBytes($canonicalRequest), $signatureAlgorithm));
-        $signature        = self::sign($accessKeySecret, $strtosign, $signatureAlgorithm);
-        $signature        = self::hexEncode(Utils::toBytes($signature));
-
-        return $signatureAlgorithm .
-            " Credential=" . $accesskey .
-            ",SignedHeaders=" . implode(';', array_keys($signHeaders)) .
-            ",Signature=" . $signature;
-    }
-
-    public static function sign($secret, $str, $algorithm)
-    {
-        switch ($algorithm) {
-            case "ACS3-HMAC-SHA256":
-                return hash_hmac("sha256", $str, $secret);
-            case "ACS3-HMAC-SM3":
-                return bin2hex(self::hmac_sm3($str, $secret, true));
-            case "ACS3-RSA-SHA256":
-                $privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" . $secret . "\n-----END RSA PRIVATE KEY-----";
-                @openssl_sign($str, $result, $privateKey, OPENSSL_ALGO_SHA256);
-                return bin2hex($result);
-        }
-        return "";
-    }
-
     private static function hmac_sm3($data, $key, $raw_output = false)
     {
-        $pack      = 'H' . strlen(sm3('test'));
+        $pack      = 'H' . \strlen(self::sm3('test'));
         $blocksize = 64;
-        if (strlen($key) > $blocksize) {
-            $key = pack($pack, sm3($key));
+        if (\strlen($key) > $blocksize) {
+            $key = pack($pack, self::sm3($key));
         }
-        $key  = str_pad($key, $blocksize, chr(0x00));
-        $ipad = $key ^ str_repeat(chr(0x36), $blocksize);
-        $opad = $key ^ str_repeat(chr(0x5C), $blocksize);
-        $hmac = sm3($opad . pack($pack, sm3($ipad . $data)));
+        $key  = str_pad($key, $blocksize, \chr(0x00));
+        $ipad = $key ^ str_repeat(\chr(0x36), $blocksize);
+        $opad = $key ^ str_repeat(\chr(0x5C), $blocksize);
+        $hmac = self::sm3($opad . pack($pack, self::sm3($ipad . $data)));
+
         return $raw_output ? pack($pack, $hmac) : $hmac;
+    }
+
+    private static function sm3($message)
+    {
+        $sm3 = new SM3($message);
+        return (string)$sm3;
     }
 
     private static function getCanonicalQueryString($query)
@@ -486,24 +523,9 @@ class OpenApiUtilClient
             if ('' !== $v && null !== $v) {
                 $str .= '=' . rawurlencode($v);
             }
-            array_push($params, $str);
+            $params[] = $str;
         }
-        return implode('&', $params);
-    }
 
-    /**
-     * Get encoded path
-     *
-     * @param string $path the raw path
-     *
-     * @return string encoded path
-     */
-    public static function getEncodePath($path)
-    {
-        $tmp = explode('/', $path);
-        foreach ($tmp as &$t) {
-            $t = rawurlencode($t);
-        }
-        return implode('/', $tmp);
+        return implode('&', $params);
     }
 }
