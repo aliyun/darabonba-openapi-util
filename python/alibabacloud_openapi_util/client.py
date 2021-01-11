@@ -193,7 +193,10 @@ class Client(object):
         else:
             if key.startswith('.'):
                 key = key[1:]
-            out[key] = str(value)
+            if isinstance(value, bytes):
+                out[key] = str(value, encoding='utf-8')
+            elif not isinstance(value, STREAM_CLASS):
+                out[key] = str(value)
 
     @staticmethod
     def to_form(filter):
