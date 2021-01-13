@@ -1,3 +1,6 @@
+### 2021-01-13 Version 0.1.1
+* query method ignore readable objects.
+
 ### 2021-01-06 Version 0.1.0
 * Fix Rpc signature.
 * Support pop signature v2.0.
