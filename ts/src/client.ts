@@ -6,6 +6,10 @@ import * as $tea from '@alicloud/tea-typescript';
 import Util from '@alicloud/tea-util';
 import kitx from 'kitx';
 import querystring from 'querystring';
+import crypto from 'crypto';
+
+const PEM_BEGIN = "-----BEGIN PRIVATE KEY-----\n";
+const PEM_END = "\n-----END PRIVATE KEY-----";
 
 function replaceRepeatList(target: { [key: string]: string }, repeat: any[], prefix: string) {
   if (prefix) {
@@ -94,6 +98,45 @@ function getCanonicalizedResource(uriPattern: string, query: { [key: string]: st
   }
 
   return `${uriPattern}?${result.join('&')}`;
+}
+
+function getAuthorizationQueryString(query: { [key: string]: string }): string {
+  let canonicalQueryArray = [];
+  const keys = Object.keys(query).sort();
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (query[key]) {
+      canonicalQueryArray.push(`${key}=${encode(query[key])}`);
+    } else {
+      canonicalQueryArray.push(key);
+    }
+  }
+  return canonicalQueryArray.join('&');
+}
+
+function getAuthorizationHeaders(header: { [key: string]: string }): {} {
+  let canonicalheaders = "";
+  let tmp = {};
+  const keys = Object.keys(header);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const lowerKey = keys[i].toLowerCase();
+    if (lowerKey.startsWith("x-acs-") || lowerKey === "host" || lowerKey === "content-type") {
+      if (tmp[lowerKey]) {
+        tmp[lowerKey].push((header[key] || "").trim());
+      } else {
+        tmp[lowerKey] = [(header[key] || "").trim()];
+      }
+    }
+  }
+  var hsKeys = Object.keys(tmp).sort();
+  for (let i = 0; i < hsKeys.length; i++) {
+    const hsKey = hsKeys[i];
+    let listSort = tmp[hsKey].sort();
+    canonicalheaders += `${hsKey}:${listSort.join(",")}\n`;
+  }
+
+  return { canonicalheaders, hsKeys };
 }
 
 function encode(str: string) {
@@ -259,7 +302,7 @@ export default class Client {
    * @param filter query param
    * @return the object
    */
-  static query(filter: {[key: string]: any}): {[key: string ]: string} {
+  static query(filter: { [key: string]: any }): { [key: string]: string } {
     if (!filter) {
       return {};
     }
@@ -275,7 +318,7 @@ export default class Client {
    * @param secret AccessKeySecret
    * @return the signature
    */
-  static getRPCSignature(signedParams: {[key: string ]: string}, method: string, secret: string): string {
+  static getRPCSignature(signedParams: { [key: string]: string }, method: string, secret: string): string {
     var normalized = normalize(signedParams);
     var canonicalized = canonicalize(normalized);
     var stringToSign = `${method}&${encode('/')}&${encode(canonicalized)}`;
@@ -306,7 +349,7 @@ export default class Client {
       return array.join(' ');
     } else if (style === 'pipeDelimited') {
       return array.join('|');
-    } else{
+    } else {
       return '';
     }
   }
@@ -314,7 +357,7 @@ export default class Client {
   /**
    * Transform input as map.
    */
-  static parseToMap(input: any): {[key: string]: any} {
+  static parseToMap(input: any): { [key: string]: any } {
     return toMap(input);
   }
 
@@ -329,5 +372,86 @@ export default class Client {
     }
 
     return endpoint
+  }
+
+  /**
+  * Encode raw with base16
+  * @param raw encoding data
+  * @return encoded string
+  */
+  static hexEncode(raw: Buffer): string {
+    return raw.toString("hex");
+  }
+
+  /**
+   * Hash the raw data with signatureAlgorithm
+   * @param raw hashing data
+   * @param signatureAlgorithm the autograph method
+   * @return hashed bytes
+  */
+  static hash(raw: Buffer, signatureAlgorithm: string): Buffer {
+    if (signatureAlgorithm === "ACS3-HMAC-SHA256" || signatureAlgorithm === "ACS3-RSA-SHA256") {
+      const obj = crypto.createHash('sha256');
+      obj.update(raw);
+      return obj.digest();
+    } else if (signatureAlgorithm == "ACS3-HMAC-SM3") {
+      const obj = crypto.createHash('sm3');
+      obj.update(raw);
+      return obj.digest();
+    }
+  }
+
+  
+static signatureMethod(secret: string, source: string, signatureAlgorithm: string): Buffer {
+  if (signatureAlgorithm === "ACS3-HMAC-SHA256") {
+    const obj = crypto.createHmac('sha256', secret);
+    obj.update(source);
+    return obj.digest();
+  } else if (signatureAlgorithm === "ACS3-HMAC-SM3") {
+    const obj = crypto.createHmac('sm3', secret);
+    obj.update(source);
+    return obj.digest();
+  } else if (signatureAlgorithm === "ACS3-RSA-SHA256") {
+    
+    if (!secret.startsWith(PEM_BEGIN))
+    {
+        secret = PEM_BEGIN + secret;
+    }
+    if (!secret.endsWith(PEM_END))
+    {
+        secret = secret + PEM_END;
+    }
+    var signerObject = crypto.createSign("RSA-SHA256");
+    signerObject.update(source);
+    var signature = signerObject.sign({ key: secret, padding: crypto.constants.RSA_PKCS1_PADDING });
+    return signature;
+  }
+}
+
+  /**
+   * Get the authorization 
+   * @param request request params
+   * @param signatureAlgorithm the autograph method
+   * @param payload the hashed request
+   * @param acesskey the acesskey string
+   * @param accessKeySecret the accessKeySecret string
+   * @return authorization string
+   */
+  static getAuthorization(request: $tea.Request, signatureAlgorithm: string, payload: string, acesskey: string, accessKeySecret: string): string {
+    const canonicalURI = (request.pathname || "").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
+    const method = request.method;
+    const canonicalQueryString = getAuthorizationQueryString(request.query);
+    const tuple = getAuthorizationHeaders(request.headers);
+    const canonicalheaders = tuple["canonicalheaders"];
+    const signedHeaders = tuple["hsKeys"];
+
+    const canonicalRequest = method + "\n" + canonicalURI + "\n" + canonicalQueryString + "\n" + canonicalheaders + "\n" +
+      signedHeaders.join(";") + "\n" + payload;
+    let raw = Buffer.from(canonicalRequest);
+    const stringToSign = signatureAlgorithm + "\n" + Client.hexEncode(Client.hash(raw, signatureAlgorithm));
+    const signature = Client.hexEncode(Client.signatureMethod(accessKeySecret, stringToSign, signatureAlgorithm));
+    const auth = `${signatureAlgorithm} Credential=${acesskey},SignedHeaders=${signedHeaders.join(';')},Signature=${signature}`;
+
+    return auth;
   }
 }

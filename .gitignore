@@ -19,3 +19,4 @@ target/
 .settings/
 
 python/**/__pycache__/
+package-lock.json
