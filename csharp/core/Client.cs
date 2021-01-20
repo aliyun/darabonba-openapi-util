@@ -158,7 +158,7 @@ namespace AlibabaCloud.OpenApiUtil
         public static string GetRPCSignature(Dictionary<string, string> signedParams, string method, string secret)
         {
             List<string> sortedKeys = signedParams.Keys.ToList();
-            sortedKeys.Sort();
+            sortedKeys.Sort(StringComparer.Ordinal);
             StringBuilder canonicalizedQueryString = new StringBuilder();
 
             foreach (string key in sortedKeys)
@@ -289,7 +289,6 @@ namespace AlibabaCloud.OpenApiUtil
             }
             else if(signatureAlgorithm == "ACS3-HMAC-SM3")
             {
-                //º”√‹
                 byte[] md = new byte[32];
                 SM3Digest sm3 = new SM3Digest();
                 sm3.BlockUpdate(raw, 0, raw.Length);
@@ -429,7 +428,7 @@ namespace AlibabaCloud.OpenApiUtil
             foreach(var keypair in hs)
             {
                 var listSort = new List<string>(keypair.Value);
-                listSort.Sort();
+                listSort.Sort(StringComparer.Ordinal);
                 canonicalheaders += string.Format("{0}:{1}\n", keypair.Key, string.Join(",", listSort));
             }
 
@@ -466,7 +465,7 @@ namespace AlibabaCloud.OpenApiUtil
             List<string> canonicalizedKeys = new List<string>();
             canonicalizedKeys = headers.Where(p => p.Key.StartsWith(prefix))
                 .Select(p => p.Key).ToList();
-            canonicalizedKeys.Sort();
+            canonicalizedKeys.Sort(StringComparer.Ordinal);
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < canonicalizedKeys.Count; i++)
             {
@@ -487,7 +486,7 @@ namespace AlibabaCloud.OpenApiUtil
                 return pathname;
             }
             List<string> keys = query.Keys.ToList();
-            keys.Sort();
+            keys.Sort(StringComparer.Ordinal);
             string key;
             List<string> result = new List<string>();
             for (int i = 0; i < keys.Count; i++)

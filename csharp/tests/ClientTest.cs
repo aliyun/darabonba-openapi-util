@@ -80,8 +80,10 @@ namespace tests
             Dictionary<string, string> query = new Dictionary<string, string>();
             query.Add("emptyKey", "");
             query.Add("key", "val ue with space");
+            query.Add("SignatureMethod", "ssss");
+            query.Add("SignName", "name");
             teaRequest.Query = query;
-            Assert.Equal("GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/?key=val ue with space", Client.GetStringToSign(teaRequest));
+            Assert.Equal("GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/?SignName=name&SignatureMethod=ssss&key=val ue with space", Client.GetStringToSign(teaRequest));
         }
 
         [Fact]
