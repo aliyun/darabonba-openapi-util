@@ -320,7 +320,7 @@ class TestClient(unittest.TestCase):
         )
         self.assertEqual(
             'ACS3-HMAC-SHA256 Credential=acesskey,SignedHea'
-            'ders=x-acs-test,Signature=da772425f29289d3460d5fc961455d40c5e8c6afd0888b78a910c991e6a14846',
+            'ders=x-acs-test,Signature=910e59dd385879346de704a06c96613f8157aa7124e6d1c4f2bdffa1e5588187',
             res
         )
 
