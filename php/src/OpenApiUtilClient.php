@@ -248,7 +248,10 @@ class OpenApiUtilClient
      */
     public static function hexEncode($raw)
     {
-        return Utils::toString($raw);
+        if (is_array($raw)) {
+            $raw = Utils::toString($raw);
+        }
+        return bin2hex($raw);
     }
 
     /**
@@ -266,14 +269,14 @@ class OpenApiUtilClient
         switch ($signatureAlgorithm) {
             case 'ACS3-HMAC-SHA256':
             case 'ACS3-RSA-SHA256':
-                $res = hash('sha256', $str);
-
+                $res = hash('sha256', $str, true);
                 return Utils::toBytes($res);
-
             case 'ACS3-HMAC-SM3':
+                if ($str === '') {
+                    return Utils::toBytes(hex2bin('1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b'));
+                }
                 $res = self::sm3($str);
-
-                return Utils::toBytes($res);
+                return Utils::toBytes(hex2bin($res));
         }
 
         return [];
@@ -294,7 +297,7 @@ class OpenApiUtilClient
      */
     public static function getAuthorization($request, $signatureAlgorithm, $payload, $accesskey, $accessKeySecret)
     {
-        $canonicalURI = rawurlencode($request->pathname);
+        $canonicalURI = $request->pathname;
 
         $method               = strtoupper($request->method);
         $canonicalQueryString = self::getCanonicalQueryString($request->query);
@@ -310,17 +313,13 @@ class OpenApiUtilClient
         foreach ($request->headers as $k => $v) {
             $k = strtolower($k);
             if (0 === strpos($k, 'x-acs-') || 'host' === $k || 'content-type' === $k) {
-                if (!isset($headers[$k])) {
-                    $headers[$k] = [];
-                }
-                $headers[$k][] = trim($v);
+                $headers[$k] = trim($v);
             }
         }
         $canonicalHeaderString = '';
         ksort($headers);
         foreach ($headers as $k => $v) {
-            sort($v);
-            $canonicalHeaderString .= $k . ':' . trim(self::filter(implode(',', $v))) . "\n";
+            $canonicalHeaderString .= $k . ':' . trim(self::filter($v)) . "\n";
         }
         if (empty($canonicalHeaderString)) {
             $canonicalHeaderString = "\n";
@@ -329,9 +328,8 @@ class OpenApiUtilClient
         $canonicalRequest = $method . "\n" . $canonicalURI . "\n" . $canonicalQueryString . "\n" .
             $canonicalHeaderString . "\n" . implode(';', array_keys($signHeaders)) . "\n" . $payload;
         $strtosign        = $signatureAlgorithm . "\n" . self::hexEncode(self::hash(Utils::toBytes($canonicalRequest), $signatureAlgorithm));
-        $signature        = self::sign($accessKeySecret, $strtosign, $signatureAlgorithm);
-        $signature        = self::hexEncode(Utils::toBytes($signature));
-
+        $signature = self::sign($accessKeySecret, $strtosign, $signatureAlgorithm);
+        $signature = self::hexEncode($signature);
         return $signatureAlgorithm .
             ' Credential=' . $accesskey .
             ',SignedHeaders=' . implode(';', array_keys($signHeaders)) .
@@ -340,21 +338,20 @@ class OpenApiUtilClient
 
     public static function sign($secret, $str, $algorithm)
     {
+        $result = '';
         switch ($algorithm) {
             case 'ACS3-HMAC-SHA256':
-                return hash_hmac('sha256', $str, $secret);
-
+                $result = hash_hmac('sha256', $str, $secret, true);
+                break;
             case 'ACS3-HMAC-SM3':
-                return bin2hex(self::hmac_sm3($str, $secret, true));
-
+                $result = self::hmac_sm3($str, $secret, true);
+                break;
             case 'ACS3-RSA-SHA256':
                 $privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" . $secret . "\n-----END RSA PRIVATE KEY-----";
                 @openssl_sign($str, $result, $privateKey, OPENSSL_ALGO_SHA256);
-
-                return bin2hex($result);
         }
 
-        return '';
+        return Utils::toBytes($result);
     }
 
     /**
@@ -451,7 +448,11 @@ class OpenApiUtilClient
         ksort($query);
         $tmp = [];
         foreach ($query as $k => $v) {
-            $tmp[] = $k . '=' . $v;
+            if (!empty($v)) {
+                $tmp[] = $k . '=' . rawurlencode($v);
+            } else {
+                $tmp[] = $k . '=';
+            }
         }
 
         return $pathname . '?' . implode('&', $tmp);
