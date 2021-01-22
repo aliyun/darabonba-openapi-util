@@ -215,9 +215,12 @@ func GetEncodePath(path *string) *string {
 	uri := tea.StringValue(path)
 	strs := strings.Split(uri, "/")
 	for i, v := range strs {
-		strs[i] = url.PathEscape(v)
+		strs[i] = url.QueryEscape(v)
 	}
 	uri = strings.Join(strs, "/")
+	uri = strings.Replace(uri, "+", "%20", -1)
+	uri = strings.Replace(uri, "*", "%2A", -1)
+	uri = strings.Replace(uri, "%7E", "~", -1)
 	return tea.String(uri)
 }
 
@@ -233,7 +236,6 @@ func GetAuthorization(request *tea.Request, signatureAlgorithm, payload, acesske
 
 	canonicalRequest := method + "\n" + canonicalURI + "\n" + canonicalQueryString + "\n" + canonicalheaders + "\n" +
 		strings.Join(signedHeaders, ";") + "\n" + tea.StringValue(payload)
-
 	signType := tea.StringValue(signatureAlgorithm)
 	StringToSign := signType + "\n" + tea.StringValue(HexEncode(Hash([]byte(canonicalRequest), signatureAlgorithm)))
 	signature := tea.StringValue(HexEncode(SignatureMethod(tea.StringValue(secret), StringToSign, signType)))
@@ -340,9 +342,12 @@ func getCanonicalQueryString(query map[string]*string) string {
 		if hs.Vals[i] != "" {
 			canonicalQueryString += "&" + hs.Keys[i] + "=" + url.QueryEscape(hs.Vals[i])
 		} else {
-			canonicalQueryString += "&" + hs.Keys[i]
+			canonicalQueryString += "&" + hs.Keys[i] + "="
 		}
 	}
+	canonicalQueryString = strings.Replace(canonicalQueryString, "+", "%20", -1)
+	canonicalQueryString = strings.Replace(canonicalQueryString, "*", "%2A", -1)
+	canonicalQueryString = strings.Replace(canonicalQueryString, "%7E", "~", -1)
 
 	if canonicalQueryString != "" {
 		canonicalQueryString = strings.TrimLeft(canonicalQueryString, "&")
