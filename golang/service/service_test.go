@@ -220,30 +220,30 @@ func Test_GetAuthorization(t *testing.T) {
 	res := GetAuthorization(req, tea.String("ACS3-HMAC-SHA256"),
 		tea.String("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23"),
 		tea.String("acesskey"), tea.String("secret"))
-	utils.AssertEqual(t, "ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=11c1028124f311bfe9a789ec59a695b26db6f6e3d5ae32d818c3da613dad0e54", tea.StringValue(res))
+	utils.AssertEqual(t, "ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=12235d088f795ddabff95342904e1d7d605e7653687bcf8c263714ef713ca2d2", tea.StringValue(res))
 }
 
 func Test_SignatureMethod(t *testing.T) {
-//	priKey := `MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKzSQmrnH0YnezZ9
-//8NK50WjMuci0hgGVcSthIZOTWMIySznY9Jj1hlvek7W0uYagtFHz03BHQnHAb5Xs
-//0DZm0Sj9+5r79GggwEzTJDYEsLyFwXM3ZOIxqxL4sRg94MHsa81M9NXGHMyMvvff
-//QTn1OBVLTVz5jgJ48foMn7j7r9kRAgMBAAECgYEAnZppw3/ef2XF8Z3Mnv+iP0Zk
-//LuqiQpN8TykXK7P1/7NJ8wktlshhrSo/3jdf8axghVQsgHob2Ay8Nidugg4lsxIL
-//AUBHvfQsQp1MAWvxslsVj+ddw01MQnt8kHmC/qhok+YuNqqAGBcoD6cthRUjEri6
-//hfs599EfPs2DcWW06qECQQDfNqUUhcDQ/SQHRhfY9UIlaSEs2CVagDrSYFG1wyG+
-//PXDSMes9ZRHsvVVBmNGmtUTg/jioTU3yuPsis5s9ppbVAkEAxjTAQxv5lBBm/ikM
-//TzPShljxDZnXh6lKWG9gR1p5fKoQTzLyyhHzkBSFe848sMm68HWCX2wgIpQLHj0G
-//ccYPTQJAduMKBeY/jpBlkiI5LWtj8b0O2G2/Z3aI3ehDXQYzgLoEz0+bNbYRWAB3
-//2lpkv+AocZW1455Y+ACichcrhiimiQJAW/6L5hoL4u8h/oFq1zAEXJrXdyqaYLrw
-//aM947mVN0dDVNQ0+pw9h7tO3iNkWTi+zdnv0APociDASYPyOCyyUWQJACMNRM1/r
-//boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn
-//Ysx+1cwXO5cuZg==`
+	priKey := `MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKzSQmrnH0YnezZ9
+	8NK50WjMuci0hgGVcSthIZOTWMIySznY9Jj1hlvek7W0uYagtFHz03BHQnHAb5Xs
+	0DZm0Sj9+5r79GggwEzTJDYEsLyFwXM3ZOIxqxL4sRg94MHsa81M9NXGHMyMvvff
+	QTn1OBVLTVz5jgJ48foMn7j7r9kRAgMBAAECgYEAnZppw3/ef2XF8Z3Mnv+iP0Zk
+	LuqiQpN8TykXK7P1/7NJ8wktlshhrSo/3jdf8axghVQsgHob2Ay8Nidugg4lsxIL
+	AUBHvfQsQp1MAWvxslsVj+ddw01MQnt8kHmC/qhok+YuNqqAGBcoD6cthRUjEri6
+	hfs599EfPs2DcWW06qECQQDfNqUUhcDQ/SQHRhfY9UIlaSEs2CVagDrSYFG1wyG+
+	PXDSMes9ZRHsvVVBmNGmtUTg/jioTU3yuPsis5s9ppbVAkEAxjTAQxv5lBBm/ikM
+	TzPShljxDZnXh6lKWG9gR1p5fKoQTzLyyhHzkBSFe848sMm68HWCX2wgIpQLHj0G
+	ccYPTQJAduMKBeY/jpBlkiI5LWtj8b0O2G2/Z3aI3ehDXQYzgLoEz0+bNbYRWAB3
+	2lpkv+AocZW1455Y+ACichcrhiimiQJAW/6L5hoL4u8h/oFq1zAEXJrXdyqaYLrw
+	aM947mVN0dDVNQ0+pw9h7tO3iNkWTi+zdnv0APociDASYPyOCyyUWQJACMNRM1/r
+	boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn
+	Ysx+1cwXO5cuZg==`
 	res := SignatureMethod("secret", "source", "ACS3-HMAC-SM3")
 	utils.AssertEqual(t, "b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8", tea.StringValue(HexEncode(res)))
 
-	//res = SignatureMethod("secret", "source", "ACS3-RSA-SHA256")
-	//utils.AssertEqual(t, "", tea.StringValue(HexEncode(res)))
-	//
-	//res = SignatureMethod(priKey, "source", "ACS3-RSA-SHA256")
-	//utils.AssertEqual(t, "a00b88ae04f651a8ab645e724949ff435bbb2cf9a37aa54323024477f8031f4e13dc948484c5c5a81ba53a55eb0571dffccc1e953c93269d6da23ed319e0f1ef699bcc9823a646574628ae1b70ed569b5a07d139dda28996b5b9231f5ba96141f0893deec2fbf54a0fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12", tea.StringValue(HexEncode(res)))
+	res = SignatureMethod("secret", "source", "ACS3-RSA-SHA256")
+	utils.AssertEqual(t, "", tea.StringValue(HexEncode(res)))
+
+	res = SignatureMethod(priKey, "source", "ACS3-RSA-SHA256")
+	utils.AssertEqual(t, "a00b88ae04f651a8ab645e724949ff435bbb2cf9a37aa54323024477f8031f4e13dc948484c5c5a81ba53a55eb0571dffccc1e953c93269d6da23ed319e0f1ef699bcc9823a646574628ae1b70ed569b5a07d139dda28996b5b9231f5ba96141f0893deec2fbf54a0fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12", tea.StringValue(HexEncode(res)))
 }

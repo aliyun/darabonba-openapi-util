@@ -1,3 +1,6 @@
+2021-01-22 Version: v0.0.6
+- Improve S3 Signature.
+
 2021-01-07 Version: v0.0.5
 - Support Pop S3.
 
