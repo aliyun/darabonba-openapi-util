@@ -59,7 +59,7 @@ def get_canonical_query_string(query):
     query_string = ''
     for key in canon_keys:
         value = quote(query[key], safe='~', encoding='utf-8')
-        if value == '':
+        if value is None:
             s = f'{key}&'
         else:
             s = f'{key}={value}&'
@@ -387,7 +387,7 @@ class Client(object):
 
     @staticmethod
     def get_authorization(request, sign_type, payload, ak, secret):
-        canonical_uri = quote(request.pathname, safe='/~', encoding="utf-8")
+        canonical_uri = request.pathname
         canonicalized_query = get_canonical_query_string(request.query)
         canonicalized_headers, signed_headers = get_canonicalized_headers(request.headers)
 
