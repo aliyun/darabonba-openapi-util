@@ -1,3 +1,5 @@
+// This file is auto-generated, don't edit it. Thanks.
+
 #ifndef ALIBABACLOUD_OPENAPIUTIL_H_
 #define ALIBABACLOUD_OPENAPIUTIL_H_
 
@@ -5,6 +7,7 @@
 #include <darabonba/core.hpp>
 #include <iostream>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -25,20 +28,22 @@ public:
   static string arrayToStringWithSpecifiedStyle(const boost::any &array,
                                                 shared_ptr<string> prefix,
                                                 shared_ptr<string> style);
-
-  static map<string, boost::any> parseToMap(const shared_ptr<void> &input) {
-    if (!input) {
-      return map<string, boost::any>();
-    }
-    shared_ptr<Darabonba::Model> m =
-        static_pointer_cast<Darabonba::Model>(input);
-    return m->toMap();
-  }
+  static map<string, boost::any> parseToMap(const boost::any &input);
   static string getEndpoint(shared_ptr<string> endpoint,
                             shared_ptr<bool> serverUse,
                             shared_ptr<string> endpointType);
+  static string hexEncode(shared_ptr<vector<uint8_t>> raw);
+  static vector<uint8_t> hash(shared_ptr<vector<uint8_t>> raw,
+                              shared_ptr<string> signatureAlgorithm);
+  static string getAuthorization(shared_ptr<Darabonba::Request> request,
+                                 shared_ptr<string> signatureAlgorithm,
+                                 shared_ptr<string> payload,
+                                 shared_ptr<string> acesskey,
+                                 shared_ptr<string> accessKeySecret);
+  static string getEncodePath(shared_ptr<string> path);
 
-  Client(){};
+  Client() {};
+  virtual ~Client() = default;
 };
 } // namespace Alibabacloud_OpenApiUtil
 
