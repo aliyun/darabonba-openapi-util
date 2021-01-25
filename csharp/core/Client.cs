@@ -1,4 +1,4 @@
-/**
+﻿/**
  * This is for OpenApi Util 
  */
 // This file is auto-generated, don't edit it. Thanks.
@@ -281,11 +281,11 @@ namespace AlibabaCloud.OpenApiUtil
             if(signatureAlgorithm == "ACS3-HMAC-SHA256" || signatureAlgorithm == "ACS3-RSA-SHA256")
             {
                 byte[] signData;
-                using (SHA256 sha256 = SHA256.Create())
+                using (SHA256 sha256 = new SHA256Managed())
                 {
                     signData = sha256.ComputeHash(raw);
                 }
-                return signData;
+                return signData; 
             }
             else if(signatureAlgorithm == "ACS3-HMAC-SM3")
             {
@@ -423,13 +423,13 @@ namespace AlibabaCloud.OpenApiUtil
                 }
             }
 
-            var hs = tmp.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value);
+            var hs = tmp.OrderBy(p => p.Key, StringComparer.Ordinal).ToDictionary(p => p.Key, p => p.Value);
             
             foreach(var keypair in hs)
             {
                 var listSort = new List<string>(keypair.Value);
                 listSort.Sort(StringComparer.Ordinal);
-                canonicalheaders += string.Format("{0}:{1}\n", keypair.Key, string.Join(",", listSort));
+                canonicalheaders += string.Format("{0}:{1}\n", keypair.Key, string.Join(", ", listSort));
             }
 
             return new Tuple<string, List<string>> (canonicalheaders, hs.Keys.ToList());
@@ -438,16 +438,12 @@ namespace AlibabaCloud.OpenApiUtil
         internal static string GetAuthorizationQueryString(Dictionary<string, string> query)
         {
             string canonicalQueryString = string.Empty;
-            var hs = query.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value);
+            var hs = query.OrderBy(p => p.Key, StringComparer.Ordinal).ToDictionary(p => p.Key, p => p.Value);
             foreach(var keypair in hs)
             {
-                if(!string.IsNullOrEmpty(keypair.Value))
+                if(keypair.Value != null)
                 {
                     canonicalQueryString += string.Format("&{0}={1}", keypair.Key, PercentEncode(keypair.Value));
-                }
-                else
-                {
-                    canonicalQueryString += string.Format("&{0}", keypair.Key);
                 }
             }
 

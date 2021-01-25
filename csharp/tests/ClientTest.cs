@@ -258,7 +258,7 @@ namespace tests
             };
 
             var res = Client.GetAuthorization(req, "ACS3-HMAC-SHA256", "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
-            Assert.Equal("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=da772425f29289d3460d5fc961455d40c5e8c6afd0888b78a910c991e6a14846", res);
+            Assert.Equal("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=11534c077dbcfa24e604348995b33640edb70d31655e09fd131902ec02107934", res);
         }
 
         [Fact]
