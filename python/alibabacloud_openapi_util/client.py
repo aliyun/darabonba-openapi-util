@@ -28,6 +28,20 @@ def to_str(val):
         return str(val)
 
 
+def prepare_headers(headers):
+    canon_keys = []
+    tmp_headers = {}
+    for k, v in headers.items():
+        if v is not None:
+            if k.lower() not in canon_keys:
+                canon_keys.append(k.lower())
+                tmp_headers[k.lower()] = [to_str(v).strip()]
+            else:
+                tmp_headers[k.lower()].append(to_str(v).strip())
+    canon_keys.sort()
+    return {key: ','.join(sorted(tmp_headers[key])) for key in canon_keys}
+
+
 def rsa_sign(plaintext, secret):
     if not secret.startswith(b'-----BEGIN RSA PRIVATE KEY-----'):
         secret = b'-----BEGIN RSA PRIVATE KEY-----\n%s' % secret
@@ -390,6 +404,8 @@ class Client(object):
         canonical_uri = request.pathname
         canonicalized_query = get_canonical_query_string(request.query)
         canonicalized_headers, signed_headers = get_canonicalized_headers(request.headers)
+
+        request.headers = prepare_headers(request.headers)
 
         canonical_request = f'{request.method}\n' \
                             f'{canonical_uri}\n' \
