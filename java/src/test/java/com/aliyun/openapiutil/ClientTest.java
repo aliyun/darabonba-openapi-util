@@ -58,7 +58,7 @@ public class ClientTest {
                         "x-acs-security-test:test\n" +
                         "x-acs-security-token:test\n" +
                         "/test?accept=accept&content-md5=content-md5&content-type=content-type&date=date&" +
-                        "emptyTest&spaceTest&x-acs-security-test=test&x-acs-security-token=test",
+                        "emptyTest=&spaceTest=&x-acs-security-test=test&x-acs-security-token=test",
                 signature);
     }
 
@@ -284,7 +284,7 @@ public class ClientTest {
 
         String auth = Client.getAuthorization(req, "ACS3-HMAC-SHA256",
                 "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23","acesskey", "secret");
-        Assert.assertEquals("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=da772425f29289d3460d5fc961455d40c5e8c6afd0888b78a910c991e6a14846", auth);
+        Assert.assertEquals("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=3f62ee8a912ade7e6c35ec8e2f67ccb06140e8182ab98c37f781335f04875e99", auth);
     }
 
     @Test

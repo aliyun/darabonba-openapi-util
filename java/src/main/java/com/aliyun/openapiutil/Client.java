@@ -39,7 +39,7 @@ public class Client {
     public static final String UTF8 = "UTF-8";
     public static final String PEM_BEGIN = "-----BEGIN RSA PRIVATE KEY-----\n";
     public static final String PEM_END = "\n-----END RSA PRIVATE KEY-----";
-;
+
     /**
      * Convert all params of body other than type of readable into content
      *
@@ -120,20 +120,15 @@ public class Client {
         String prefix = "x-acs-";
         Set<String> keys = headers.keySet();
         List<String> canonicalizedKeys = new ArrayList<>();
-        Map<String, List<String>> valueMap = new HashMap<>();
+        Map<String, String> valueMap = new HashMap<>();
         for (String key : keys) {
             String lowerKey = key.toLowerCase();
             if (lowerKey.startsWith(prefix) || lowerKey.equals("host")
                     || lowerKey.equals("content-type")) {
-                List<String> valueList;
-                if(valueMap.containsKey(lowerKey)){
-                    valueList = valueMap.get(lowerKey);
-                }else {
+                if (!canonicalizedKeys.contains(lowerKey)) {
                     canonicalizedKeys.add(lowerKey);
-                    valueList = new ArrayList<>();
                 }
-                valueList.add(headers.get(key).trim());
-                valueMap.put(lowerKey, valueList);
+                valueMap.put(lowerKey, headers.get(key).trim());
             }
         }
         String[] canonicalizedKeysArray = canonicalizedKeys.toArray(new String[canonicalizedKeys.size()]);
@@ -143,12 +138,9 @@ public class Client {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < canonicalizedKeysArray.length; i++) {
             String key = canonicalizedKeysArray[i];
-            List<String> valueList = valueMap.get(key);
-            String[] valueArray = valueList.toArray(new String[valueList.size()]);
-            Arrays.sort(valueArray);
             sb.append(key);
             sb.append(":");
-            sb.append(StringUtils.join(",", Arrays.asList(valueArray)));
+            sb.append(valueMap.get(key));
             sb.append("\n");
         }
         result.put("canonicalHeaders", sb.toString());
@@ -156,24 +148,24 @@ public class Client {
         return result;
     }
 
-    protected static String getCanonicalizedQueryString(StringBuilder sb, Map<String, String> query, String[] keys){
+    protected static String getCanonicalizedQueryString(StringBuilder sb, Map<String, String> query, String[] keys) throws Exception {
         Arrays.sort(keys);
         String key;
         String value;
         for (int i = 0; i < keys.length; i++) {
             key = keys[i];
-            sb.append(key);
+            sb.append(percentEncode(key));
             value = query.get(key);
+            sb.append("=");
             if (!StringUtils.isEmpty(value) && !"".equals(value.trim())) {
-                sb.append("=");
-                sb.append(value);
+                sb.append(percentEncode(value));
             }
-            sb.append("&");
+            sb.append(SEPARATOR);
         }
         return sb.deleteCharAt(sb.length() - 1).toString();
     }
 
-    protected static String getCanonicalizedResource(Map<String, String> query) {
+    protected static String getCanonicalizedResource(Map<String, String> query) throws Exception {
         String[] keys = query.keySet().toArray(new String[query.size()]);
         if (keys.length <= 0) {
             return "";
@@ -182,7 +174,7 @@ public class Client {
         return getCanonicalizedQueryString(result, query, keys);
     }
 
-    protected static String getCanonicalizedResource(String pathname, Map<String, String> query) {
+    protected static String getCanonicalizedResource(String pathname, Map<String, String> query) throws Exception {
         String[] keys = query.keySet().toArray(new String[query.size()]);
         if (keys.length <= 0) {
             return pathname;
@@ -216,7 +208,7 @@ public class Client {
      * @return the string
      */
     public static String toForm(java.util.Map<String, ?> filter) throws Exception {
-        return toFormWithSymbol(filter, "&");
+        return toFormWithSymbol(filter, SEPARATOR);
     }
 
     private static String toFormWithSymbol(java.util.Map<String, ?> filter, String symbol) throws Exception {
@@ -312,7 +304,7 @@ public class Client {
             if (StringUtils.isEmpty(queries.get(key))) {
                 continue;
             }
-            canonicalizedQueryString.append("&")
+            canonicalizedQueryString.append(SEPARATOR)
                     .append(percentEncode(key)).append("=")
                     .append(percentEncode(queries.get(key)));
         }
@@ -412,14 +404,14 @@ public class Client {
         return endpoint;
     }
 
-    public static String hexEncode(byte[] raw){
-        if(raw == null){
+    public static String hexEncode(byte[] raw) {
+        if (raw == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer();
-        for(int i = 0; i < raw.length; i++) {
+        for (int i = 0; i < raw.length; i++) {
             String hex = Integer.toHexString(raw[i] & 0xFF);
-            if(hex.length() < 2){
+            if (hex.length() < 2) {
                 sb.append(0);
             }
             sb.append(hex);
@@ -427,14 +419,14 @@ public class Client {
         return sb.toString();
     }
 
-    public static byte[] hash(byte[] raw, String signAlgorithm) throws Exception{
-        if(signAlgorithm == null){
+    public static byte[] hash(byte[] raw, String signAlgorithm) throws Exception {
+        if (signAlgorithm == null) {
             return null;
         }
-        if(signAlgorithm.equals(HMAC_SHA256) || signAlgorithm.equals(RSA_SHA256)){
+        if (signAlgorithm.equals(HMAC_SHA256) || signAlgorithm.equals(RSA_SHA256)) {
             MessageDigest digest = MessageDigest.getInstance(HASH_SHA256);
             return digest.digest(raw);
-        } else if(signAlgorithm.equals(HMAC_SM3)){
+        } else if (signAlgorithm.equals(HMAC_SM3)) {
             BouncyCastleProvider provider = new BouncyCastleProvider();
             MessageDigest digest = MessageDigest.getInstance(HASH_SM3, provider);
             return digest.digest(raw);
@@ -443,11 +435,9 @@ public class Client {
     }
 
 
-
-
-    public static String getAuthorization(TeaRequest request, String signAlgorithm, String payload, String accessKey, String secret)throws Exception{
-        String canonicalURI = percentEncode(request.pathname);
-        if(canonicalURI == null){
+    public static String getAuthorization(TeaRequest request, String signAlgorithm, String payload, String accessKey, String secret) throws Exception {
+        String canonicalURI = request.pathname;
+        if (canonicalURI == null) {
             canonicalURI = "";
         }
         String method = request.method;
@@ -467,16 +457,16 @@ public class Client {
         return auth;
     }
 
-    protected static String checkRSASecret(String secret){
-        if(secret.startsWith(PEM_BEGIN)){
+    protected static String checkRSASecret(String secret) {
+        if (secret.startsWith(PEM_BEGIN)) {
             secret = secret.replace(PEM_BEGIN, "");
         }
 
-        while(secret.endsWith("\n") || secret.endsWith("\r")){
+        while (secret.endsWith("\n") || secret.endsWith("\r")) {
             secret = secret.substring(0, secret.length() - 1);
         }
 
-        if(secret.endsWith(PEM_END)){
+        if (secret.endsWith(PEM_END)) {
             secret = secret.replace(PEM_END, "");
         }
 
@@ -485,13 +475,13 @@ public class Client {
 
     public static byte[] SignatureMethod(String stringToSign, String secret, String signAlgorithm) throws Exception {
         byte[] bytes = null;
-        if(signAlgorithm.equals(HMAC_SHA256)){
+        if (signAlgorithm.equals(HMAC_SHA256)) {
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
             sha256_HMAC.init(secret_key);
             bytes = sha256_HMAC.doFinal(stringToSign.getBytes());
             return bytes;
-        } else if(signAlgorithm.equals(RSA_SHA256)){
+        } else if (signAlgorithm.equals(RSA_SHA256)) {
             secret = checkRSASecret(secret);
             Signature rsaSign = Signature.getInstance("SHA256withRSA");
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -500,7 +490,7 @@ public class Client {
             rsaSign.initSign(privateKey);
             rsaSign.update(stringToSign.getBytes(UTF8));
             bytes = rsaSign.sign();
-        }else if(signAlgorithm.equals(HMAC_SM3)){
+        } else if (signAlgorithm.equals(HMAC_SM3)) {
             SecretKey key = new SecretKeySpec((secret).getBytes(UTF8), "HMAC-SM3");
             HMac mac = new HMac(new SM3Digest());
             bytes = new byte[mac.getMacSize()];
@@ -514,7 +504,7 @@ public class Client {
 
     public static String getEncodePath(String path) throws UnsupportedEncodingException {
         String[] strs = path.split("/");
-        for(int i = 0; i < strs.length; i++) {
+        for (int i = 0; i < strs.length; i++) {
             strs[i] = percentEncode(strs[i]);
         }
         List<String> strList = Arrays.asList(strs);
