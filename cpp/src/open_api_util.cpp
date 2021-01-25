@@ -198,7 +198,7 @@ string url_encode(const std::string &str) {
       continue;
     }
     escaped << std::uppercase;
-    escaped << '%' << std::setw(2) << int((unsigned char)c);
+    escaped << '%' << std::setw(2) << int((unsigned char) c);
     escaped << nouppercase;
   }
 
@@ -225,8 +225,8 @@ std::string strToSign(std::string method, const map<string, string> &query) {
   for (const auto &it : query) {
     std::string s;
     s = s.append(url_encode(it.first))
-            .append("=")
-            .append(url_encode(it.second));
+        .append("=")
+        .append(url_encode(it.second));
     tmp.push_back(s);
   }
   std::string str = implode(tmp, "&");
@@ -295,6 +295,7 @@ string Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
     const boost::any &array, shared_ptr<string> prefix,
     shared_ptr<string> style) {
   string result;
+  string sty = !style ? "" : *style;
   if (typeid(shared_ptr<vector<boost::any>>) == array.type()) {
     shared_ptr<vector<boost::any>> vec_ptr =
         boost::any_cast<shared_ptr<vector<boost::any>>>(array);
@@ -302,17 +303,15 @@ string Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
       return result;
     }
 
-    if (*style == "repeatList") {
+    if (sty == "repeatList") {
       return result = flat_repeat_vec(*vec_ptr, *prefix);
-    } else if (*style == "simple") {
+    } else if (sty == "simple") {
       return result = flat_vec(*vec_ptr, ",");
-    } else if (*style == "spaceDelimited") {
-      return result = flat_vec(*vec_ptr, " ");
-      ;
-    } else if (*style == "pipeDelimited") {
-      return result = flat_vec(*vec_ptr, "|");
-      ;
-    } else if (*style == "json") {
+    } else if (sty == "spaceDelimited") {
+      return result = flat_vec(*vec_ptr, " ");;
+    } else if (sty == "pipeDelimited") {
+      return result = flat_vec(*vec_ptr, "|");;
+    } else if (sty == "json") {
       return result = Darabonba_Util::Client::toJSONString(array);
     }
     return result;
@@ -362,4 +361,27 @@ Alibabacloud_OpenApiUtil::Client::getEndpoint(shared_ptr<string> endpoint,
     e = "oss-accelerate.aliyuncs.com";
   }
   return e;
+}
+map<string, boost::any> Client::parseToMap(const boost::any &input) {
+  if (typeid(shared_ptr<Darabonba::Model>) == input.type()) {
+    shared_ptr<Darabonba::Model> m = boost::any_cast<shared_ptr<Darabonba::Model>>(input);
+    return m->toMap();
+  }
+  return map<string, boost::any>();
+}
+string Client::hexEncode(shared_ptr<vector<uint8_t>> raw) {
+  return std::string();
+}
+vector<uint8_t> Client::hash(shared_ptr<vector<uint8_t>> raw, shared_ptr<string> signatureAlgorithm) {
+  return vector<uint8_t>();
+}
+string Client::getAuthorization(shared_ptr<Darabonba::Request> request,
+                                shared_ptr<string> signatureAlgorithm,
+                                shared_ptr<string> payload,
+                                shared_ptr<string> acesskey,
+                                shared_ptr<string> accessKeySecret) {
+  return std::string();
+}
+string Client::getEncodePath(shared_ptr<string> path) {
+  return std::string();
 }
