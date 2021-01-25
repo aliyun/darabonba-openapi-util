@@ -1,3 +1,6 @@
+### 2021-01-25 Version 0.1.2
+* Improve S3 signature.
+
 ### 2021-01-13 Version 0.1.1
 * query method ignore readable objects.
 
