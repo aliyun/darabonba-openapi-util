@@ -320,9 +320,62 @@ public:
 };
 
 TEST(tests, parseToMap) {
-  shared_ptr<MockModel> m = make_shared<MockModel>();
-  m->headers = make_shared<map<string, string>>(map<string, string>({{"foo", "bar"}}));
+  shared_ptr<map<string, boost::any>> m = make_shared<map<string, boost::any>>(
+      map<string, boost::any>(
+          {{"foo", make_shared<vector<boost::any>>(vector<boost::any>({string("bar")}))}}
+    )
+  );
   map<string, boost::any> msa = Alibabacloud_OpenApiUtil::Client::parseToMap(m);
-  map<string, string> headers = boost::any_cast<map<string, string>>(msa["headers"]);
-  ASSERT_EQ(string("bar"), headers["foo"]);
+  vector<boost::any> foo = *boost::any_cast<shared_ptr<vector<boost::any>>>((*m)["foo"]);
+  ASSERT_EQ(string("bar"), boost::any_cast<string>(foo[0]));
+}
+
+
+TEST(tests, hexEncode) {
+  string str = "test";
+
+  string res = Alibabacloud_OpenApiUtil::Client::hexEncode(
+      make_shared<vector<uint8_t>>(Alibabacloud_OpenApiUtil::Client::hash(make_shared<vector<uint8_t>>(vector<uint8_t>(str.begin(), str.end())),
+          make_shared<string>("ACS3-RSA-SHA256")))
+      );
+
+  ASSERT_EQ("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", res);
+
+  string res1 = Alibabacloud_OpenApiUtil::Client::hexEncode(
+      make_shared<vector<uint8_t>>(Alibabacloud_OpenApiUtil::Client::hash(make_shared<vector<uint8_t>>(vector<uint8_t>(str.begin(), str.end())),
+                                                                          make_shared<string>("ACS3-HMAC-SM3")))
+  );
+
+  ASSERT_EQ("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", res1);
+}
+
+TEST(tests, getAuthorization) {
+  Darabonba::Request request;
+  request.query = map<string, string>({
+    {"test", "ok"},
+    {"empty", ""}
+  });
+  request.headers = map<string, string>({
+                                            {"x-acs-test", "http"},
+                                            {"x-acs-TEST", "https"}
+  });
+  string res = Alibabacloud_OpenApiUtil::Client::getAuthorization(
+      make_shared<Darabonba::Request>(request),
+      make_shared<string>("ACS3-HMAC-SHA256"),
+      make_shared<string>("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23"),
+      make_shared<string>("acesskey"),
+      make_shared<string>("secret")
+      );
+  ASSERT_EQ(
+      "ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=910e59dd385879346de704a06c96613f8157aa7124e6d1c4f2bdffa1e5588187",
+      res
+  );
+}
+
+
+TEST(tests, getEncodePath) {
+  string res = Alibabacloud_OpenApiUtil::Client::getEncodePath(
+      make_shared<string>("/path/ test")
+  );
+  ASSERT_EQ("/path/%20test", res);
 }
