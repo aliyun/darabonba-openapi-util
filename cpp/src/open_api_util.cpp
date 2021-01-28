@@ -1,12 +1,15 @@
 #include "crypt/base64.h"
 #include "crypt/hmac.h"
 #include "crypt/sha1.h"
+#include "crypt/sha256.h"
+#include "crypt/sm3.h"
+#include "crypt/rsa.h"
+#include <iostream>
 #include <alibabacloud/open_api_util.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/any.hpp>
 #include <darabonba/core.hpp>
 #include <darabonba/util.hpp>
-#include <iostream>
 #include <map>
 
 using namespace std;
@@ -362,26 +365,204 @@ Alibabacloud_OpenApiUtil::Client::getEndpoint(shared_ptr<string> endpoint,
   }
   return e;
 }
-map<string, boost::any> Client::parseToMap(const boost::any &input) {
-  if (typeid(shared_ptr<Darabonba::Model>) == input.type()) {
-    shared_ptr<Darabonba::Model> m = boost::any_cast<shared_ptr<Darabonba::Model>>(input);
-    return m->toMap();
+
+template <typename T> bool can_cast(const boost::any &v) {
+  return typeid(shared_ptr<T>) == v.type();
+}
+
+template <typename T> shared_ptr<T> any_casts(const boost::any &v) {
+  shared_ptr<T> res;
+  if (typeid(shared_ptr<T>) == v.type()) {
+    res = boost::any_cast<shared_ptr<T>>(v);
   }
-  return map<string, boost::any>();
+  return res;
 }
+
+
+boost::any _parseToMap(const boost::any &input) {
+  if (can_cast<map<string, boost::any>>(input)) {
+    shared_ptr<map<string, boost::any>> mapPtr = any_casts<map<string, boost::any>>(input);
+    map<string, boost::any> tmp;
+    if (mapPtr) {
+      for (const auto& i: *mapPtr) {
+        tmp[i.first] = _parseToMap(i.second);
+      }
+    }
+    return tmp;
+  } else if (can_cast<vector<boost::any>>(input)) {
+    shared_ptr<vector<boost::any>> vecPtr = any_casts<vector<boost::any>>(input);
+    vector<boost::any> tmp;
+    if (vecPtr) {
+      for (const auto& i: *vecPtr) {
+        tmp.push_back(_parseToMap(i));
+      }
+    }
+    return tmp;
+  } else if (can_cast<Darabonba::Model>(input)) {
+    shared_ptr<Darabonba::Model> modelPtr = any_casts<Darabonba::Model>(input);
+    map<string, boost::any> tmp;
+    if (modelPtr) {
+      tmp = modelPtr->toMap();
+    }
+    return tmp;
+  }
+  return input;
+}
+
+
+map<string, boost::any> Client::parseToMap(const boost::any &input) {
+  return boost::any_cast<map<string, boost::any>>(_parseToMap(input));
+}
+
+static char hexdigits[] = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    'a', 'b', 'c', 'd', 'e', 'f'
+};
+
+void binascii_hexlify(unsigned char* in, int inlen, char* out)
+{
+  int i, j;
+  for (i = j = 0; i < inlen; i++) {
+    int top = (in[i] >> 4) & 0xF;
+    int bot = in[i] & 0xF;
+    out[j++] = hexdigits[top];
+    out[j++] = hexdigits[bot];
+  }
+}
+
+
 string Client::hexEncode(shared_ptr<vector<uint8_t>> raw) {
-  return std::string();
+  string res;
+  if (raw) {
+    unsigned char * in = reinterpret_cast<unsigned char*>(raw->data());
+    char out[raw->size()*2];
+    binascii_hexlify(in, raw->size(), out);
+    return string(out, raw->size()*2);
+  }
+  return res;
 }
+
+
 vector<uint8_t> Client::hash(shared_ptr<vector<uint8_t>> raw, shared_ptr<string> signatureAlgorithm) {
+  string sign_type = *signatureAlgorithm;
+  std::string str(raw->begin(), raw->end());
+  if (sign_type == "ACS3-HMAC-SHA256" || sign_type == "ACS3-RSA-SHA256") {
+    boost::uint8_t hash_val[sha256::HASH_SIZE];
+    sha256::hash(str, hash_val);
+    return vector<uint8_t>(&hash_val[0], &hash_val[sha256::HASH_SIZE]);
+  } else if (sign_type == "ACS3-HMAC-SM3") {
+    boost::uint8_t hash_val[sm3::HASH_SIZE];
+    sm3::hash(str, hash_val);
+    return vector<uint8_t>(&hash_val[0], &hash_val[sm3::HASH_SIZE]);
+  }
   return vector<uint8_t>();
 }
+
+
+string quote(const std::string &str, string safe) {
+  std::stringstream escaped;
+  escaped.fill('0');
+  escaped << hex;
+
+  for (char c : str) {
+    if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~' || safe.find(c) != string::npos) {
+      escaped << c;
+      continue;
+    }
+    escaped << std::uppercase;
+    escaped << '%' << std::setw(2) << int((unsigned char) c);
+    escaped << nouppercase;
+  }
+
+  return escaped.str();
+}
+
+
+vector<boost::uint8_t> signatureMethod(string secret, string source, string signType) {
+  if (signType == "ACS3-HMAC-SHA256") {
+    boost::uint8_t hash_val[sha256::HASH_SIZE];
+    hmac<sha256>::calc(source, secret, hash_val);
+    return vector<uint8_t>(&hash_val[0], &hash_val[sha256::HASH_SIZE]);
+  } else if (signType == "ACS3-HMAC-SM3") {
+    boost::uint8_t hash_val[sm3::HASH_SIZE];
+    hmac<sm3>::calc(source, secret, hash_val);
+    return vector<uint8_t>(&hash_val[0], &hash_val[sm3::HASH_SIZE]);
+  } else if (signType == "ACS3-RSA-SHA256") {
+    return RsaSha256::RSASignAction(source, secret);
+  }
+  return vector<uint8_t>();
+}
+
+
+string getCanonicalQueryString(map<string, string> query) {
+  string query_string;
+  for (auto i:query) {
+    string value = quote(query[i.first], "");
+    query_string.append(i.first).append("=").append(value).append("&");
+  }
+  return query_string.substr(0, query_string.size()-1);
+}
+
+
+vector<string> getCanonicalizedHeaders(map<string, string> headers) {
+  string canonical_headers;
+  string signed_headers;
+  map<string, vector<string>> tmp_headers;
+  for (auto i:headers) {
+    if (tmp_headers.find(boost::to_lower_copy(i.first)) != tmp_headers.end()) {
+      tmp_headers[boost::to_lower_copy(i.first)].push_back(i.second);
+    } else {
+      tmp_headers[boost::to_lower_copy(i.first)] = vector<string>({i.second});
+    }
+  }
+  vector<string> header_keys;
+  for (auto i:tmp_headers) {
+    header_keys.push_back(i.first);
+    sort(i.second.begin(), i.second.end());
+    string header_entry = boost::join(i.second, ",");
+    canonical_headers.append(i.first).append(":").append(header_entry).append("\n");
+  }
+  return vector<string>({canonical_headers, boost::join(header_keys, ",")});
+}
+
 string Client::getAuthorization(shared_ptr<Darabonba::Request> request,
                                 shared_ptr<string> signatureAlgorithm,
                                 shared_ptr<string> payload,
                                 shared_ptr<string> acesskey,
                                 shared_ptr<string> accessKeySecret) {
-  return std::string();
+  string auth;
+  if (request && signatureAlgorithm && payload && acesskey && accessKeySecret) {
+    string canonical_uri = request->pathname;
+    string canonicalized_query = getCanonicalQueryString(request->query);
+    vector<string> canonicalized_headers_set = getCanonicalizedHeaders(request->headers);
+    string canonicalized_headers = canonicalized_headers_set[0];
+    string signed_headers = canonicalized_headers_set[1];
+
+    string canonical_request = request->method + "\n" + canonical_uri + "\n"
+        + canonicalized_query + "\n" + canonicalized_headers + "\n"
+        + signed_headers + "\n" + *payload;
+
+    string str_to_sign = *signatureAlgorithm + "\n" + Client::hexEncode(
+        make_shared<vector<uint8_t>>(Client::hash(
+            make_shared<vector<uint8_t>>(canonical_request.begin(), canonical_request.end()),
+            signatureAlgorithm)));
+
+    string signature = Client::hexEncode(make_shared<vector<boost::uint8_t>>(signatureMethod(
+        *accessKeySecret, str_to_sign, *signatureAlgorithm
+        )));
+
+    auth.append(*signatureAlgorithm).append(" Credential=")
+    .append(*acesskey).append(",SignedHeaders=").append(signed_headers)
+    .append(",Signature=").append(signature);
+  }
+  return auth;
 }
+
+
 string Client::getEncodePath(shared_ptr<string> path) {
-  return std::string();
+  string res;
+  if (path) {
+    res = quote(*path, "/");
+  }
+  return res;
 }
