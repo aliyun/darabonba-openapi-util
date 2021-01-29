@@ -28,6 +28,20 @@ def to_str(val):
         return str(val)
 
 
+def prepare_headers(headers):
+    canon_keys = []
+    tmp_headers = {}
+    for k, v in headers.items():
+        if v is not None:
+            if k.lower() not in canon_keys:
+                canon_keys.append(k.lower())
+                tmp_headers[k.lower()] = [to_str(v).strip()]
+            else:
+                tmp_headers[k.lower()].append(to_str(v).strip())
+    canon_keys.sort()
+    return {key: ','.join(sorted(tmp_headers[key])) for key in canon_keys}
+
+
 def rsa_sign(plaintext, secret):
     if not secret.startswith('-----BEGIN RSA PRIVATE KEY-----'):
         secret = '-----BEGIN RSA PRIVATE KEY-----\n%s' % secret
@@ -59,7 +73,7 @@ def get_canonical_query_string(query):
     query_string = ''
     for key in canon_keys:
         value = quote(query[key], safe='/~')
-        if value == '':
+        if value is None:
             s = '%s&' % key
         else:
             s = '%s=%s&' % (key, value)
@@ -193,7 +207,8 @@ class Client(object):
         else:
             if key.startswith('.'):
                 key = key[1:]
-            out[key] = str(value)
+            if not isinstance(value, STREAM_CLASS):
+                out[key] = to_str(value)
 
     @staticmethod
     def to_form(filter):
@@ -391,9 +406,10 @@ class Client(object):
 
     @staticmethod
     def get_authorization(request, sign_type, payload, ak, secret):
-        canonical_uri = quote(request.pathname, safe='/~')
+        canonical_uri = request.pathname
         canonicalized_query = get_canonical_query_string(request.query)
         canonicalized_headers, signed_headers = get_canonicalized_headers(request.headers)
+        request.headers = prepare_headers(request.headers)
 
         canonical_request = '%s\n%s\n%s\n%s\n%s\n%s' % (
             request.method,
