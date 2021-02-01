@@ -72,7 +72,7 @@ def get_canonical_query_string(query):
     canon_keys.sort()
     query_string = ''
     for key in canon_keys:
-        value = quote(query[key], safe='/~')
+        value = quote(to_str(query[key]), safe='~')
         if value is None:
             s = '%s&' % key
         else:
@@ -276,9 +276,9 @@ class Client(object):
         for k in keys:
             if queries[k] is not None:
                 canonicalized_query_string += "&"
-                canonicalized_query_string += quote(k, safe='')
+                canonicalized_query_string += quote(to_str(k), safe='')
                 canonicalized_query_string += "="
-                canonicalized_query_string += quote(queries[k], safe='')
+                canonicalized_query_string += quote(to_str(queries[k]), safe='')
 
         string_to_sign = ""
         string_to_sign += method
@@ -286,7 +286,7 @@ class Client(object):
         string_to_sign += quote_plus("/")
         string_to_sign += '&'
         string_to_sign += quote_plus(
-            canonicalized_query_string[1:] if canonicalized_query_string.__len__() > 0 else canonicalized_query_string)
+            canonicalized_query_string[1:])
         digest_maker = hmac.new(bytes(secret + '&'),
                                 bytes(string_to_sign),
                                 digestmod=hashlib.sha1)
@@ -335,8 +335,8 @@ class Client(object):
         l = []
         q = sorted(query)
         for i in q:
-            k = quote_plus(i)
-            v = quote_plus(query[i])
+            k = quote_plus(to_str(i))
+            v = quote_plus(to_str(query[i]))
             l.append(k + '=' + v)
         return '&&'.join(l)
 
@@ -431,4 +431,4 @@ class Client(object):
 
     @staticmethod
     def get_encode_path(path):
-        return quote(path, safe='/~')
+        return quote(to_str(path), safe='/~')
