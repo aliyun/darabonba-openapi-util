@@ -152,6 +152,12 @@ public class ClientTest {
         Assert.assertNull(result.get("map.firstMapMap.nullTest"));
         Assert.assertEquals("2", result.get("map.firstMapMap.IntegerTest"));
         Assert.assertEquals("test", result.get("map.firstMapMap.StringTest"));
+
+        SourceClass model = new SourceClass();
+        query.put("model", model);
+        result = Client.query(query);
+        Assert.assertEquals("test", result.get("model.test"));
+
     }
 
     @Test

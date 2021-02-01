@@ -265,6 +265,11 @@ public class Client {
             for (int i = 0; i < list.size(); i++) {
                 processObject(map, key + "." + (i + 1), list.get(i));
             }
+        } else if (value instanceof TeaModel) {
+            Map<String, Object> subMap = (Map<String, Object>)(((TeaModel)value).toMap());
+            for (Map.Entry<String, Object> entry : subMap.entrySet()) {
+                processObject(map, key + "." + (entry.getKey()), entry.getValue());
+            }
         } else if (value instanceof Map) {
             Map<String, Object> subMap = (Map<String, Object>) value;
             for (Map.Entry<String, Object> entry : subMap.entrySet()) {
