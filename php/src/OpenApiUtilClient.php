@@ -5,6 +5,7 @@ namespace AlibabaCloud\OpenApiUtil;
 use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\Utils\Utils;
+use OneSm\Sm3;
 use Psr\Http\Message\StreamInterface;
 
 /**
@@ -272,9 +273,6 @@ class OpenApiUtilClient
                 $res = hash('sha256', $str, true);
                 return Utils::toBytes($res);
             case 'ACS3-HMAC-SM3':
-                if ($str === '') {
-                    return Utils::toBytes(hex2bin('1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b'));
-                }
                 $res = self::sm3($str);
                 return Utils::toBytes(hex2bin($res));
         }
@@ -507,8 +505,7 @@ class OpenApiUtilClient
 
     private static function sm3($message)
     {
-        $sm3 = new SM3($message);
-        return (string)$sm3;
+        return (new Sm3())->sign($message);
     }
 
     private static function getCanonicalQueryString($query)
