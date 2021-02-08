@@ -79,6 +79,9 @@ public class Client {
      * @return the signed string
      */
     public static String getStringToSign(TeaRequest request) throws Exception {
+        if (request == null) {
+            return "";
+        }
         String method = request.method;
         String pathname = request.pathname;
         Map<String, String> headers = request.headers;
@@ -95,6 +98,9 @@ public class Client {
     }
 
     protected static String getCanonicalizedHeaders(Map<String, String> headers) {
+        if (headers == null) {
+            return "";
+        }
         String prefix = "x-acs-";
         Set<String> keys = headers.keySet();
         List<String> canonicalizedKeys = new ArrayList<>();
@@ -117,6 +123,10 @@ public class Client {
     }
 
     protected static Map<String, String> getCanonicalizedHeadersMap(Map<String, String> headers) {
+        Map<String, String> result = new HashMap<>();
+        if (headers == null) {
+            return result;
+        }
         String prefix = "x-acs-";
         Set<String> keys = headers.keySet();
         List<String> canonicalizedKeys = new ArrayList<>();
@@ -132,7 +142,6 @@ public class Client {
             }
         }
         String[] canonicalizedKeysArray = canonicalizedKeys.toArray(new String[canonicalizedKeys.size()]);
-        Map<String, String> result = new HashMap<>();
         String signedHeaders = StringUtils.join(";", Arrays.asList(canonicalizedKeysArray));
         Arrays.sort(canonicalizedKeysArray);
         StringBuilder sb = new StringBuilder();
@@ -149,6 +158,15 @@ public class Client {
     }
 
     protected static String getCanonicalizedQueryString(StringBuilder sb, Map<String, String> query, String[] keys) throws Exception {
+        if (query == null || query.size() == 0) {
+            return "";
+        }
+        if (keys == null || keys.length == 0) {
+            return "";
+        }
+        if (sb == null) {
+            sb = new StringBuilder();
+        }
         Arrays.sort(keys);
         String key;
         String value;
@@ -157,7 +175,7 @@ public class Client {
             sb.append(percentEncode(key));
             value = query.get(key);
             sb.append("=");
-            if (!StringUtils.isEmpty(value) && !"".equals(value.trim())) {
+            if (!StringUtils.isEmpty(value)) {
                 sb.append(percentEncode(value));
             }
             sb.append(SEPARATOR);
@@ -165,30 +183,59 @@ public class Client {
         return sb.deleteCharAt(sb.length() - 1).toString();
     }
 
-    protected static String getCanonicalizedResource(Map<String, String> query) throws Exception {
-        String[] keys = query.keySet().toArray(new String[query.size()]);
-        if (keys.length <= 0) {
+    protected static String getCanonicalizedQueryStringForROA(StringBuilder sb, Map<String, String> query, String[] keys) throws Exception {
+        if (query == null || query.size() == 0) {
             return "";
         }
+        if (keys == null || keys.length == 0) {
+            return "";
+        }
+        if (sb == null) {
+            sb = new StringBuilder();
+        }
+        Arrays.sort(keys);
+        String key;
+        String value;
+        for (int i = 0; i < keys.length; i++) {
+            key = keys[i];
+            sb.append(key);
+            value = query.get(key);
+            if (!StringUtils.isEmpty(value)) {
+                sb.append("=");
+                sb.append(value);
+            }
+            sb.append(SEPARATOR);
+        }
+        return sb.deleteCharAt(sb.length() - 1).toString();
+    }
+
+    protected static String getCanonicalizedResource(Map<String, String> query) throws Exception {
+        if (query == null || query.size() == 0) {
+            return "";
+        }
+        String[] keys = query.keySet().toArray(new String[query.size()]);
         StringBuilder result = new StringBuilder();
         return getCanonicalizedQueryString(result, query, keys);
     }
 
     protected static String getCanonicalizedResource(String pathname, Map<String, String> query) throws Exception {
+        if (query == null || query.size() == 0) {
+            return pathname;
+        }
         String[] keys = query.keySet().toArray(new String[query.size()]);
-        if (keys.length <= 0) {
+        if (pathname == null || keys.length <= 0) {
             return pathname;
         }
         StringBuilder result = new StringBuilder(pathname);
         result.append("?");
-        return getCanonicalizedQueryString(result, query, keys);
+        return getCanonicalizedQueryStringForROA(result, query, keys);
     }
 
     /**
      * Get signature according to stringToSign, secret
      *
      * @param stringToSign the signed string
-     * @param secret       accesskey secret
+     * @param secret  accesskey secret
      * @return the signature
      */
     public static String getROASignature(String stringToSign, String secret) throws Exception {
@@ -266,7 +313,7 @@ public class Client {
                 processObject(map, key + "." + (i + 1), list.get(i));
             }
         } else if (value instanceof TeaModel) {
-            Map<String, Object> subMap = (Map<String, Object>)(((TeaModel)value).toMap());
+            Map<String, Object> subMap = (Map<String, Object>) (((TeaModel) value).toMap());
             for (Map.Entry<String, Object> entry : subMap.entrySet()) {
                 processObject(map, key + "." + (entry.getKey()), entry.getValue());
             }
@@ -297,7 +344,7 @@ public class Client {
      * @return the signature
      */
     public static String getRPCSignature(java.util.Map<String, String> signedParams, String method, String secret) throws Exception {
-        if (StringUtils.isEmpty(secret)) {
+        if (signedParams == null || StringUtils.isEmpty(secret)) {
             return secret;
         }
         Map<String, String> queries = signedParams;
@@ -377,6 +424,9 @@ public class Client {
     }
 
     private static String flatArray(List array, String sty) {
+        if (array == null || sty == null) {
+            return "";
+        }
         List<String> strs = new ArrayList<String>();
         for (int i = 0; i < array.size(); i++) {
             strs.add(String.valueOf(array.get(i)));
@@ -442,8 +492,8 @@ public class Client {
 
     public static String getAuthorization(TeaRequest request, String signAlgorithm, String payload, String accessKey, String secret) throws Exception {
         String canonicalURI = request.pathname;
-        if (canonicalURI == null) {
-            canonicalURI = "";
+        if (canonicalURI == null || StringUtils.isEmpty(canonicalURI) || "".equals(canonicalURI.trim())) {
+            canonicalURI = "/";
         }
         String method = request.method;
         Map<String, String> headers = request.headers;
