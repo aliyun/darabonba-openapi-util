@@ -44,6 +44,7 @@ public class ClientTest {
         requestMap.put("content-md5", "content-md5");
         requestMap.put("content-type", "content-type");
         requestMap.put("date", "date");
+        requestMap.put("chineseTest", "汉语");
         requestMap.put("emptyTest", "");
         requestMap.put("spaceTest", "   ");
         request.headers = requestMap;
@@ -57,15 +58,17 @@ public class ClientTest {
                         "date\n" +
                         "x-acs-security-test:test\n" +
                         "x-acs-security-token:test\n" +
-                        "/test?accept=accept&content-md5=content-md5&content-type=content-type&date=date&" +
-                        "emptyTest=&spaceTest=&x-acs-security-test=test&x-acs-security-token=test",
+                        "/test?accept=accept&chineseTest=汉语&content-md5=content-md5&content-type=content-type&date=date&" +
+                        "emptyTest&spaceTest=   &x-acs-security-test=test&x-acs-security-token=test",
                 signature);
     }
 
     @Test
     public void getROASignatureTest() throws Exception {
-        Assert.assertEquals("Ioag9x03doHFkSCveh2h1RE+hsM=",
-                Client.getROASignature("test", "sk"));
+        TeaRequest request = new TeaRequest();
+        String stringToSign = Client.getStringToSign(request);
+        String signature = Client.getROASignature(stringToSign, "sk");
+        Assert.assertEquals("gyDNeagg5mpqgcAIZEfocyrreho=", signature);
     }
 
     @Test
@@ -289,27 +292,27 @@ public class ClientTest {
         req.headers = headers;
 
         String auth = Client.getAuthorization(req, "ACS3-HMAC-SHA256",
-                "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23","acesskey", "secret");
-        Assert.assertEquals("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=3f62ee8a912ade7e6c35ec8e2f67ccb06140e8182ab98c37f781335f04875e99", auth);
+                "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
+        Assert.assertEquals("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=02e81f9f3cc8839151b0c7278024cbc4bfc9fa786085a0b8305f825f17b5dae7", auth);
     }
 
     @Test
     public void signatureMethodTest() throws Exception {
 
         String priKey = "-----BEGIN RSA PRIVATE KEY-----\nMIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKzSQmrnH0YnezZ9" +
-        "8NK50WjMuci0hgGVcSthIZOTWMIySznY9Jj1hlvek7W0uYagtFHz03BHQnHAb5Xs" +
-        "0DZm0Sj9+5r79GggwEzTJDYEsLyFwXM3ZOIxqxL4sRg94MHsa81M9NXGHMyMvvff" +
-        "QTn1OBVLTVz5jgJ48foMn7j7r9kRAgMBAAECgYEAnZppw3/ef2XF8Z3Mnv+iP0Zk" +
-        "LuqiQpN8TykXK7P1/7NJ8wktlshhrSo/3jdf8axghVQsgHob2Ay8Nidugg4lsxIL" +
-        "AUBHvfQsQp1MAWvxslsVj+ddw01MQnt8kHmC/qhok+YuNqqAGBcoD6cthRUjEri6" +
-        "hfs599EfPs2DcWW06qECQQDfNqUUhcDQ/SQHRhfY9UIlaSEs2CVagDrSYFG1wyG+" +
-        "PXDSMes9ZRHsvVVBmNGmtUTg/jioTU3yuPsis5s9ppbVAkEAxjTAQxv5lBBm/ikM" +
-        "TzPShljxDZnXh6lKWG9gR1p5fKoQTzLyyhHzkBSFe848sMm68HWCX2wgIpQLHj0G" +
-        "ccYPTQJAduMKBeY/jpBlkiI5LWtj8b0O2G2/Z3aI3ehDXQYzgLoEz0+bNbYRWAB3" +
-        "2lpkv+AocZW1455Y+ACichcrhiimiQJAW/6L5hoL4u8h/oFq1zAEXJrXdyqaYLrw" +
-        "aM947mVN0dDVNQ0+pw9h7tO3iNkWTi+zdnv0APociDASYPyOCyyUWQJACMNRM1/r" +
-        "boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn" +
-        "Ysx+1cwXO5cuZg==-----END RSA PRIVATE KEY-----\n\r\r";
+                "8NK50WjMuci0hgGVcSthIZOTWMIySznY9Jj1hlvek7W0uYagtFHz03BHQnHAb5Xs" +
+                "0DZm0Sj9+5r79GggwEzTJDYEsLyFwXM3ZOIxqxL4sRg94MHsa81M9NXGHMyMvvff" +
+                "QTn1OBVLTVz5jgJ48foMn7j7r9kRAgMBAAECgYEAnZppw3/ef2XF8Z3Mnv+iP0Zk" +
+                "LuqiQpN8TykXK7P1/7NJ8wktlshhrSo/3jdf8axghVQsgHob2Ay8Nidugg4lsxIL" +
+                "AUBHvfQsQp1MAWvxslsVj+ddw01MQnt8kHmC/qhok+YuNqqAGBcoD6cthRUjEri6" +
+                "hfs599EfPs2DcWW06qECQQDfNqUUhcDQ/SQHRhfY9UIlaSEs2CVagDrSYFG1wyG+" +
+                "PXDSMes9ZRHsvVVBmNGmtUTg/jioTU3yuPsis5s9ppbVAkEAxjTAQxv5lBBm/ikM" +
+                "TzPShljxDZnXh6lKWG9gR1p5fKoQTzLyyhHzkBSFe848sMm68HWCX2wgIpQLHj0G" +
+                "ccYPTQJAduMKBeY/jpBlkiI5LWtj8b0O2G2/Z3aI3ehDXQYzgLoEz0+bNbYRWAB3" +
+                "2lpkv+AocZW1455Y+ACichcrhiimiQJAW/6L5hoL4u8h/oFq1zAEXJrXdyqaYLrw" +
+                "aM947mVN0dDVNQ0+pw9h7tO3iNkWTi+zdnv0APociDASYPyOCyyUWQJACMNRM1/r" +
+                "boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn" +
+                "Ysx+1cwXO5cuZg==-----END RSA PRIVATE KEY-----\n\r\r";
 
         byte[] signature = Client.SignatureMethod("source", "secret", "ACS3-HMAC-SM3");
         Assert.assertEquals("b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8", Client.hexEncode(signature));
