@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using AlibabaCloud.OpenApiUtil;
 
@@ -83,7 +83,7 @@ namespace tests
             query.Add("SignatureMethod", "ssss");
             query.Add("SignName", "name");
             teaRequest.Query = query;
-            Assert.Equal("GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/?SignName=name&SignatureMethod=ssss&key=val ue with space", Client.GetStringToSign(teaRequest));
+            Assert.Equal("GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/?SignName=name&SignatureMethod=ssss&emptyKey&key=val ue with space", Client.GetStringToSign(teaRequest));
         }
 
         [Fact]
@@ -258,7 +258,7 @@ namespace tests
             };
 
             var res = Client.GetAuthorization(req, "ACS3-HMAC-SHA256", "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
-            Assert.Equal("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=11534c077dbcfa24e604348995b33640edb70d31655e09fd131902ec02107934", res);
+            Assert.Equal("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=be2046c5e1d69e715fec81597bb8f72330a7eab002d5cacd434dec1cb9be74ab", res);
         }
 
         [Fact]
