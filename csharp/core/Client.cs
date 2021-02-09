@@ -309,7 +309,7 @@ namespace AlibabaCloud.OpenApiUtil
         /// <returns>authorization string</returns>
         public static string GetAuthorization(TeaRequest request, string signatureAlgorithm, string payload, string acesskey, string accessKeySecret)
         {
-            string canonicalURI = request.Pathname.ToSafeString("").Replace("+", "%20").Replace("*", "%2A").Replace("%7E", "~");
+            string canonicalURI = request.Pathname.ToSafeString("") == "" ? "/" : request.Pathname.Replace("+", "%20").Replace("*", "%2A").Replace("%7E", "~");
             string method = request.Method;
             string canonicalQueryString = GetAuthorizationQueryString(request.Query);
             Tuple<string, List<string>> tuple = GetAuthorizationHeaders(request.Headers);
@@ -488,11 +488,20 @@ namespace AlibabaCloud.OpenApiUtil
             for (int i = 0; i < keys.Count; i++)
             {
                 key = keys[i];
-                if (string.IsNullOrWhiteSpace(query[key]))
+                if (query[key] == null)
                 {
                     continue;
                 }
-                result.Add(key + "=" + query[key]);
+
+                if (query[key] == "")
+                {
+                    result.Add(key);
+                }
+                else
+                {
+                    result.Add(key + "=" + query[key]);
+                }
+                
             }
             return pathname + "?" + string.Join("&", result);
         }
