@@ -53,7 +53,7 @@ class OpenApiUtilClientTest extends TestCase
         $request->query = [
             'key' => 'val ue with space',
         ];
-        $this->assertEquals("GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/?key=val%20ue%20with%20space", OpenApiUtilClient::getStringToSign($request));
+        $this->assertEquals("GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/?key=val ue with space", OpenApiUtilClient::getStringToSign($request));
     }
 
     public function testGetROASignature()
@@ -262,7 +262,7 @@ class OpenApiUtilClientTest extends TestCase
 
         $res = OpenApiUtilClient::getAuthorization($request, 'ACS3-HMAC-SHA256', '55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23', 'acesskey', 'secret');
 
-        $this->assertEquals('ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=6886c2524bed4eb951f857100358da5787d230bc29c7656de91967df8636751b', $res);
+        $this->assertEquals('ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=b1c354956701e439df07488f1ec270919fe9029f438a9db3970053406a6d1d7e', $res);
     }
 
     public function testSign()

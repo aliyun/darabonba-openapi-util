@@ -295,7 +295,7 @@ class OpenApiUtilClient
      */
     public static function getAuthorization($request, $signatureAlgorithm, $payload, $accesskey, $accessKeySecret)
     {
-        $canonicalURI = $request->pathname;
+        $canonicalURI = $request->pathname ? $request->pathname : '/';
 
         $method               = strtoupper($request->method);
         $canonicalQueryString = self::getCanonicalQueryString($request->query);
@@ -326,8 +326,9 @@ class OpenApiUtilClient
         $canonicalRequest = $method . "\n" . $canonicalURI . "\n" . $canonicalQueryString . "\n" .
             $canonicalHeaderString . "\n" . implode(';', array_keys($signHeaders)) . "\n" . $payload;
         $strtosign        = $signatureAlgorithm . "\n" . self::hexEncode(self::hash(Utils::toBytes($canonicalRequest), $signatureAlgorithm));
-        $signature = self::sign($accessKeySecret, $strtosign, $signatureAlgorithm);
-        $signature = self::hexEncode($signature);
+        $signature        = self::sign($accessKeySecret, $strtosign, $signatureAlgorithm);
+        $signature        = self::hexEncode($signature);
+
         return $signatureAlgorithm .
             ' Credential=' . $accesskey .
             ',SignedHeaders=' . implode(';', array_keys($signHeaders)) .
@@ -447,9 +448,9 @@ class OpenApiUtilClient
         $tmp = [];
         foreach ($query as $k => $v) {
             if (!empty($v)) {
-                $tmp[] = $k . '=' . rawurlencode($v);
+                $tmp[] = $k . '=' . $v;
             } else {
-                $tmp[] = $k . '=';
+                $tmp[] = $k;
             }
         }
 
@@ -520,6 +521,8 @@ class OpenApiUtilClient
             $str = rawurlencode($k);
             if ('' !== $v && null !== $v) {
                 $str .= '=' . rawurlencode($v);
+            } else {
+                $str .= '=';
             }
             $params[] = $str;
         }
