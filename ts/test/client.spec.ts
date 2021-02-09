@@ -404,4 +404,16 @@ describe('Tea Util', function () {
     resStr = Client.hexEncode(res);
     assert.strictEqual("a00b88ae04f651a8ab645e724949ff435bbb2cf9a37aa54323024477f8031f4e13dc948484c5c5a81ba53a55eb0571dffccc1e953c93269d6da23ed319e0f1ef699bcc9823a646574628ae1b70ed569b5a07d139dda28996b5b9231f5ba96141f0893deec2fbf54a0fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12", resStr);
   });
+
+  it('getEncodePath should ok', async function () {
+    let str = Client.getEncodePath('/path/ test');
+    assert.strictEqual(str, '/path/%20test');
+    str = Client.getEncodePath('/path/#test');
+    assert.strictEqual(str, '/path/%23test');
+    str = Client.getEncodePath('/path/"test');
+    assert.strictEqual(str, '/path/%22test');
+    str = Client.getEncodePath('/path/\'test');
+    assert.strictEqual(str, '/path/%27test');
+  });
+  
 });

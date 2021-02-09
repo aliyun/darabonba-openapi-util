@@ -454,4 +454,15 @@ static signatureMethod(secret: string, source: string, signatureAlgorithm: strin
 
     return auth;
   }
+
+  static getEncodePath(path: string): string {
+    if (typeof path === 'undefined' || path === null) {
+      return '';
+    }
+    let strs = path.split('/');
+    for (let i = 0; i < strs.length; i++) {
+      strs[i] = encode(strs[i]);
+    }
+    return strs.join('/');
+  }
 }
