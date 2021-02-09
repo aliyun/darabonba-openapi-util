@@ -401,7 +401,7 @@ class Client(object):
 
     @staticmethod
     def get_authorization(request, sign_type, payload, ak, secret):
-        canonical_uri = request.pathname
+        canonical_uri = request.pathname if request.pathname else '/'
         canonicalized_query = get_canonical_query_string(request.query)
         canonicalized_headers, signed_headers = get_canonicalized_headers(request.headers)
 
