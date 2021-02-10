@@ -217,10 +217,11 @@ func Test_GetAuthorization(t *testing.T) {
 		Query:   query,
 		Headers: headers,
 	}
+	req.Pathname = tea.String("")
 	res := GetAuthorization(req, tea.String("ACS3-HMAC-SHA256"),
 		tea.String("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23"),
 		tea.String("acesskey"), tea.String("secret"))
-	utils.AssertEqual(t, "ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=12235d088f795ddabff95342904e1d7d605e7653687bcf8c263714ef713ca2d2", tea.StringValue(res))
+	utils.AssertEqual(t, "ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=4ab59fffe3c5738ff8a2729f90cc04fe18b02a4b15b2102cbaf92f9ff3df2ea3", tea.StringValue(res))
 }
 
 func Test_SignatureMethod(t *testing.T) {
