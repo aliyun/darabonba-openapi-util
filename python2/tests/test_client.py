@@ -111,7 +111,6 @@ class TestClient(unittest.TestCase):
         self.assertEqual("1", result.get("list.4.1"))
         self.assertEqual(None, result.get("list.3.file_test"))
 
-
         sub_map_fd = {
             'none_test': None,
             'int_test': 2,
