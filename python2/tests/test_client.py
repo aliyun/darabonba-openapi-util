@@ -122,7 +122,8 @@ class TestClient(unittest.TestCase):
             'first_map_list': sl,
             'none_test': None,
             'int_test': 2,
-            'str_test': 'test'
+            'str_test': 'test',
+            'model_test': self.TestConvertModel()
         }
         dic['map'] = fd
 
@@ -131,6 +132,7 @@ class TestClient(unittest.TestCase):
         self.assertIsNone(result.get("map.none_test"))
         self.assertEqual("2", result.get("map.int_test"))
         self.assertEqual("test", result.get("map.str_test"))
+        self.assertEqual('1', result.get("map.model_test.no_map"))
         self.assertIsNone(result.get("map.first_map_map.none_test"))
         self.assertEqual("2", result.get("map.first_map_map.int_test"))
         self.assertEqual("test", result.get("map.first_map_map.str_test"))
