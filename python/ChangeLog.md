@@ -1,3 +1,6 @@
+### 2021-02-20 Version 0.1.4
+* The `query` method supports parsing TeaModel.
+
 ### 2021-02-10 Version 0.1.3
 * Use '/' as default of canonicalURI to fix signature.
 
