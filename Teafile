@@ -1,7 +1,7 @@
 {
   "scope": "alibabacloud",
   "name": "OpenApiUtil",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "main": "./main.tea",
   "maintainers": [
     {
@@ -15,8 +15,8 @@
     "csharp": "AlibabaCloud.OpenApiUtil:1.0.7",
     "java": "com.aliyun:openapiutil:0.1.3",
     "php": "alibabacloud/openapi-util:^0.1.7",
-    "python": "alibabacloud_openapi_util:0.1.3",
-    "python2": "alibabacloud_openapi_util_py2:0.0.3",
+    "python": "alibabacloud_openapi_util:0.1.4",
+    "python2": "alibabacloud_openapi_util_py2:0.0.4",
     "cpp": "alibabacloud-sdk-cpp/openapi-util:master"
   },
   "csharp": {
