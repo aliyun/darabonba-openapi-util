@@ -197,12 +197,13 @@ class Client(object):
             return
 
         if isinstance(value, dict):
-            dic = value
-            for k, v in dic.items():
+            for k, v in value.items():
+                Client._object_handler('%s.%s' % (key, k), v, out)
+        elif isinstance(value, TeaModel):
+            for k, v in value.to_map().items():
                 Client._object_handler('%s.%s' % (key, k), v, out)
         elif isinstance(value, (list, tuple)):
-            lis = value
-            for index, val in enumerate(lis):
+            for index, val in enumerate(value):
                 Client._object_handler('%s.%s' % (key, index + 1), val, out)
         else:
             if key.startswith('.'):
