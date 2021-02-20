@@ -22,10 +22,10 @@ def to_str(val):
     if val is None:
         return val
 
-    if isinstance(val, unicode):
-        return val.encode('utf-8')
+    if isinstance(val, str):
+        return val.decode('utf-8')
     else:
-        return str(val)
+        return unicode(val)
 
 
 def prepare_headers(headers):
@@ -148,7 +148,7 @@ class Client(object):
                 if query[key] == '':
                     s = '%s&' % key
                 else:
-                    s = '%s=%s&' % (key, query[key])
+                    s = '%s=%s&' % (key, to_str(query[key]))
                 resource += s
         return resource[:-1]
 
