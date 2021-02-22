@@ -307,15 +307,15 @@ string Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
     }
 
     if (sty == "repeatList") {
-      return result = flat_repeat_vec(*vec_ptr, *prefix);
+      result = flat_repeat_vec(*vec_ptr, *prefix);
     } else if (sty == "simple") {
-      return result = flat_vec(*vec_ptr, ",");
+      result = flat_vec(*vec_ptr, ",");
     } else if (sty == "spaceDelimited") {
-      return result = flat_vec(*vec_ptr, " ");;
+      result = flat_vec(*vec_ptr, " ");;
     } else if (sty == "pipeDelimited") {
-      return result = flat_vec(*vec_ptr, "|");;
+      result = flat_vec(*vec_ptr, "|");;
     } else if (sty == "json") {
-      return result = Darabonba_Util::Client::toJSONString(array);
+      result = Darabonba_Util::Client::toJSONString(array);
     }
     return result;
   }
@@ -366,11 +366,11 @@ Alibabacloud_OpenApiUtil::Client::getEndpoint(shared_ptr<string> endpoint,
   return e;
 }
 
-template <typename T> bool can_cast(const boost::any &v) {
+template<typename T> bool can_cast(const boost::any &v) {
   return typeid(shared_ptr<T>) == v.type();
 }
 
-template <typename T> shared_ptr<T> any_casts(const boost::any &v) {
+template<typename T> shared_ptr<T> any_casts(const boost::any &v) {
   shared_ptr<T> res;
   if (typeid(shared_ptr<T>) == v.type()) {
     res = boost::any_cast<shared_ptr<T>>(v);
@@ -378,13 +378,12 @@ template <typename T> shared_ptr<T> any_casts(const boost::any &v) {
   return res;
 }
 
-
 boost::any _parseToMap(const boost::any &input) {
   if (can_cast<map<string, boost::any>>(input)) {
     shared_ptr<map<string, boost::any>> mapPtr = any_casts<map<string, boost::any>>(input);
     map<string, boost::any> tmp;
     if (mapPtr) {
-      for (const auto& i: *mapPtr) {
+      for (const auto &i: *mapPtr) {
         tmp[i.first] = _parseToMap(i.second);
       }
     }
@@ -393,7 +392,7 @@ boost::any _parseToMap(const boost::any &input) {
     shared_ptr<vector<boost::any>> vecPtr = any_casts<vector<boost::any>>(input);
     vector<boost::any> tmp;
     if (vecPtr) {
-      for (const auto& i: *vecPtr) {
+      for (const auto &i: *vecPtr) {
         tmp.push_back(_parseToMap(i));
       }
     }
@@ -409,7 +408,6 @@ boost::any _parseToMap(const boost::any &input) {
   return input;
 }
 
-
 map<string, boost::any> Client::parseToMap(const boost::any &input) {
   return boost::any_cast<map<string, boost::any>>(_parseToMap(input));
 }
@@ -419,8 +417,7 @@ static char hexdigits[] = {
     'a', 'b', 'c', 'd', 'e', 'f'
 };
 
-void binascii_hexlify(unsigned char* in, int inlen, char* out)
-{
+void binascii_hexlify(unsigned char *in, int inlen, char *out) {
   int i, j;
   for (i = j = 0; i < inlen; i++) {
     int top = (in[i] >> 4) & 0xF;
@@ -430,18 +427,16 @@ void binascii_hexlify(unsigned char* in, int inlen, char* out)
   }
 }
 
-
 string Client::hexEncode(shared_ptr<vector<uint8_t>> raw) {
   string res;
   if (raw) {
-    unsigned char * in = reinterpret_cast<unsigned char*>(raw->data());
-    char out[raw->size()*2];
+    unsigned char *in = reinterpret_cast<unsigned char *>(raw->data());
+    char out[raw->size() * 2];
     binascii_hexlify(in, raw->size(), out);
-    return string(out, raw->size()*2);
+    return string(out, raw->size() * 2);
   }
   return res;
 }
-
 
 vector<uint8_t> Client::hash(shared_ptr<vector<uint8_t>> raw, shared_ptr<string> signatureAlgorithm) {
   string sign_type = *signatureAlgorithm;
@@ -457,7 +452,6 @@ vector<uint8_t> Client::hash(shared_ptr<vector<uint8_t>> raw, shared_ptr<string>
   }
   return vector<uint8_t>();
 }
-
 
 string quote(const std::string &str, string safe) {
   std::stringstream escaped;
@@ -477,7 +471,6 @@ string quote(const std::string &str, string safe) {
   return escaped.str();
 }
 
-
 vector<boost::uint8_t> signatureMethod(string secret, string source, string signType) {
   if (signType == "ACS3-HMAC-SHA256") {
     boost::uint8_t hash_val[sha256::HASH_SIZE];
@@ -493,16 +486,14 @@ vector<boost::uint8_t> signatureMethod(string secret, string source, string sign
   return vector<uint8_t>();
 }
 
-
 string getCanonicalQueryString(map<string, string> query) {
   string query_string;
   for (auto i:query) {
     string value = quote(query[i.first], "");
     query_string.append(i.first).append("=").append(value).append("&");
   }
-  return query_string.substr(0, query_string.size()-1);
+  return query_string.substr(0, query_string.size() - 1);
 }
-
 
 vector<string> getCanonicalizedHeaders(map<string, string> headers) {
   string canonical_headers;
@@ -549,15 +540,14 @@ string Client::getAuthorization(shared_ptr<Darabonba::Request> request,
 
     string signature = Client::hexEncode(make_shared<vector<boost::uint8_t>>(signatureMethod(
         *accessKeySecret, str_to_sign, *signatureAlgorithm
-        )));
+    )));
 
     auth.append(*signatureAlgorithm).append(" Credential=")
-    .append(*acesskey).append(",SignedHeaders=").append(signed_headers)
-    .append(",Signature=").append(signature);
+        .append(*acesskey).append(",SignedHeaders=").append(signed_headers)
+        .append(",Signature=").append(signature);
   }
   return auth;
 }
-
 
 string Client::getEncodePath(shared_ptr<string> path) {
   string res;

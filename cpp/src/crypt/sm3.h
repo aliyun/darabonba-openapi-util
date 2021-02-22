@@ -42,15 +42,13 @@ void binascii_unhexlify(char in[], int inlen, unsigned char out[])
   }
 }
 
-class sm3 {
 
-public:
-  static const unsigned int BLOCK_SIZE     = 64;
-  static const unsigned int HASH_SIZE      = 32;
-  static const inline vector<boost::uint32_t> IV = vector<boost::uint32_t>({1937774191, 1226093241, 388252375,
+
+const vector<boost::uint32_t> IV = vector<boost::uint32_t>({1937774191, 1226093241, 388252375,
                                                                             3666478592, 2842636476, 372324522,
                                                                             3817729613, 2969243214});
-  static const inline vector<boost::uint32_t> TJ = vector<boost::uint32_t>({2043430169, 2043430169, 2043430169, 2043430169, 2043430169,
+
+const vector<boost::uint32_t> TJ = vector<boost::uint32_t>({2043430169, 2043430169, 2043430169, 2043430169, 2043430169,
                                                                             2043430169, 2043430169, 2043430169, 2043430169, 2043430169,
                                                                             2043430169, 2043430169, 2043430169, 2043430169, 2043430169,
                                                                             2043430169, 2055708042, 2055708042, 2055708042, 2055708042,
@@ -62,7 +60,14 @@ public:
                                                                             2055708042, 2055708042, 2055708042, 2055708042, 2055708042,
                                                                             2055708042, 2055708042, 2055708042, 2055708042, 2055708042,
                                                                             2055708042, 2055708042, 2055708042, 2055708042, 2055708042,
-                                                                            2055708042, 2055708042, 2055708042, 2055708042});;
+                                                                            2055708042, 2055708042, 2055708042, 2055708042});
+
+
+class sm3 {
+
+public:
+  static const unsigned int BLOCK_SIZE     = 64;
+  static const unsigned int HASH_SIZE      = 32;
   vector<boost::uint32_t> intermediate_hash_;
 
   static boost::uint32_t FFJ(boost::uint32_t x,
