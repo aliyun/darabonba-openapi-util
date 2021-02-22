@@ -1,3 +1,6 @@
+### 2021-02-22 Version 0.0.5
+* Fix ascii encoding exception.
+
 ### 2021-02-20 Version 0.0.4
 * The `query` method supports parsing TeaModel.
 
