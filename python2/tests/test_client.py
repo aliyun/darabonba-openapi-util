@@ -8,6 +8,8 @@ from Tea.request import TeaRequest
 from Tea.model import TeaModel
 
 module_path = os.path.dirname(__file__)
+
+
 class TestClient(unittest.TestCase):
     class TestConvertModel(TeaModel):
         def __init__(self):
@@ -161,7 +163,8 @@ class TestClient(unittest.TestCase):
         request.query = {
             'ccp': 'ok',
             'test': 'tests',
-            'test1': ''
+            'test1': '',
+            'test2': '中文'
         }
         request.headers = {
             'x-acs-meta': 'user',
@@ -171,7 +174,7 @@ class TestClient(unittest.TestCase):
             'date': 'date'
         }
         str_to_sign = Client.get_string_to_sign(request)
-        s = 'GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-meta:user\nPathname?ccp=ok&test=tests&test1'
+        s = u'GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-meta:user\nPathname?ccp=ok&test=tests&test1&test2=中文'
         self.assertEqual(s, str_to_sign)
 
     def test_get_roa_signature(self):
