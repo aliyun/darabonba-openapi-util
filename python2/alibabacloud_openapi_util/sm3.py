@@ -1,5 +1,6 @@
 import binascii
 import copy
+from Tea.converter import py2
 
 IV = "7380166f 4914b2b9 172442d7 da8a0600 a96f30bc 163138aa e38dee4d b0fb0e4e"
 IV = int(IV.replace(" ", ""), 16)
@@ -157,7 +158,8 @@ def to_byte_array(msg):
     ml = len(msg)
     msg_byte = []
     for i in range(ml):
-        msg_byte.append(ord(msg[i]))
+        b = ord(msg[i]) if py2 else msg[i]
+        msg_byte.append(b)
     return msg_byte
 
 

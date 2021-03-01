@@ -10,22 +10,16 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from urllib import quote_plus, quote
+try:
+    from urllib import quote_plus, quote
+except ImportError:
+    from urllib.parse import quote_plus, quote
 
 from .sm3 import hash_sm3, Sm3
 from alibabacloud_tea_util.client import Client as Util
 from Tea.stream import STREAM_CLASS
 from Tea.model import TeaModel
-
-
-def to_str(val):
-    if val is None:
-        return val
-
-    if isinstance(val, str):
-        return val.decode('utf-8')
-    else:
-        return unicode(val)
+from Tea.converter import TeaConverter
 
 
 def prepare_headers(headers):
@@ -35,9 +29,9 @@ def prepare_headers(headers):
         if v is not None:
             if k.lower() not in canon_keys:
                 canon_keys.append(k.lower())
-                tmp_headers[k.lower()] = [to_str(v).strip()]
+                tmp_headers[k.lower()] = [TeaConverter.to_string(v).strip()]
             else:
-                tmp_headers[k.lower()].append(to_str(v).strip())
+                tmp_headers[k.lower()].append(TeaConverter.to_string(v).strip())
     canon_keys.sort()
     return {key: ','.join(sorted(tmp_headers[key])) for key in canon_keys}
 
@@ -72,7 +66,7 @@ def get_canonical_query_string(query):
     canon_keys.sort()
     query_string = ''
     for key in canon_keys:
-        value = quote(to_str(query[key]), safe='~')
+        value = quote(TeaConverter.to_str(query[key]), safe='~')
         if value is None:
             s = '%s&' % key
         else:
@@ -88,9 +82,9 @@ def get_canonicalized_headers(headers):
         if v is not None:
             if k.lower() not in canon_keys:
                 canon_keys.append(k.lower())
-                tmp_headers[k.lower()] = [to_str(v).strip()]
+                tmp_headers[k.lower()] = [TeaConverter.to_string(v).strip()]
             else:
-                tmp_headers[k.lower()].append(to_str(v).strip())
+                tmp_headers[k.lower()].append(TeaConverter.to_string(v).strip())
 
     canon_keys.sort()
     canonical_headers = ''
@@ -148,7 +142,7 @@ class Client(object):
                 if query[key] == '':
                     s = '%s&' % key
                 else:
-                    s = '%s=%s&' % (key, to_str(query[key]))
+                    s = '%s=%s&' % (key, TeaConverter.to_string(query[key]))
                 resource += s
         return resource[:-1]
 
@@ -209,7 +203,7 @@ class Client(object):
             if key.startswith('.'):
                 key = key[1:]
             if not isinstance(value, STREAM_CLASS):
-                out[key] = to_str(value)
+                out[key] = TeaConverter.to_string(value)
 
     @staticmethod
     def to_form(filter):
@@ -277,9 +271,9 @@ class Client(object):
         for k in keys:
             if queries[k] is not None:
                 canonicalized_query_string += "&"
-                canonicalized_query_string += quote(to_str(k), safe='')
+                canonicalized_query_string += quote(TeaConverter.to_str(k), safe='')
                 canonicalized_query_string += "="
-                canonicalized_query_string += quote(to_str(queries[k]), safe='')
+                canonicalized_query_string += quote(TeaConverter.to_str(queries[k]), safe='')
 
         string_to_sign = ""
         string_to_sign += method
@@ -288,11 +282,11 @@ class Client(object):
         string_to_sign += '&'
         string_to_sign += quote_plus(
             canonicalized_query_string[1:])
-        digest_maker = hmac.new(bytes(secret + '&'),
-                                bytes(string_to_sign),
+        digest_maker = hmac.new(TeaConverter.to_bytes(secret + '&'),
+                                TeaConverter.to_bytes(string_to_sign),
                                 digestmod=hashlib.sha1)
         hash_bytes = digest_maker.digest()
-        signed_str = str(base64.b64encode(hash_bytes))
+        signed_str = TeaConverter.to_string(base64.b64encode(hash_bytes))
 
         return signed_str
 
@@ -336,8 +330,8 @@ class Client(object):
         l = []
         q = sorted(query)
         for i in q:
-            k = quote_plus(to_str(i))
-            v = quote_plus(to_str(query[i]))
+            k = quote_plus(TeaConverter.to_str(i))
+            v = quote_plus(TeaConverter.to_str(query[i]))
             l.append(k + '=' + v)
         return '&&'.join(l)
 
@@ -432,4 +426,4 @@ class Client(object):
 
     @staticmethod
     def get_encode_path(path):
-        return quote(to_str(path), safe='/~')
+        return quote(TeaConverter.to_str(path), safe='/~')
