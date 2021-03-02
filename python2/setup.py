@@ -16,7 +16,7 @@
  specific language governing permissions and limitations
  under the License.
 """
-
+import sys
 from setuptools import setup, find_packages
 
 """
@@ -35,13 +35,14 @@ AUTHOR_EMAIL = "alibaba-cloud-sdk-dev-team@list.alibaba-inc.com"
 URL = "https://github.com/aliyun/darabonba-openapi-util"
 
 VERSION = __import__(PACKAGE).__version__
-REQUIRES = ["alibabacloud_tea_util_py2>=0.0.1", "cryptography<3.4.0"]
+REQUIRES = ["alibabacloud_tea_util_py2>=0.0.1", "cryptography>=2.6.0"]
 
-desc_file = open("README.md")
-try:
-    LONG_DESCRIPTION = desc_file.read()
-finally:
-    desc_file.close()
+if sys.version_info.major == 2:
+    with open("README.md") as fp:
+        LONG_DESCRIPTION = fp.read()
+else:
+    with open("README.md", encoding='utf-8') as fp:
+        LONG_DESCRIPTION = fp.read()
 
 setup(
     name=NAME,

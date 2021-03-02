@@ -1,3 +1,6 @@
+### 2021-03-02 Version 0.0.6
+* Compatible version for python2/3.
+
 ### 2021-02-22 Version 0.0.5
 * Fix ascii encoding exception.
 
