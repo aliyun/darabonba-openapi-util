@@ -12,13 +12,8 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-
+using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 using Tea;
 using Tea.Utils;
 
@@ -29,6 +24,7 @@ namespace AlibabaCloud.OpenApiUtil
         internal static readonly string SEPARATOR = "&";
         internal static readonly string PEM_BEGIN = "-----BEGIN RSA PRIVATE KEY-----\n";
         internal static readonly string PEM_END = "\n-----END RSA PRIVATE KEY-----";
+
         /**
          * Convert all params of body other than type of readable into content 
          * @param body source Model
@@ -93,11 +89,12 @@ namespace AlibabaCloud.OpenApiUtil
         public static string GetROASignature(string stringToSign, string secret)
         {
             byte[] signData;
-            using(KeyedHashAlgorithm algorithm = CryptoConfig.CreateFromName("HMACSHA1") as KeyedHashAlgorithm)
+            using (KeyedHashAlgorithm algorithm = CryptoConfig.CreateFromName("HMACSHA1") as KeyedHashAlgorithm)
             {
                 algorithm.Key = Encoding.UTF8.GetBytes(secret);
                 signData = algorithm.ComputeHash(Encoding.UTF8.GetBytes(stringToSign.ToCharArray()));
             }
+
             return System.Convert.ToBase64String(signData);
         }
 
@@ -112,6 +109,7 @@ namespace AlibabaCloud.OpenApiUtil
             {
                 return string.Empty;
             }
+
             Dictionary<string, object> dict = filter.Keys.Cast<string>().ToDictionary(key => key, key => filter[key]);
             Dictionary<string, string> outDict = new Dictionary<string, string>();
             TileDict(outDict, dict);
@@ -122,8 +120,10 @@ namespace AlibabaCloud.OpenApiUtil
                 {
                     continue;
                 }
+
                 listStr.Add(PercentEncode(keypair.Key) + "=" + PercentEncode(keypair.Value));
             }
+
             return string.Join("&", listStr);
         }
 
@@ -170,6 +170,7 @@ namespace AlibabaCloud.OpenApiUtil
                         .Append(PercentEncode(signedParams[key]));
                 }
             }
+
             StringBuilder stringToSign = new StringBuilder();
             stringToSign.Append(method);
             stringToSign.Append(SEPARATOR);
@@ -179,11 +180,12 @@ namespace AlibabaCloud.OpenApiUtil
                 canonicalizedQueryString.ToString().Substring(1)));
             System.Diagnostics.Debug.WriteLine("GetRPCSignature:stringToSign is " + stringToSign.ToString());
             byte[] signData;
-            using(KeyedHashAlgorithm algorithm = CryptoConfig.CreateFromName("HMACSHA1") as KeyedHashAlgorithm)
+            using (KeyedHashAlgorithm algorithm = CryptoConfig.CreateFromName("HMACSHA1") as KeyedHashAlgorithm)
             {
                 algorithm.Key = Encoding.UTF8.GetBytes(secret + SEPARATOR);
                 signData = algorithm.ComputeHash(Encoding.UTF8.GetBytes(stringToSign.ToString().ToCharArray()));
             }
+
             string signedStr = System.Convert.ToBase64String(signData);
             return signedStr;
         }
@@ -220,17 +222,17 @@ namespace AlibabaCloud.OpenApiUtil
         }
 
         /**
-        * Transform input as map.
-        */
+         * Transform input as map.
+         */
         public static Dictionary<string, object> ParseToMap(object input)
         {
-            if(input == null)
+            if (input == null)
             {
                 return null;
             }
-            
+
             Type type = input.GetType();
-            var map = (Dictionary<string, object>)TeaModelExtensions.ToMapFactory(type, input);
+            var map = (Dictionary<string, object>) TeaModelExtensions.ToMapFactory(type, input);
 
             return map;
         }
@@ -243,6 +245,7 @@ namespace AlibabaCloud.OpenApiUtil
                 strs[0] += "-internal";
                 endpoint = string.Join(".", strs);
             }
+
             if (useAccelerate == true && endpointType == "accelerate")
             {
                 return "oss-accelerate.aliyuncs.com";
@@ -251,8 +254,6 @@ namespace AlibabaCloud.OpenApiUtil
             return endpoint;
         }
 
-
-
         /// <summary>
         /// Encode raw with base16
         /// </summary>
@@ -260,10 +261,11 @@ namespace AlibabaCloud.OpenApiUtil
         /// <returns>encoded string</returns>
         public static string HexEncode(byte[] raw)
         {
-            if(raw == null)
+            if (raw == null)
             {
                 return string.Empty;
             }
+
             StringBuilder result = new StringBuilder(raw.Length * 2);
             for (int i = 0; i < raw.Length; i++)
                 result.Append(raw[i].ToString("x2"));
@@ -278,23 +280,17 @@ namespace AlibabaCloud.OpenApiUtil
         /// <returns>hashed bytes</returns>
         public static byte[] Hash(byte[] raw, string signatureAlgorithm)
         {
-            if(signatureAlgorithm == "ACS3-HMAC-SHA256" || signatureAlgorithm == "ACS3-RSA-SHA256")
+            if (signatureAlgorithm == "ACS3-HMAC-SHA256" || signatureAlgorithm == "ACS3-RSA-SHA256")
             {
                 byte[] signData;
                 using (SHA256 sha256 = new SHA256Managed())
                 {
                     signData = sha256.ComputeHash(raw);
                 }
-                return signData; 
+
+                return signData;
             }
-            else if(signatureAlgorithm == "ACS3-HMAC-SM3")
-            {
-                byte[] md = new byte[32];
-                SM3Digest sm3 = new SM3Digest();
-                sm3.BlockUpdate(raw, 0, raw.Length);
-                sm3.DoFinal(md, 0);
-                return md;
-            }
+
             return null;
         }
 
@@ -307,23 +303,27 @@ namespace AlibabaCloud.OpenApiUtil
         /// <param name="acesskey">the acesskey string</param>
         /// <param name="accessKeySecret">the accessKeySecret string</param>
         /// <returns>authorization string</returns>
-        public static string GetAuthorization(TeaRequest request, string signatureAlgorithm, string payload, string acesskey, string accessKeySecret)
+        public static string GetAuthorization(TeaRequest request, string signatureAlgorithm, string payload,
+            string acesskey, string accessKeySecret)
         {
-            string canonicalURI = request.Pathname.ToSafeString("") == "" ? "/" : request.Pathname.Replace("+", "%20").Replace("*", "%2A").Replace("%7E", "~");
+            string canonicalURI = request.Pathname.ToSafeString("") == ""
+                ? "/"
+                : request.Pathname.Replace("+", "%20").Replace("*", "%2A").Replace("%7E", "~");
             string method = request.Method;
             string canonicalQueryString = GetAuthorizationQueryString(request.Query);
             Tuple<string, List<string>> tuple = GetAuthorizationHeaders(request.Headers);
             string canonicalheaders = tuple.Item1;
             var signedHeaders = tuple.Item2;
 
-            string canonicalRequest = method + "\n" + canonicalURI + "\n" + canonicalQueryString + "\n" + canonicalheaders + "\n" +
-        string.Join(";", signedHeaders) + "\n" + payload;
+            string canonicalRequest = method + "\n" + canonicalURI + "\n" + canonicalQueryString + "\n" +
+                                      canonicalheaders + "\n" +
+                                      string.Join(";", signedHeaders) + "\n" + payload;
             byte[] raw = Encoding.UTF8.GetBytes(canonicalRequest);
             string StringToSign = signatureAlgorithm + "\n" + HexEncode(Hash(raw, signatureAlgorithm));
             System.Diagnostics.Debug.WriteLine("GetAuthorization:stringToSign is " + StringToSign);
             var signature = HexEncode(SignatureMethod(accessKeySecret, StringToSign, signatureAlgorithm));
             string auth = signatureAlgorithm + " Credential=" + acesskey + ",SignedHeaders=" +
-        string.Join(";", signedHeaders) + ",Signature=" + signature;
+                          string.Join(";", signedHeaders) + ",Signature=" + signature;
 
             return auth;
         }
@@ -337,7 +337,7 @@ namespace AlibabaCloud.OpenApiUtil
         {
             List<string> encodeStr = new List<string>();
             string[] strSplit = path.Split('/');
-            foreach(string str in strSplit)
+            foreach (string str in strSplit)
             {
                 encodeStr.Add(PercentEncode(str));
             }
@@ -355,99 +355,58 @@ namespace AlibabaCloud.OpenApiUtil
                     algorithm.Key = Encoding.UTF8.GetBytes(secret);
                     signData = algorithm.ComputeHash(Encoding.UTF8.GetBytes(source.ToSafeString().ToCharArray()));
                 }
-                return signData;
-            }
-            else if(signatureAlgorithm == "ACS3-HMAC-SM3")
-            {
-                byte[] signData;
-                HMac hmacInstance = new HMac(new SM3Digest());
-                hmacInstance.Init(new KeyParameter(Encoding.UTF8.GetBytes(secret)));
-                signData = new byte[hmacInstance.GetMacSize()];
-                var raw = Encoding.UTF8.GetBytes(source);
-                hmacInstance.BlockUpdate(raw, 0, raw.Length);
-                hmacInstance.DoFinal(signData, 0);
 
                 return signData;
-            } else if(signatureAlgorithm == "ACS3-RSA-SHA256")
-            {
-                return RSASign(source, secret);
             }
+
             return null;
-        }
-
-        internal static byte[] RSASign(string content, string secret)
-        {
-
-            if (secret.ToSafeString().StartsWith(PEM_BEGIN))
-            {
-                secret = secret.Replace(PEM_BEGIN, "");
-            }
-
-            if (secret.ToSafeString().EndsWith(PEM_END))
-            {
-                secret = secret.Replace(PEM_END, "");
-            }
-
-
-            byte[] keyBytes = System.Convert.FromBase64String(secret);
-
-            var asymmetricKeyParameter = PrivateKeyFactory.CreateKey(keyBytes);
-            var rsaKeyParameter = (RsaKeyParameters)asymmetricKeyParameter;
-
-            ISigner sig = SignerUtilities.GetSigner("SHA256withRSA");
-
-            sig.Init(true, rsaKeyParameter);
-            byte[] hashBytes = Encoding.UTF8.GetBytes(content);
-            sig.BlockUpdate(hashBytes, 0, hashBytes.Length);
-            byte[] signature = sig.GenerateSignature();
-            return signature;
         }
 
         internal static Tuple<string, List<string>> GetAuthorizationHeaders(Dictionary<string, string> headers)
         {
             string canonicalheaders = string.Empty;
             var tmp = new Dictionary<string, List<string>>();
-            foreach(var keypair in headers)
+            foreach (var keypair in headers)
             {
                 var lowerKey = keypair.Key.ToLower();
-                if(lowerKey.StartsWith("x-acs-") || lowerKey == "host" || lowerKey == "content-type")
+                if (lowerKey.StartsWith("x-acs-") || lowerKey == "host" || lowerKey == "content-type")
                 {
-                    if(tmp.ContainsKey(lowerKey))
+                    if (tmp.ContainsKey(lowerKey))
                     {
                         tmp[lowerKey].Add(keypair.Value.ToSafeString().Trim());
                     }
                     else
                     {
-                        tmp[lowerKey] = new List<string> { keypair.Value.ToSafeString().Trim() };
+                        tmp[lowerKey] = new List<string> {keypair.Value.ToSafeString().Trim()};
                     }
                 }
             }
 
             var hs = tmp.OrderBy(p => p.Key, StringComparer.Ordinal).ToDictionary(p => p.Key, p => p.Value);
-            
-            foreach(var keypair in hs)
+
+            foreach (var keypair in hs)
             {
                 var listSort = new List<string>(keypair.Value);
                 listSort.Sort(StringComparer.Ordinal);
                 canonicalheaders += string.Format("{0}:{1}\n", keypair.Key, string.Join(", ", listSort));
             }
 
-            return new Tuple<string, List<string>> (canonicalheaders, hs.Keys.ToList());
+            return new Tuple<string, List<string>>(canonicalheaders, hs.Keys.ToList());
         }
 
         internal static string GetAuthorizationQueryString(Dictionary<string, string> query)
         {
             string canonicalQueryString = string.Empty;
             var hs = query.OrderBy(p => p.Key, StringComparer.Ordinal).ToDictionary(p => p.Key, p => p.Value);
-            foreach(var keypair in hs)
+            foreach (var keypair in hs)
             {
-                if(keypair.Value != null)
+                if (keypair.Value != null)
                 {
                     canonicalQueryString += string.Format("&{0}={1}", keypair.Key, PercentEncode(keypair.Value));
                 }
             }
 
-            if(!string.IsNullOrEmpty(canonicalQueryString))
+            if (!string.IsNullOrEmpty(canonicalQueryString))
             {
                 canonicalQueryString = canonicalQueryString.TrimStart('&');
             }
@@ -465,13 +424,13 @@ namespace AlibabaCloud.OpenApiUtil
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < canonicalizedKeys.Count; i++)
             {
-
                 string key = canonicalizedKeys[i];
                 result.Append(key);
                 result.Append(":");
                 result.Append(headers[key].Trim());
                 result.Append("\n");
             }
+
             return result.ToString();
         }
 
@@ -481,6 +440,7 @@ namespace AlibabaCloud.OpenApiUtil
             {
                 return pathname;
             }
+
             List<string> keys = query.Keys.ToList();
             keys.Sort(StringComparer.Ordinal);
             string key;
@@ -501,8 +461,8 @@ namespace AlibabaCloud.OpenApiUtil
                 {
                     result.Add(key + "=" + query[key]);
                 }
-                
             }
+
             return pathname + "?" + string.Join("&", result);
         }
 
@@ -512,9 +472,11 @@ namespace AlibabaCloud.OpenApiUtil
             {
                 return;
             }
+
             if (typeof(IDictionary).IsAssignableFrom(obj.GetType()))
             {
-                Dictionary<string, object> dicIn = ((IDictionary) obj).Keys.Cast<string>().ToDictionary(key => key, key => ((IDictionary) obj) [key]);
+                Dictionary<string, object> dicIn = ((IDictionary) obj).Keys.Cast<string>()
+                    .ToDictionary(key => key, key => ((IDictionary) obj)[key]);
                 foreach (var keypair in dicIn)
                 {
                     string keyName = parentKey + "." + keypair.Key;
@@ -522,6 +484,7 @@ namespace AlibabaCloud.OpenApiUtil
                     {
                         continue;
                     }
+
                     TileDict(dicOut, keypair.Value, keyName);
                 }
             }
@@ -546,6 +509,7 @@ namespace AlibabaCloud.OpenApiUtil
             {
                 return null;
             }
+
             var stringBuilder = new StringBuilder();
             var text = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
             var bytes = Encoding.UTF8.GetBytes(value);
@@ -562,7 +526,7 @@ namespace AlibabaCloud.OpenApiUtil
             }
 
             return stringBuilder.ToString().Replace("+", "%20")
-                .Replace("*", "%2A").Replace("%7E", "~"); 
+                .Replace("*", "%2A").Replace("%7E", "~");
         }
 
         internal static string FlatArray(IList array, string sty)
