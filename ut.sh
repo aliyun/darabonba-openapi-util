@@ -93,7 +93,7 @@ function run_python2 {
   # install
   cd python2 || return 126
   pip install coverage
-  python setup.py install
+  pip install alibabacloud_tea_util_py2 cryptography
 
   coverage run --source="./alibabacloud_openapi_util" -m pytest tests/ || return 126
   cd ../
