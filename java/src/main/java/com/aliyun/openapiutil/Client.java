@@ -8,6 +8,7 @@ import org.bouncycastle.crypto.digests.SM3Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import sun.misc.BASE64Encoder;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -235,7 +236,7 @@ public class Client {
      * Get signature according to stringToSign, secret
      *
      * @param stringToSign the signed string
-     * @param secret  accesskey secret
+     * @param secret       accesskey secret
      * @return the signature
      */
     public static String getROASignature(String stringToSign, String secret) throws Exception {
@@ -245,7 +246,7 @@ public class Client {
         Mac mac = Mac.getInstance("HmacSHA1");
         mac.init(new SecretKeySpec(secret.getBytes(UTF8), "HmacSHA1"));
         byte[] signData = mac.doFinal(stringToSign.getBytes(UTF8));
-        return Base64.getEncoder().encodeToString(signData);
+        return new BASE64Encoder().encode(signData);
     }
 
     /**
@@ -427,17 +428,20 @@ public class Client {
         if (array == null || sty == null) {
             return "";
         }
-        List<String> strs = new ArrayList<String>();
-        for (int i = 0; i < array.size(); i++) {
-            strs.add(String.valueOf(array.get(i)));
-        }
+        String flag = null;
         if ("simple".equalsIgnoreCase(sty)) {
-            return String.join(",", strs);
+            flag = ",";
         } else if ("spaceDelimited".equalsIgnoreCase(sty)) {
-            return String.join(" ", strs);
+            flag = " ";
         } else {
-            return String.join("|", strs);
+            flag = "|";
         }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.size(); i++) {
+            sb.append(array.get(i));
+            sb.append(flag);
+        }
+        return sb.deleteCharAt(sb.length() - 1).toString();
     }
 
     public static Map<String, Object> parseToMap(Object o) {
@@ -559,10 +563,11 @@ public class Client {
 
     public static String getEncodePath(String path) throws UnsupportedEncodingException {
         String[] strs = path.split("/");
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < strs.length; i++) {
-            strs[i] = percentEncode(strs[i]);
+            sb.append(percentEncode(strs[i]));
+            sb.append("/");
         }
-        List<String> strList = Arrays.asList(strs);
-        return String.join("/", strList);
+        return sb.deleteCharAt(sb.length() - 1).toString();
     }
 }
