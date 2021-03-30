@@ -159,6 +159,9 @@ describe('Tea Util', function () {
     };
     assert.deepStrictEqual(Client.getStringToSign(request), 'GET\napplication/json\n\n\n\n/');
 
+    request.query = undefined;
+    assert.deepStrictEqual(Client.getStringToSign(request), 'GET\napplication/json\n\n\n\n/');
+
     request.headers = {
       'accept': 'application/json',
       'content-md5': 'md5',

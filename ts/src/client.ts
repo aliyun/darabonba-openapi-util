@@ -85,7 +85,7 @@ function getCanonicalizedHeaders(headers: { [key: string]: string }): string {
 }
 
 function getCanonicalizedResource(uriPattern: string, query: { [key: string]: string }): string {
-  const keys = Object.keys(query).sort();
+  const keys = !query ? [] : Object.keys(query).sort();
 
   if (keys.length === 0) {
     return uriPattern;
