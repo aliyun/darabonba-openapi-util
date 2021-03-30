@@ -102,7 +102,7 @@ function getCanonicalizedResource(uriPattern: string, query: { [key: string]: st
 
 function getAuthorizationQueryString(query: { [key: string]: string }): string {
   let canonicalQueryArray = [];
-  const keys = Object.keys(query).sort();
+  const keys = !query ? [] : Object.keys(query).sort();
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     if (query[key]) {
@@ -117,7 +117,7 @@ function getAuthorizationQueryString(query: { [key: string]: string }): string {
 function getAuthorizationHeaders(header: { [key: string]: string }): {} {
   let canonicalheaders = "";
   let tmp = {};
-  const keys = Object.keys(header);
+  const keys = !header ? [] : Object.keys(header);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     const lowerKey = keys[i].toLowerCase();
@@ -401,32 +401,30 @@ export default class Client {
     }
   }
 
-  
-static signatureMethod(secret: string, source: string, signatureAlgorithm: string): Buffer {
-  if (signatureAlgorithm === "ACS3-HMAC-SHA256") {
-    const obj = crypto.createHmac('sha256', secret);
-    obj.update(source);
-    return obj.digest();
-  } else if (signatureAlgorithm === "ACS3-HMAC-SM3") {
-    const obj = crypto.createHmac('sm3', secret);
-    obj.update(source);
-    return obj.digest();
-  } else if (signatureAlgorithm === "ACS3-RSA-SHA256") {
-    
-    if (!secret.startsWith(PEM_BEGIN))
-    {
+
+  static signatureMethod(secret: string, source: string, signatureAlgorithm: string): Buffer {
+    if (signatureAlgorithm === "ACS3-HMAC-SHA256") {
+      const obj = crypto.createHmac('sha256', secret);
+      obj.update(source);
+      return obj.digest();
+    } else if (signatureAlgorithm === "ACS3-HMAC-SM3") {
+      const obj = crypto.createHmac('sm3', secret);
+      obj.update(source);
+      return obj.digest();
+    } else if (signatureAlgorithm === "ACS3-RSA-SHA256") {
+
+      if (!secret.startsWith(PEM_BEGIN)) {
         secret = PEM_BEGIN + secret;
-    }
-    if (!secret.endsWith(PEM_END))
-    {
+      }
+      if (!secret.endsWith(PEM_END)) {
         secret = secret + PEM_END;
+      }
+      var signerObject = crypto.createSign("RSA-SHA256");
+      signerObject.update(source);
+      var signature = signerObject.sign({ key: secret, padding: crypto.constants.RSA_PKCS1_PADDING });
+      return signature;
     }
-    var signerObject = crypto.createSign("RSA-SHA256");
-    signerObject.update(source);
-    var signature = signerObject.sign({ key: secret, padding: crypto.constants.RSA_PKCS1_PADDING });
-    return signature;
   }
-}
 
   /**
    * Get the authorization 
