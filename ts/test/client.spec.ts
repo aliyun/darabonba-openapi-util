@@ -378,6 +378,13 @@ describe('Tea Util', function () {
 
     var res = Client.getAuthorization(req, "ACS3-HMAC-SHA256", "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
     assert.strictEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=da772425f29289d3460d5fc961455d40c5e8c6afd0888b78a910c991e6a14846", res);
+
+    req.query = undefined;
+    req.headers = undefined;
+    req.body = undefined;
+    req.method = undefined;
+    var res = Client.getAuthorization(req, "ACS3-HMAC-SHA256", "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
+    assert.strictEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=,Signature=608b887e491f3e88e85276b188a4d24e29230a559464685ccbf2dcc458e1fde8", res);
   });
 
   it('signatureMethod should ok', function() {
