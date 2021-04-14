@@ -254,8 +254,14 @@ public class ClientTest {
 
     @Test
     public void hexEncodeTest() throws Exception {
+        String result = Client.hexEncode(null);
+        Assert.assertNull(result);
+
+        result = Client.hexEncode("".getBytes(Client.UTF8));
+        Assert.assertEquals("", result);
+
         byte[] hash = Client.hash("test".getBytes(Client.UTF8), "ACS3-HMAC-SHA256");
-        String result = Client.hexEncode(hash);
+        result = Client.hexEncode(hash);
         Assert.assertEquals("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", result);
 
         hash = Client.hash("test".getBytes(Client.UTF8), "ACS3-RSA-SHA256");
@@ -269,7 +275,9 @@ public class ClientTest {
 
     @Test
     public void getEncodePathTest() throws Exception {
-        String result = Client.getEncodePath("/path/ test");
+        String result = Client.getEncodePath("");
+        Assert.assertEquals("", result);
+        result = Client.getEncodePath("/path/ test");
         Assert.assertEquals("/path/%20test", result);
         result = Client.getEncodePath("/path/#test");
         Assert.assertEquals("/path/%23test", result);
@@ -314,7 +322,13 @@ public class ClientTest {
                 "boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn" +
                 "Ysx+1cwXO5cuZg==-----END RSA PRIVATE KEY-----\n\r\r";
 
-        byte[] signature = Client.SignatureMethod("source", "secret", "ACS3-HMAC-SM3");
+        byte[] signature = Client.SignatureMethod(null,null,null);
+        Assert.assertNull(Client.hexEncode(signature));
+
+        signature = Client.SignatureMethod("","secret","ACS3-HMAC-SM3");
+        Assert.assertEquals("71e9db0344cd62427ccb824234214e14a0a54fe80adfb46bd12453270961dd5b", Client.hexEncode(signature));
+
+        signature = Client.SignatureMethod("source", "secret", "ACS3-HMAC-SM3");
         Assert.assertEquals("b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8", Client.hexEncode(signature));
 
         signature = Client.SignatureMethod("source", priKey, "ACS3-RSA-SHA256");
