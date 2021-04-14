@@ -465,7 +465,7 @@ public class Client {
 
     public static String hexEncode(byte[] raw) {
         if (raw == null) {
-            return "";
+            return null;
         }
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < raw.length; i++) {
@@ -495,6 +495,15 @@ public class Client {
 
 
     public static String getAuthorization(TeaRequest request, String signAlgorithm, String payload, String accessKey, String secret) throws Exception {
+        if (request == null) {
+            return null;
+        }
+        if (secret == null) {
+            throw new Exception("Need secret!");
+        }
+        if(signAlgorithm == null || signAlgorithm.equals("")){
+            throw new Exception("Need signAlgorithm!");
+        }
         String canonicalURI = request.pathname;
         if (canonicalURI == null || StringUtils.isEmpty(canonicalURI) || "".equals(canonicalURI.trim())) {
             canonicalURI = "/";
@@ -517,22 +526,24 @@ public class Client {
     }
 
     protected static String checkRSASecret(String secret) {
-        if (secret.startsWith(PEM_BEGIN)) {
-            secret = secret.replace(PEM_BEGIN, "");
+        if (secret != null) {
+            if (secret.startsWith(PEM_BEGIN)) {
+                secret = secret.replace(PEM_BEGIN, "");
+            }
+            while (secret.endsWith("\n") || secret.endsWith("\r")) {
+                secret = secret.substring(0, secret.length() - 1);
+            }
+            if (secret.endsWith(PEM_END)) {
+                secret = secret.replace(PEM_END, "");
+            }
         }
-
-        while (secret.endsWith("\n") || secret.endsWith("\r")) {
-            secret = secret.substring(0, secret.length() - 1);
-        }
-
-        if (secret.endsWith(PEM_END)) {
-            secret = secret.replace(PEM_END, "");
-        }
-
         return secret;
     }
 
     public static byte[] SignatureMethod(String stringToSign, String secret, String signAlgorithm) throws Exception {
+        if (stringToSign == null || secret == null || signAlgorithm == null) {
+            return null;
+        }
         byte[] bytes = null;
         if (signAlgorithm.equals(HMAC_SHA256)) {
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
@@ -562,6 +573,9 @@ public class Client {
     }
 
     public static String getEncodePath(String path) throws UnsupportedEncodingException {
+        if (path == null || path.equals("")) {
+            return path;
+        }
         String[] strs = path.split("/");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < strs.length; i++) {
