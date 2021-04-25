@@ -425,10 +425,10 @@ public class Client {
     }
 
     private static String flatArray(List array, String sty) {
-        if (array == null || sty == null) {
+        if (array == null || array.size() <= 0 || sty == null) {
             return "";
         }
-        String flag = null;
+        String flag;
         if ("simple".equalsIgnoreCase(sty)) {
             flag = ",";
         } else if ("spaceDelimited".equalsIgnoreCase(sty)) {
@@ -501,7 +501,7 @@ public class Client {
         if (secret == null) {
             throw new Exception("Need secret!");
         }
-        if(signAlgorithm == null || signAlgorithm.equals("")){
+        if (StringUtils.isEmpty(signAlgorithm)) {
             throw new Exception("Need signAlgorithm!");
         }
         String canonicalURI = request.pathname;
@@ -573,7 +573,7 @@ public class Client {
     }
 
     public static String getEncodePath(String path) throws UnsupportedEncodingException {
-        if (path == null || path.equals("")) {
+        if (StringUtils.isEmpty(path)) {
             return path;
         }
         String[] strs = path.split("/");

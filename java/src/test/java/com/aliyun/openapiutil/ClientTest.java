@@ -181,31 +181,44 @@ public class ClientTest {
 
         String prefix = "test";
         String style = "repeatList";
+        List emptyList = new ArrayList();
         List list = new ArrayList();
         list.add("test");
         list.add("symbol");
+        result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
+        Assert.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("test.1=test&&test.2=symbol", result);
 
         list.remove(1);
         style = "simple";
+        result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
+        Assert.assertEquals("", result);
         list.add("testStyle");
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("test,testStyle", result);
 
         style = "spaceDelimited";
+        result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
+        Assert.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("test testStyle", result);
 
         style = "pipeDelimited";
+        result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
+        Assert.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("test|testStyle", result);
 
         style = "json";
+        result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
+        Assert.assertEquals("[]", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("[\"test\",\"testStyle\"]", result);
 
         style = "null";
+        result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
+        Assert.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("", result);
     }
