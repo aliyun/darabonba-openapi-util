@@ -376,12 +376,10 @@ class OpenApiUtilClient
 
         $params = [];
         foreach ($query as $k => $v) {
-            if (!empty($v)) {
-                //对参数名称和参数值进行 URL 编码
+            if (null !== $v) {
                 $k = rawurlencode($k);
                 $v = rawurlencode($v);
-                //对编码后的参数名称和值使用英文等号（=）进行连接
-                $params[] = $k . '=' . $v;
+                $params[] = $k . '=' . (string)$v;
             }
         }
         $str = implode('&', $params);
