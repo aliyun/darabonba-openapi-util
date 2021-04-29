@@ -290,6 +290,10 @@ public class ClientTest {
     public void getEncodePathTest() throws Exception {
         String result = Client.getEncodePath("");
         Assert.assertEquals("", result);
+        result = Client.getEncodePath("test");
+        Assert.assertEquals("test", result);
+        result = Client.getEncodePath("/");
+        Assert.assertEquals("/", result);
         result = Client.getEncodePath("/path/ test");
         Assert.assertEquals("/path/%20test", result);
         result = Client.getEncodePath("/path/#test");

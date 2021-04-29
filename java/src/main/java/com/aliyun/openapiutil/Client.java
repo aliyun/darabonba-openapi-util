@@ -573,7 +573,7 @@ public class Client {
     }
 
     public static String getEncodePath(String path) throws UnsupportedEncodingException {
-        if (StringUtils.isEmpty(path)) {
+        if (StringUtils.isEmpty(path) || "/".equals(path)) {
             return path;
         }
         String[] strs = path.split("/");
