@@ -1,3 +1,6 @@
+2021-04-29 Version: 0.1.7
+1. Fix encoded path when path equals /
+
 2021-04-25 Version: 0.1.6
 1. Fix nullptr of flatArray
 
