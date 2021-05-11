@@ -12,6 +12,11 @@ English | [简体中文](README-CN.md)
 
 - [Go](./golang/README.md)
 - [Java](./java/README.md)
+- [C++](./cpp/README.md)
+- [C#](./csharp/)
+- [PHP](./php/README.md)
+- [Python 3](./python/README.md)
+- [Python 2](./python2/README.md)
 
 ## Issues
 
