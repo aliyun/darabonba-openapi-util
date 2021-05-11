@@ -10,6 +10,11 @@
 
 - [Go](./golang/README-CN.md)
 - [Java](./java/README-CN.md)
+- [C++](./cpp/README-CN.md)
+- [C#](./csharp/)
+- [PHP](./php/README-CN.md)
+- [Python 3](./python/README-CN.md)
+- [Python 2](./python2/README-CN.md)
 
 ## 问题
 
