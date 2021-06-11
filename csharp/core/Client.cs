@@ -163,7 +163,7 @@ namespace AlibabaCloud.OpenApiUtil
 
             foreach (string key in sortedKeys)
             {
-                if (!string.IsNullOrEmpty(signedParams[key]))
+                if (signedParams[key] != null)
                 {
                     canonicalizedQueryString.Append("&")
                         .Append(PercentEncode(key)).Append("=")
