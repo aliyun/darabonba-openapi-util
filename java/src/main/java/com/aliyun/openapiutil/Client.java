@@ -354,7 +354,7 @@ public class Client {
         StringBuilder canonicalizedQueryString = new StringBuilder();
 
         for (String key : sortedKeys) {
-            if (queries.get(key) == null) {
+            if (StringUtils.isEmpty(queries.get(key))) {
                 continue;
             }
             canonicalizedQueryString.append(SEPARATOR)
