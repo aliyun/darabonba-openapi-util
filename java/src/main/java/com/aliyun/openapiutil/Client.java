@@ -8,12 +8,12 @@ import org.bouncycastle.crypto.digests.SM3Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -371,7 +371,7 @@ public class Client {
         Mac mac = Mac.getInstance(ALGORITHM_NAME);
         mac.init(new SecretKeySpec((secret + SEPARATOR).getBytes(URL_ENCODING), ALGORITHM_NAME));
         byte[] signData = mac.doFinal(stringToSign.toString().getBytes(URL_ENCODING));
-        return DatatypeConverter.printBase64Binary(signData);
+        return new BASE64Encoder().encode(signData);
 
     }
 
@@ -555,7 +555,7 @@ public class Client {
             secret = checkRSASecret(secret);
             Signature rsaSign = Signature.getInstance("SHA256withRSA");
             KeyFactory kf = KeyFactory.getInstance("RSA");
-            byte[] keySpec = DatatypeConverter.parseBase64Binary(secret);
+            byte[] keySpec = new BASE64Decoder().decodeBuffer(secret);
             PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(keySpec));
             rsaSign.initSign(privateKey);
             rsaSign.update(stringToSign.getBytes(UTF8));
