@@ -1,3 +1,6 @@
+2021-07-15 Version: 0.1.11
+1. Fix JDK9 no longer support sun.misc.BASE64Encoder
+
 2021-07-09 Version: 0.1.10
 1. Fit all JDK 1.7
 
