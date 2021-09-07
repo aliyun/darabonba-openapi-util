@@ -1,3 +1,6 @@
+2021-09-07 Version: 0.1.12
+1. Add getEncodeParam
+
 2021-07-15 Version: 0.1.11
 1. Fix JDK9 no longer support sun.misc.BASE64Encoder
 
