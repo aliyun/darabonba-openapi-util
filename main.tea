@@ -110,3 +110,10 @@ static function getAuthorization(request: $Request, signatureAlgorithm: string, 
  * @return encoded path
  */
 static function getEncodePath(path: string): string;
+
+/**
+ * Get encoded param
+ * @param param the raw param
+ * @return encoded param
+ */
+static function getEncodeParam(param: string): string;

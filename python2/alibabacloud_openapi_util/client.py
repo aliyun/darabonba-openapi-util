@@ -427,3 +427,7 @@ class Client(object):
     @staticmethod
     def get_encode_path(path):
         return quote(TeaConverter.to_str(path), safe='/~')
+
+    @staticmethod
+    def get_encode_param(param):
+        return quote(TeaConverter.to_str(param), safe='~')

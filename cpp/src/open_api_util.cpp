@@ -556,3 +556,11 @@ string Client::getEncodePath(shared_ptr<string> path) {
   }
   return res;
 }
+
+string Client::getEncodeParam(shared_ptr<string> param) {
+  string res;
+  if (param) {
+    res = quote(*param, "");
+  }
+  return res;
+}

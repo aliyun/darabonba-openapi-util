@@ -370,6 +370,18 @@ class OpenApiUtilClient
         return implode('/', $tmp);
     }
 
+    /**
+     * Get encoded param.
+     *
+     * @param string $param the raw param
+     *
+     * @return string encoded param
+     */
+    public static function getEncodeParam($param)
+    {
+        return rawurlencode($param);
+    }
+
     private static function getRpcStrToSign($method, $query)
     {
         ksort($query);

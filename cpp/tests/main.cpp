@@ -379,3 +379,10 @@ TEST(tests, getEncodePath) {
   );
   ASSERT_EQ("/path/%20test", res);
 }
+
+TEST(tests, getEncodeParam) {
+  string res = Alibabacloud_OpenApiUtil::Client::getEncodeParam(
+      make_shared<string>("a/b/c/ test")
+  );
+  ASSERT_EQ("a%2Fb%2Fc%2F%20test", res);
+}

@@ -425,5 +425,10 @@ describe('Tea Util', function () {
     str = Client.getEncodePath('/path/\'test');
     assert.strictEqual(str, '/path/%27test');
   });
+
+  it('getEncodeParam should ok', async function () {
+    let str = Client.getEncodeParam('a/b/c/ test');
+    assert.strictEqual(str, 'a%2Fb%2Fc%2F%20test');
+  });
   
 });
