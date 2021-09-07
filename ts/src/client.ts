@@ -463,4 +463,11 @@ export default class Client {
     }
     return strs.join('/');
   }
+
+  static getEncodeParam(param: string): string {
+    if (typeof param === 'undefined' || param === null) {
+      return '';
+    }
+    return encode(param);
+  }
 }
