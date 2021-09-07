@@ -303,6 +303,12 @@ public class ClientTest {
     }
 
     @Test
+    public void getEncodeParamTest() throws Exception {
+        String result = Client.getEncodeParam("a/b/c/ test");
+        Assert.assertEquals("a%2Fb%2Fc%2F%20test", result);
+    }
+
+    @Test
     public void getAuthorizationTest() throws Exception {
         Map<String, String> query = new HashMap<>();
         query.put("test", "ok");

@@ -329,6 +329,10 @@ class TestClient(unittest.TestCase):
     def test_get_encode_path(self):
         res = Client.get_encode_path('/path/ test')
         self.assertEqual('/path/%20test', res)
+    
+    def test_get_encode_param(self):
+        res = Client.get_encode_param('a/b/c/ test')
+        self.assertEqual('a%2Fb%2Fc%2F%20test', res)
 
     def test_signature_method(self):
         pri_key = '-----BEGIN RSA PRIVATE KEY-----\nMIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAo' \

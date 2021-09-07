@@ -230,6 +230,13 @@ namespace tests
         }
 
         [Fact]
+        public void Test_GetEncodeParam()
+        {
+            var res = Client.GetEncodeParam("a/b/c/ test");
+            Assert.Equal("a%2Fb%2Fc%2F%20test", res);
+        }
+
+        [Fact]
         public void Test_GetAuthorization()
         {
             var query = new Dictionary<string, string>

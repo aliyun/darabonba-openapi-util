@@ -423,3 +423,7 @@ class Client(object):
     @staticmethod
     def get_encode_path(path):
         return quote(path, safe='/~', encoding="utf-8")
+
+    @staticmethod
+    def get_encode_param(param):
+        return quote(param, safe='~', encoding="utf-8")

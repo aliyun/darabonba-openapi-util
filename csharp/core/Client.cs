@@ -345,6 +345,16 @@ namespace AlibabaCloud.OpenApiUtil
             return string.Join("/", encodeStr);
         }
 
+        /// <summary>
+        /// Get encoded param
+        /// </summary>
+        /// <param name="param">param the raw path</param>
+        /// <returns>encoded param</returns>
+        public static string GetEncodeParam(string param)
+        {
+            return PercentEncode(str);
+        }
+
         internal static byte[] SignatureMethod(string secret, string source, string signatureAlgorithm)
         {
             if (signatureAlgorithm == "ACS3-HMAC-SHA256")
@@ -501,7 +511,7 @@ namespace AlibabaCloud.OpenApiUtil
             {
                 if (obj.GetType() == typeof(byte[]))
                 {
-                    dicOut.Add(parentKey.TrimStart('.'), System.Text.Encoding.UTF8.GetString((byte[]) obj));
+                    dicOut.Add(parentKey.TrimStart('.'), Encoding.UTF8.GetString((byte[]) obj));
                 }
                 else
                 {
