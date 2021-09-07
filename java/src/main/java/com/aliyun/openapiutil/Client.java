@@ -584,4 +584,11 @@ public class Client {
         }
         return sb.deleteCharAt(sb.length() - 1).toString();
     }
+
+    public static String getEncodeParam(String param) throws UnsupportedEncodingException {
+        if (StringUtils.isEmpty(param)) {
+            return param;
+        }
+        return percentEncode(param);
+    }
 }

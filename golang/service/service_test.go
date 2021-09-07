@@ -203,6 +203,11 @@ func Test_GetEncodePath(t *testing.T) {
 	utils.AssertEqual(t, "/path/%20test", tea.StringValue(res))
 }
 
+func Test_GetEncodeParam(t *testing.T) {
+	res := GetEncodeParam(tea.String("a/b/c/ test"))
+	utils.AssertEqual(t, "a%2Fb%2Fc%2F%20test", tea.StringValue(res))
+}
+
 func Test_GetAuthorization(t *testing.T) {
 	query := map[string]*string{
 		"test":  tea.String("ok"),

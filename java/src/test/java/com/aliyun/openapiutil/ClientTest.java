@@ -188,7 +188,7 @@ public class ClientTest {
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
         Assert.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("test.1=test&&test.2=symbol", result);
+        Assert.assertEquals("test.2=symbol&&test.1=test", result);
 
         list.remove(1);
         style = "simple";
@@ -300,6 +300,12 @@ public class ClientTest {
         Assert.assertEquals("/path/%23test", result);
         result = Client.getEncodePath("/path/\"test");
         Assert.assertEquals("/path/%22test", result);
+    }
+
+    @Test
+    public void getEncodeParamTest() throws Exception {
+        String result = Client.getEncodeParam("a/b/c/ test");
+        Assert.assertEquals("a%2Fb%2Fc%2F%20test", result);
     }
 
     @Test

@@ -41,6 +41,7 @@ public:
                                  shared_ptr<string> acesskey,
                                  shared_ptr<string> accessKeySecret);
   static string getEncodePath(shared_ptr<string> path);
+  static string getEncodeParam(shared_ptr<string> param);
 
   Client() {};
   virtual ~Client() = default;

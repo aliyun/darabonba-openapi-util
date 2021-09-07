@@ -224,6 +224,15 @@ func GetEncodePath(path *string) *string {
 	return tea.String(uri)
 }
 
+func GetEncodeParam(param *string) *string {
+	uri := tea.StringValue(param)
+	uri = url.QueryEscape(uri)
+	uri = strings.Replace(uri, "+", "%20", -1)
+	uri = strings.Replace(uri, "*", "%2A", -1)
+	uri = strings.Replace(uri, "%7E", "~", -1)
+	return tea.String(uri)
+}
+
 func GetAuthorization(request *tea.Request, signatureAlgorithm, payload, acesskey, secret *string) *string {
 	canonicalURI := tea.StringValue(request.Pathname)
 	if canonicalURI == "" {

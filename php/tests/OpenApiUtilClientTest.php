@@ -246,6 +246,14 @@ class OpenApiUtilClientTest extends TestCase
         );
     }
 
+    public function testGetEncodeParam()
+    {
+        $this->assertEquals(
+            'a%2Fb%2Fc%2F%20test',
+            OpenApiUtilClient::getEncodeParam('a/b/c/ test')
+        );
+    }
+
     public function testGetAuthorization()
     {
         $request           = new Request();
