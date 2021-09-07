@@ -1,3 +1,6 @@
+### 2021-09-07 Version 0.1.5
+* Add method getEncodeParam.
+
 ### 2021-02-20 Version 0.1.4
 * The `query` method supports parsing TeaModel.
 
