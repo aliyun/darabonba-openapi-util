@@ -1,3 +1,6 @@
+### 2021-09-07 Version 0.0.7
+* Add method getEncodeParam.
+
 ### 2021-03-02 Version 0.0.6
 * Compatible version for python2/3.
 
