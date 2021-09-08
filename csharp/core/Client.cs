@@ -509,7 +509,15 @@ namespace AlibabaCloud.OpenApiUtil
             }
             else
             {
-                dicOut.Add(parentKey.TrimStart('.'), obj.ToSafeString(""));
+                if (obj.GetType() == typeof(byte[]))
+                {
+                    dicOut.Add(parentKey.TrimStart('.'), Encoding.UTF8.GetString((byte[]) obj));
+
+                }
+                else
+                {
+                    dicOut.Add(parentKey.TrimStart('.'), obj.ToSafeString(""));
+                }
             }
         }
 
