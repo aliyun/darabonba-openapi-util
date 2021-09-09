@@ -340,6 +340,23 @@ describe('Tea Util', function () {
     assert.strictEqual(2, res['model_dict']['model2']['id']);
   });
 
+  it('parseToMap for cross version model should ok', function () {
+    class MyModel {
+      requestID: string;
+      toMap(): {[key: string]: any} {
+        return {
+          'request_id': this.requestID
+        };
+      }
+    }
+    const m = new MyModel();
+    m.requestID = 'request id';
+    let res = Client.parseToMap(m);
+    assert.deepStrictEqual(res, {
+      'request_id': 'request id'
+    });
+  });
+
   it('getEndpoint should ok', async function () {
     const endpoint1 = Client.getEndpoint("common.aliyuncs.com", true, "internal")
     assert.strictEqual("common-internal.aliyuncs.com", endpoint1)

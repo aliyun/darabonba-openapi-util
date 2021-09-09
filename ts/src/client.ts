@@ -187,6 +187,9 @@ function toMap(input: any) {
     return null;
   } else if (input instanceof $tea.Model) {
     return $tea.toMap(input);
+  } else if (input && input.toMap && typeof input.toMap === 'function') {
+    // 解决跨版本 Model 不互认的问题
+    return $tea.toMap(input);
   } else if (Array.isArray(input)) {
     const result = [];
     input.forEach((value) => {
