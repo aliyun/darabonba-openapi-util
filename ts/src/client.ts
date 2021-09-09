@@ -178,6 +178,40 @@ function isModelClass(t: any): boolean {
   return typeof t.types === 'function' && typeof t.names === 'function';
 }
 
+function isObjectOrArray(t: any): boolean {
+  return Array.isArray(t) || (t instanceof Object && typeof t !== 'function');
+}
+
+function toMap(input: any) {
+  if (!isObjectOrArray(input)) {
+    return null;
+  } else if (input instanceof $tea.Model) {
+    return $tea.toMap(input);
+  } else if (Array.isArray(input)) {
+    const result = [];
+    input.forEach((value) => {
+      if (isObjectOrArray(value)) {
+        result.push(toMap(value));
+      } else {
+        result.push(value);
+      }
+    });
+
+    return result;
+  } else if (input instanceof Object) {
+    const result = {};
+    Object.entries(input).forEach(([key, value]) => {
+      if (isObjectOrArray(value)) {
+        result[key] = toMap(value);
+      } else {
+        result[key] = value;
+      }
+    });
+
+    return result;
+  }
+}
+
 export default class Client {
   /**
    * Convert all params of body other than type of readable into content 
@@ -324,7 +358,7 @@ export default class Client {
    * Transform input as map.
    */
   static parseToMap(input: any): { [key: string]: any } {
-    return $tea.toMap(input);
+    return toMap(input);
   }
 
   static getEndpoint(endpoint: string, serverUse: boolean, endpointType: string): string {

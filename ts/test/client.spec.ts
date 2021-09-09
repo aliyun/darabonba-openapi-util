@@ -279,6 +279,15 @@ describe('Tea Util', function () {
   })
 
   it('parseToMap should ok', function () {
+    assert.strictEqual(Client.parseToMap(null), null);
+    assert.strictEqual(Client.parseToMap(1), null);
+    assert.strictEqual(Client.parseToMap('1'), null);
+    assert.strictEqual(Client.parseToMap(true), null);
+    assert.strictEqual(
+      Client.parseToMap(() => {}),
+      null
+    );
+
     let res = Client.parseToMap({ key: 'value' });
     assert.strictEqual('value', res['key']);
 
