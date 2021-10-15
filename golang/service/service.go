@@ -238,7 +238,7 @@ func GetAuthorization(request *tea.Request, signatureAlgorithm, payload, acesske
 	if canonicalURI == "" {
 		canonicalURI = "/"
 	}
-	
+
 	canonicalURI = strings.Replace(canonicalURI, "+", "%20", -1)
 	canonicalURI = strings.Replace(canonicalURI, "*", "%2A", -1)
 	canonicalURI = strings.Replace(canonicalURI, "%7E", "~", -1)
@@ -458,7 +458,7 @@ func GetTimestamp() (_result *string) {
  * @param filter query param
  * @return the object
  */
-func Query(filter map[string]interface{}) (_result map[string]*string) {
+func Query(filter interface{}) (_result map[string]*string) {
 	tmp := make(map[string]interface{})
 	byt, _ := json.Marshal(filter)
 	d := json.NewDecoder(bytes.NewReader(byt))
