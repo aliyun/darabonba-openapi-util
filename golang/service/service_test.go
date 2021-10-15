@@ -129,6 +129,8 @@ func Test_Query(t *testing.T) {
 	}
 
 	result := Query(filter)
+	res := Query(result)
+	utils.AssertEqual(t, "test", tea.StringValue(res["client"]))
 	utils.AssertEqual(t, "test", tea.StringValue(result["client"]))
 	utils.AssertEqual(t, "value", tea.StringValue(result["tag.key"]))
 	utils.AssertEqual(t, "str1", tea.StringValue(result["strs.1"]))
