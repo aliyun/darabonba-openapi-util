@@ -540,7 +540,7 @@ public class Client {
     }
 
     public static byte[] SignatureMethod(String stringToSign, String secret, String signAlgorithm) throws Exception {
-        if (stringToSign == null || secret == null || signAlgorithm == null) {
+        if (stringToSign == null || secret == null || "".equals(secret) || signAlgorithm == null) {
             return null;
         }
         byte[] bytes = null;
