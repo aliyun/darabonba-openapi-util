@@ -105,11 +105,11 @@ function getAuthorizationQueryString(query: { [key: string]: string }): string {
   const keys = !query ? [] : Object.keys(query).sort();
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
+    let param = key + '='
     if (query[key]) {
-      canonicalQueryArray.push(`${key}=${encode(query[key])}`);
-    } else {
-      canonicalQueryArray.push(key);
+      param = param + encode(query[key])
     }
+    canonicalQueryArray.push(param)
   }
   return canonicalQueryArray.join('&');
 }
