@@ -54,22 +54,22 @@ describe('Tea Util', function () {
     }
 
     class Grant extends $tea.Model {
-        subGrant: SubGrant;
-        static names(): { [key: string]: string } {
-          return {
-            subGrant: 'SubGrant',
-          };
-        }
+      subGrant: SubGrant;
+      static names(): { [key: string]: string } {
+        return {
+          subGrant: 'SubGrant',
+        };
+      }
 
-        static types(): { [key: string]: any } {
-          return {
-            subGrant: SubGrant,
-          };
-        }
+      static types(): { [key: string]: any } {
+        return {
+          subGrant: SubGrant,
+        };
+      }
 
-        constructor(map: { [key: string]: any }) {
-          super(map);
-        }
+      constructor(map: { [key: string]: any }) {
+        super(map);
+      }
     }
 
     class GrantBak extends $tea.Model {
@@ -91,7 +91,7 @@ describe('Tea Util', function () {
       }
     }
     let inputModel: $tea.Model = new Grant({
-      subGrant: new SubGrant({ grant: 'test', other: 'other'}),
+      subGrant: new SubGrant({ grant: 'test', other: 'other' }),
     });
     let outputModel: $tea.Model = new GrantBak({
       subGrant: new SubGrantBak({ grant: 'test', diff: 'diff' }),
@@ -111,7 +111,7 @@ describe('Tea Util', function () {
     assert.deepStrictEqual(Client.getROASignature('stringtosign', 'secret'), 'OmuTAr79tpI6CRoAdmzKRq5lHs0=');
   });
 
-  it('toForm', function (){
+  it('toForm', function () {
     const data: { [key: string]: any } = {
       val1: 'string',
       val2: undefined,
@@ -182,7 +182,7 @@ describe('Tea Util', function () {
     assert.deepStrictEqual(Client.getStringToSign(request), 'GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/');
 
     request.query = {
-        'key': 'val ue with space'
+      'key': 'val ue with space'
     };
 
     assert.deepStrictEqual(Client.getStringToSign(request), 'GET\napplication/json\nmd5\napplication/json\ndate\nx-acs-custom-key:any value\n/?key=val ue with space');
@@ -284,7 +284,7 @@ describe('Tea Util', function () {
     assert.strictEqual(Client.parseToMap('1'), null);
     assert.strictEqual(Client.parseToMap(true), null);
     assert.strictEqual(
-      Client.parseToMap(() => {}),
+      Client.parseToMap(() => { }),
       null
     );
 
@@ -343,7 +343,7 @@ describe('Tea Util', function () {
   it('parseToMap for cross version model should ok', function () {
     class MyModel {
       requestID: string;
-      toMap(): {[key: string]: any} {
+      toMap(): { [key: string]: any } {
         return {
           'request_id': this.requestID
         };
@@ -368,7 +368,7 @@ describe('Tea Util', function () {
     assert.strictEqual("common.aliyuncs.com", endpoint3)
   });
 
-  it('hexEncode should ok', function() {
+  it('hexEncode should ok', function () {
     const test = Buffer.from('test');
     var res = Client.hexEncode(Client.hash(test, "ACS3-HMAC-SHA256"));
     assert.strictEqual("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", res);
@@ -380,24 +380,23 @@ describe('Tea Util', function () {
     assert.strictEqual("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", res);
   });
 
-  it('getAuthorization should ok', function() {
+  it('getAuthorization should ok', function () {
     const query = {
       "test": "ok",
-      "empty": ""
+      "empty": "",
     };
 
     const headers = {
+      "x-acs-TEST": "https",
       "x-acs-test": "http",
-      "x-acs-TEST": "https"
     };
 
     var req = new $tea.Request();
     req.query = query;
     req.headers = headers;
-    req.method = "GET";
 
     var res = Client.getAuthorization(req, "ACS3-HMAC-SHA256", "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
-    assert.strictEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=da772425f29289d3460d5fc961455d40c5e8c6afd0888b78a910c991e6a14846", res);
+    assert.strictEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=0f2d549523cf082c83bb8135b5863614f7fe16ca7c2c7fc537e74d67374eeeac", res);
 
     req.query = undefined;
     req.headers = undefined;
@@ -407,21 +406,21 @@ describe('Tea Util', function () {
     assert.strictEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=,Signature=608b887e491f3e88e85276b188a4d24e29230a559464685ccbf2dcc458e1fde8", res);
   });
 
-  it('signatureMethod should ok', function() {
+  it('signatureMethod should ok', function () {
     const priKey = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKzSQmrnH0YnezZ9\n" +
-    "8NK50WjMuci0hgGVcSthIZOTWMIySznY9Jj1hlvek7W0uYagtFHz03BHQnHAb5Xs\n" +
-    "0DZm0Sj9+5r79GggwEzTJDYEsLyFwXM3ZOIxqxL4sRg94MHsa81M9NXGHMyMvvff\n" +
-    "QTn1OBVLTVz5jgJ48foMn7j7r9kRAgMBAAECgYEAnZppw3/ef2XF8Z3Mnv+iP0Zk\n" +
-    "LuqiQpN8TykXK7P1/7NJ8wktlshhrSo/3jdf8axghVQsgHob2Ay8Nidugg4lsxIL\n" +
-    "AUBHvfQsQp1MAWvxslsVj+ddw01MQnt8kHmC/qhok+YuNqqAGBcoD6cthRUjEri6\n" +
-    "hfs599EfPs2DcWW06qECQQDfNqUUhcDQ/SQHRhfY9UIlaSEs2CVagDrSYFG1wyG+\n" +
-    "PXDSMes9ZRHsvVVBmNGmtUTg/jioTU3yuPsis5s9ppbVAkEAxjTAQxv5lBBm/ikM\n" +
-    "TzPShljxDZnXh6lKWG9gR1p5fKoQTzLyyhHzkBSFe848sMm68HWCX2wgIpQLHj0G\n" +
-    "ccYPTQJAduMKBeY/jpBlkiI5LWtj8b0O2G2/Z3aI3ehDXQYzgLoEz0+bNbYRWAB3\n" +
-    "2lpkv+AocZW1455Y+ACichcrhiimiQJAW/6L5hoL4u8h/oFq1zAEXJrXdyqaYLrw\n" +
-    "aM947mVN0dDVNQ0+pw9h7tO3iNkWTi+zdnv0APociDASYPyOCyyUWQJACMNRM1/r\n" +
-    "boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn\n" +
-    "Ysx+1cwXO5cuZg=="
+      "8NK50WjMuci0hgGVcSthIZOTWMIySznY9Jj1hlvek7W0uYagtFHz03BHQnHAb5Xs\n" +
+      "0DZm0Sj9+5r79GggwEzTJDYEsLyFwXM3ZOIxqxL4sRg94MHsa81M9NXGHMyMvvff\n" +
+      "QTn1OBVLTVz5jgJ48foMn7j7r9kRAgMBAAECgYEAnZppw3/ef2XF8Z3Mnv+iP0Zk\n" +
+      "LuqiQpN8TykXK7P1/7NJ8wktlshhrSo/3jdf8axghVQsgHob2Ay8Nidugg4lsxIL\n" +
+      "AUBHvfQsQp1MAWvxslsVj+ddw01MQnt8kHmC/qhok+YuNqqAGBcoD6cthRUjEri6\n" +
+      "hfs599EfPs2DcWW06qECQQDfNqUUhcDQ/SQHRhfY9UIlaSEs2CVagDrSYFG1wyG+\n" +
+      "PXDSMes9ZRHsvVVBmNGmtUTg/jioTU3yuPsis5s9ppbVAkEAxjTAQxv5lBBm/ikM\n" +
+      "TzPShljxDZnXh6lKWG9gR1p5fKoQTzLyyhHzkBSFe848sMm68HWCX2wgIpQLHj0G\n" +
+      "ccYPTQJAduMKBeY/jpBlkiI5LWtj8b0O2G2/Z3aI3ehDXQYzgLoEz0+bNbYRWAB3\n" +
+      "2lpkv+AocZW1455Y+ACichcrhiimiQJAW/6L5hoL4u8h/oFq1zAEXJrXdyqaYLrw\n" +
+      "aM947mVN0dDVNQ0+pw9h7tO3iNkWTi+zdnv0APociDASYPyOCyyUWQJACMNRM1/r\n" +
+      "boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn\n" +
+      "Ysx+1cwXO5cuZg=="
 
     let res = Client.signatureMethod("secret", "source", "ACS3-HMAC-SM3");
     let resStr = Client.hexEncode(res);
@@ -447,5 +446,5 @@ describe('Tea Util', function () {
     let str = Client.getEncodeParam('a/b/c/ test');
     assert.strictEqual(str, 'a%2Fb%2Fc%2F%20test');
   });
-  
+
 });
