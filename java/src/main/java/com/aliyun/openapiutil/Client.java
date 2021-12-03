@@ -142,8 +142,8 @@ public class Client {
             }
         }
         String[] canonicalizedKeysArray = canonicalizedKeys.toArray(new String[canonicalizedKeys.size()]);
-        String signedHeaders = StringUtils.join(";", Arrays.asList(canonicalizedKeysArray));
         Arrays.sort(canonicalizedKeysArray);
+        String signedHeaders = StringUtils.join(";", Arrays.asList(canonicalizedKeysArray));
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < canonicalizedKeysArray.length; i++) {
             String key = canonicalizedKeysArray[i];
