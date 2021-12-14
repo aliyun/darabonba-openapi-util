@@ -1,3 +1,6 @@
+### 2021-09-07 Version 0.0.8
+* Fix NPE bug when query is null.
+
 ### 2021-09-07 Version 0.0.7
 * Add method getEncodeParam.
 
