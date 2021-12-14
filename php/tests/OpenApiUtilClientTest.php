@@ -271,6 +271,12 @@ class OpenApiUtilClientTest extends TestCase
         $res = OpenApiUtilClient::getAuthorization($request, 'ACS3-HMAC-SHA256', '55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23', 'acesskey', 'secret');
 
         $this->assertEquals('ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=0a0f89a45f1ec3537a2d1a1046c71b95513a8f1f02526056968da19b99a5b914', $res);
+
+        $request->query = null;
+
+        $res = OpenApiUtilClient::getAuthorization($request, 'ACS3-HMAC-SHA256', '55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23', 'acesskey', 'secret');
+
+        $this->assertEquals('ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=af6d32deb090ae85a21d7183055cf18dca17751da96979cdf964f8f0853e9dd2', $res);
     }
 
     public function testSign()

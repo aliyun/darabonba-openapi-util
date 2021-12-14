@@ -407,6 +407,10 @@ namespace AlibabaCloud.OpenApiUtil
         internal static string GetAuthorizationQueryString(Dictionary<string, string> query)
         {
             string canonicalQueryString = string.Empty;
+            if (query == null || query.Count <= 0)
+            {
+                return canonicalQueryString;
+            }
             var hs = query.OrderBy(p => p.Key, StringComparer.Ordinal).ToDictionary(p => p.Key, p => p.Value);
             foreach (var keypair in hs)
             {
