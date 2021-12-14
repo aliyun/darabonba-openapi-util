@@ -58,6 +58,8 @@ def signature_method(secret, source, sign_type):
 
 
 def get_canonical_query_string(query):
+    if query is None or len(query) <= 0:
+        return ''
     canon_keys = []
     for k, v in query.items():
         if v is not None:

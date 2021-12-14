@@ -296,9 +296,9 @@ class OpenApiUtilClient
     public static function getAuthorization($request, $signatureAlgorithm, $payload, $accesskey, $accessKeySecret)
     {
         $canonicalURI = $request->pathname ? $request->pathname : '/';
-
+        $query    = $request->query ?: [];
         $method               = strtoupper($request->method);
-        $canonicalQueryString = self::getCanonicalQueryString($request->query);
+        $canonicalQueryString = self::getCanonicalQueryString($query);
         $signHeaders          = [];
         foreach ($request->headers as $k => $v) {
             $k = strtolower($k);
