@@ -19,7 +19,6 @@ function replaceRepeatList(target: { [key: string]: string }, repeat: any[], pre
     var item = repeat[i];
     let key = prefix + (i + 1);
     if (typeof item === 'undefined' || item == null) {
-      target[key] = '';
       continue;
     }
     if (Array.isArray(item)) {
@@ -42,7 +41,6 @@ function flatMap(target: { [key: string]: any }, params: { [key: string]: any },
     let value = params[key];
     key = prefix + key;
     if (typeof value === 'undefined' || value == null) {
-      target[key] = '';
       continue;
     }
 
