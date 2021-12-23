@@ -146,7 +146,7 @@ describe('Tea Util', function () {
         ]
       ]
     };
-    assert.deepStrictEqual(Client.toForm(data), 'val1=string&val2=&val3=&val4=1&val5=true&val6.subval1=string&val6.subval2=1&val6.subval3=true&val6.subval4=&val6.subval5.1=1&val6.subval5.2=2&val6.subval5.3=true&val6.subval5.4.val1=string&val7.1=1&val7.2=2&val7.3=&val7.4=&val7.5=true&val7.6.val1=string&val7.7.1=substring');
+    assert.deepStrictEqual(Client.toForm(data), 'val1=string&val4=1&val5=true&val6.subval1=string&val6.subval2=1&val6.subval3=true&val6.subval5.1=1&val6.subval5.2=2&val6.subval5.3=true&val6.subval5.4.val1=string&val7.1=1&val7.2=2&val7.5=true&val7.6.val1=string&val7.7.1=substring');
     assert.deepStrictEqual(Client.toForm(undefined), '');
   })
 
@@ -229,22 +229,17 @@ describe('Tea Util', function () {
     };
     assert.deepStrictEqual(Client.query(data), {
       val1: 'string',
-      val2: '',
-      val3: '',
       val4: '1',
       val5: 'true',
       'val6.subval1': 'string',
       'val6.subval2': '1',
       'val6.subval3': 'true',
-      'val6.subval4': '',
       'val6.subval5.1': '1',
       'val6.subval5.2': '2',
       'val6.subval5.3': 'true',
       'val6.subval5.4.val1': 'string',
       'val7.1': '1',
       'val7.2': '2',
-      'val7.3': '',
-      'val7.4': '',
       'val7.5': 'true',
       'val7.6.val1': 'string',
       'val7.7.1': 'substring',
