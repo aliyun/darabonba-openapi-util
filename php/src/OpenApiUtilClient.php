@@ -423,6 +423,13 @@ class OpenApiUtilClient
 
         foreach ($items as $key => $value) {
             $pos = \is_int($key) ? $key + 1 : $key;
+            
+            if ($value instanceof Model) {
+                $value = $value->toMap();
+            } elseif (\is_object($value)) {
+                $value = get_object_vars($value);
+            }
+
             if (\is_array($value) && !empty($value)) {
                 $flatten = array_merge(
                     $flatten,

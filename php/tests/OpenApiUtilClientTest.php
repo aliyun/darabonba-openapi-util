@@ -80,6 +80,10 @@ class OpenApiUtilClientTest extends TestCase
 
     public function testQuery()
     {
+        $model    = new MockModel();
+        $model->a = 'foo';
+        $model->c = 'boo';
+
         $array = [
             'a'  => 'a',
             'b1' => [
@@ -89,6 +93,9 @@ class OpenApiUtilClientTest extends TestCase
                 'a' => 'a',
             ],
             'c'  => ['x', 'y', 'z'],
+            'd' => [
+                $model
+            ]
         ];
         $this->assertEquals([
             'a'    => 'a',
@@ -97,6 +104,9 @@ class OpenApiUtilClientTest extends TestCase
             'c.1'  => 'x',
             'c.2'  => 'y',
             'c.3'  => 'z',
+            'd.1.A'  => 'foo',
+            'd.1.b'  => '',
+            'd.1.c'  => 'boo',
         ], OpenApiUtilClient::query($array));
     }
 
