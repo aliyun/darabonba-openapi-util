@@ -502,7 +502,7 @@ namespace AlibabaCloud.OpenApiUtil
                     TileDict(dicOut, keypair.Value, keyName);
                 }
             }
-            else if (typeof(IList).IsAssignableFrom(obj.GetType()))
+            else if (typeof(IList).IsAssignableFrom(obj.GetType()) && !typeof(Array).IsAssignableFrom(obj.GetType()))
             {
                 int index = 1;
                 foreach (var temp in (IList) obj)
