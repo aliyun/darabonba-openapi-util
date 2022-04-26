@@ -502,6 +502,20 @@ namespace AlibabaCloud.OpenApiUtil
                     TileDict(dicOut, keypair.Value, keyName);
                 }
             }
+            else if (typeof(TeaModel).IsAssignableFrom(obj.GetType()))
+            {
+                Dictionary<string, object> dicIn = ((Dictionary<string, object>)((TeaModel)obj).ToMap());
+                foreach (var keypair in dicIn)
+                {
+                    string keyName = parentKey + "." + keypair.Key;
+                    if (keypair.Value == null)
+                    {
+                        continue;
+                    }
+
+                    TileDict(dicOut, keypair.Value, keyName);
+                }
+            }
             else if (typeof(IList).IsAssignableFrom(obj.GetType()) && !typeof(Array).IsAssignableFrom(obj.GetType()))
             {
                 int index = 1;

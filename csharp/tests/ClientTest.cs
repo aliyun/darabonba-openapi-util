@@ -8,6 +8,7 @@ using Tea;
 
 using Xunit;
 using System.Text;
+using static tests.Models.TestQueryModel;
 
 namespace tests
 {
@@ -26,8 +27,8 @@ namespace tests
                 NoMap = 1,
                 SubModel = new TestConvertModel.TestConvertSubModel
                 {
-                Id = 2,
-                RequestId = "subTest"
+                    Id = 2,
+                    RequestId = "subTest"
                 }
             };
 
@@ -190,18 +191,18 @@ namespace tests
                 },
                 SubModel = new TestConvertMapModel.TestConvertSubModel
                 {
-                RequestId = "sub"
+                    RequestId = "sub"
                 }
             };
 
             var dicModel = Client.ParseToMap(model);
 
             Assert.Equal("requestId", dicModel["RequestId"]);
-            Assert.Equal("value", ((Dictionary<string, object>) dicModel["Dict"]) ["key"]);
-            Assert.Equal("sub", ((Dictionary<string, object>) dicModel["SubModel"]) ["RequestId"]);
+            Assert.Equal("value", ((Dictionary<string, object>)dicModel["Dict"])["key"]);
+            Assert.Equal("sub", ((Dictionary<string, object>)dicModel["SubModel"])["RequestId"]);
 
             Dictionary<string, object> dic = new Dictionary<string, object>
-            { 
+            {
                 { "model", model }
             };
 
@@ -259,6 +260,39 @@ namespace tests
 
             var res = Client.GetAuthorization(req, "ACS3-HMAC-SHA256", "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
             Assert.Equal("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=be2046c5e1d69e715fec81597bb8f72330a7eab002d5cacd434dec1cb9be74ab", res);
+        }
+
+        [Fact]
+        public void Test_QueryModel()
+        {
+            var item0 = new TestQueryModelItems
+            {
+                Description = "TEST1",
+                ItemId = 1
+            };
+            var item1 = new TestQueryModelItems
+            {
+                Description = "TEST2",
+                ItemId = 2
+            };
+            var model = new TestQueryModel
+            {
+                ServerGroupId = "Test",
+                Items = new List<TestQueryModelItems> {
+                    item0,
+                    item1
+                }
+            };
+            Dictionary<string, object> dictionary = new Dictionary<string, object>();
+            dictionary["ServerGroupId"] = model.ServerGroupId;
+            dictionary["Items"] = model.Items;
+            var dictionary1 = new Dictionary<string, string>();
+            dictionary1 = AlibabaCloud.OpenApiUtil.Client.Query(dictionary);
+            Assert.Equal("Test", dictionary1["ServerGroupId"]);
+            Assert.Equal("TEST1", dictionary1["Items.1.Description"]);
+            Assert.Equal("1", dictionary1["Items.1.ItemId"]);
+            Assert.Equal("TEST2", dictionary1["Items.2.Description"]);
+            Assert.Equal("2", dictionary1["Items.2.ItemId"]);
         }
     }
 }
