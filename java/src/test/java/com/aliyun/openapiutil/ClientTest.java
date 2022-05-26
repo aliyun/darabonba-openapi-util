@@ -188,7 +188,7 @@ public class ClientTest {
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
         Assert.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("test.1=test&&test.2=symbol", result);
+        Assert.assertTrue("test.1=test&&test.2=symbol".equals(result) || "test.2=symbol&&test.1=test".equals(result));
 
         list.remove(1);
         style = "simple";
