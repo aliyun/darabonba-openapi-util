@@ -193,6 +193,32 @@ describe('Tea Util', function () {
   });
 
   it('query should ok', async function () {
+
+    class SubGrant extends $tea.Model {
+      grant: string;
+      other: string;
+      age: number;
+      static names(): { [key: string]: string } {
+        return {
+          grant: 'Grant',
+          other: 'Other',
+          age: 'Age',
+        };
+      }
+
+      static types(): { [key: string]: any } {
+        return {
+          grant: 'string',
+          other: 'string',
+          age: 'number',
+        };
+      }
+
+      constructor(map: { [key: string]: any }) {
+        super(map);
+      }
+    }
+
     const data: { [key: string]: any } = {
       val1: 'string',
       val2: undefined,
@@ -225,7 +251,12 @@ describe('Tea Util', function () {
         [
           'substring'
         ]
-      ]
+      ],
+      val8: [new SubGrant({
+        grant: 'test1',
+        other: 'test2',
+        age: 123
+      })]
     };
     assert.deepStrictEqual(Client.query(data), {
       val1: 'string',
@@ -243,6 +274,9 @@ describe('Tea Util', function () {
       'val7.5': 'true',
       'val7.6.val1': 'string',
       'val7.7.1': 'substring',
+      'val8.1.Grant': 'test1',
+      'val8.1.Other': 'test2',
+      'val8.1.Age': '123',
     });
     assert.deepStrictEqual(Client.query(undefined), {});
   });
