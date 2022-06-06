@@ -35,6 +35,7 @@ function flatMap(target: { [key: string]: any }, params: { [key: string]: any },
   if (prefix) {
     prefix = prefix + '.';
   }
+  params = toMap(params);
   let keys = Object.keys(params);
   for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
@@ -187,7 +188,7 @@ function toMap(input: any) {
     return $tea.toMap(input);
   } else if (input && input.toMap && typeof input.toMap === 'function') {
     // 解决跨版本 Model 不互认的问题
-    return $tea.toMap(input);
+    return input.toMap();
   } else if (Array.isArray(input)) {
     const result = [];
     input.forEach((value) => {
