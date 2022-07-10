@@ -428,6 +428,8 @@ class OpenApiUtilClient
                 $value = $value->toMap();
             } elseif (\is_object($value)) {
                 $value = get_object_vars($value);
+            } elseif (\is_bool($value)) {
+                $value = $value ? 'true' : 'false';
             }
 
             if (\is_array($value) && !empty($value)) {
