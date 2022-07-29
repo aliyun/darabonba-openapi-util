@@ -423,6 +423,47 @@ public class Client {
         }
     }
 
+    /**
+     * Parse map with flat style
+     *
+     * @param object  the object
+     * @return the object
+     */
+    public static Object mapToFlatStyle(Object object) throws Exception {
+        if (null == object) {
+            return object;
+        }
+        if (object instanceof List) {
+            List<Object> list = new ArrayList<Object>();
+            for (int i = 0; i < ((List) object).size(); i++) {
+                list.add(mapToFlatStyle(((List) object).get(i)));
+            }
+            return list;
+        } else if (object instanceof TeaModel) {
+            TeaModel result = (TeaModel) object;
+            for (Field field : result.getClass().getFields()) {
+                Object value = field.get(object);
+                if (value instanceof Map) {
+                    Map<String, Object> flatMap = new HashMap<String, Object>();
+                    for (Map.Entry<String, Object> entry : ((Map<String, Object>) value).entrySet()) {
+                        flatMap.put("#" + entry.getKey().length() + "#" + entry.getKey(), mapToFlatStyle(entry.getValue()));
+                    }
+                    field.set(object, flatMap);
+                } else {
+                    field.set(object, mapToFlatStyle(value));
+                }
+            }
+            return result;
+        } else if (object instanceof Map) {
+            Map<String, Object> flatMap = new HashMap<String, Object>();
+            for (Map.Entry<String, Object> entry : ((Map<String, Object>) object).entrySet()) {
+                flatMap.put("#" + entry.getKey().length() + "#" + entry.getKey(), mapToFlatStyle(entry.getValue()));
+            }
+            return flatMap;
+        }
+        return object;
+    }
+
     private static String flatArray(List array, String sty) {
         if (array == null || array.size() <= 0 || sty == null) {
             return "";
