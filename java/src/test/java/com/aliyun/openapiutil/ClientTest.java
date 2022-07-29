@@ -224,6 +224,44 @@ public class ClientTest {
     }
 
     @Test
+    public void mapToFlatStyleTest() throws Exception {
+        PaserObjectTest test = new PaserObjectTest();
+        Map<String, String> object = new HashMap<>();
+        object.put("key1", "value1");
+        object.put("key2", "value2");
+        test.object = object;
+
+        ListValue listValue = test.new ListValue();
+        Map<String, MapValue> map = new HashMap<>();
+        map.put("mapkey1", test.new MapValue());
+        map.put("mapkey2", test.new MapValue());
+        listValue.map = map;
+
+        SubType subType = test.new SubType();
+        List<ListValue> list = new ArrayList<>();
+        list.add(listValue);
+        subType.list = list;
+
+        test.subType = subType;
+        Map<String, Object> flatBefore = new HashMap<String, Object>();
+        flatBefore.put("paserObjectTest", test);
+        Map<String, String> flatBeforeQuery = Client.query(flatBefore);
+        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.object.key1"));
+        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.object.key2"));
+        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey1.MapValueString"));
+        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey2.MapValueString"));
+
+        PaserObjectTest result = (PaserObjectTest)Client.mapToFlatStyle(test);
+        Map<String, Object> flatAfter = new HashMap<String, Object>();
+        flatAfter.put("paserObjectTest", result);
+        Map<String, String> flatAfterQuery = Client.query(flatAfter);
+        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.object.#4#key1"));
+        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.object.#4#key2"));
+        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.SubType.List.1.Map.#7#mapkey2.MapValueString"));
+        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.SubType.List.1.Map.#7#mapkey1.MapValueString"));
+    }
+
+    @Test
     public void parseToMapTest() {
         Assert.assertNull(Client.parseToMap(null));
 

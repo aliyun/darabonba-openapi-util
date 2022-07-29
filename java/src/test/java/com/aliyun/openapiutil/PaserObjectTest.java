@@ -9,6 +9,7 @@ import java.util.Map;
 public class PaserObjectTest extends TeaModel {
     @NameInMap("SubType")
     public SubType subType;
+    public Map<String, String > object;
 
     public class MapValue extends TeaModel {
         @NameInMap("MapValueString")
