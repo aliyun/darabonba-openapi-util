@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud Tea Util for Swift
+## Alibaba Cloud OpenAPI Util for Swift
 
 ## 依赖
 

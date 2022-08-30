@@ -16,7 +16,6 @@ let package = Package(
         dependencies: [
             // Dependencies declare other packages that this package depends on.
             .package(url: "https://github.com/aliyun/tea-swift.git", from: "1.0.0"),
-            .package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", from: "5.0.0"),
             .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.5.1"),
         ],
         targets: [
@@ -24,7 +23,6 @@ let package = Package(
                     name: "AlibabaCloudOpenApiUtil",
                     dependencies: [
                         .product(name: "Tea", package: "tea-swift"),
-                        .product(name: "SwiftyJSON", package: "SwiftyJSON"),
                         .product(name: "CryptoSwift", package: "CryptoSwift"),
                     ]),
             .testTarget(
