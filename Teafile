@@ -1,7 +1,7 @@
 {
   "scope": "alibabacloud",
   "name": "OpenApiUtil",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "main": "./main.tea",
   "maintainers": [
     {
@@ -12,7 +12,7 @@
   "releases": {
     "ts": "@alicloud/openapi-util:^0.2.9",
     "go": "github.com/alibabacloud-go/openapi-util/service:v0.0.11",
-    "csharp": "AlibabaCloud.OpenApiUtil:1.0.15",
+    "csharp": "AlibabaCloud.OpenApiUtil:1.0.16",
     "java": "com.aliyun:openapiutil:0.1.14",
     "php": "alibabacloud/openapi-util:^0.1.10",
     "python": "alibabacloud_openapi_util:0.1.6",

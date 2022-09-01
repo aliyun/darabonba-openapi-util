@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>AlibabaCloud.OpenApiUtil</AssemblyName>
-    <Version>1.0.15</Version>
+    <Version>1.0.16</Version>
     <Authors>Alibaba Cloud</Authors>
     <PackageTags>Alibaba Aliyun OpenApiUtil SDK</PackageTags>
     <Copyright>©2009-present Alibaba Cloud</Copyright>
