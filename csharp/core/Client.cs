@@ -215,7 +215,7 @@ namespace AlibabaCloud.OpenApiUtil
                 case "pipedelimited":
                     return FlatArray((IList) array, style);
                 case "json":
-                    return JsonConvert.SerializeObject(array);
+                    return JsonConvert.SerializeObject(ToJsonObject(array));
                 default:
                     return string.Empty;
             }
@@ -585,6 +585,45 @@ namespace AlibabaCloud.OpenApiUtil
             {
                 return string.Join("|", strs);
             }
+        }
+
+        internal static object ToJsonObject(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            if (typeof(IDictionary).IsAssignableFrom(obj.GetType()))
+            {
+                Dictionary<string, object> dicIn = ((IDictionary) obj).Keys.Cast<string>()
+                    .ToDictionary(key => key, key => ((IDictionary) obj)[key]);
+                Dictionary<string, object> result = new Dictionary<string, object>();
+                foreach (var keypair in dicIn)
+                {
+                    if (keypair.Value == null)
+                    {
+                        continue;
+                    }
+                    result.Add(keypair.Key, ToJsonObject(keypair.Value));
+                }
+                return result;
+            }
+            else if (typeof(TeaModel).IsAssignableFrom(obj.GetType()))
+            {
+                Dictionary<string, object> dicIn = ((Dictionary<string, object>)((TeaModel)obj).ToMap());
+                return ToJsonObject(dicIn);
+            }
+            else if (typeof(IList).IsAssignableFrom(obj.GetType()) && !typeof(Array).IsAssignableFrom(obj.GetType()))
+            {
+                List<object> array = new List<object>();
+                foreach (var temp in (IList) obj)
+                {
+                    array.Add(ToJsonObject(temp));
+                }
+                return array;
+            }
+            return obj;
         }
     }
 }

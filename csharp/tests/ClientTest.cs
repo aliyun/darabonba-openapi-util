@@ -157,7 +157,7 @@ namespace tests
 
             string prefix = "test";
             string style = "repeatList";
-            List<string> list = new List<string>();
+            List<object> list = new List<object>();
             list.Add("test");
             Assert.Equal("test.1=test", Client.ArrayToStringWithSpecifiedStyle(list, prefix, style));
 
@@ -176,6 +176,31 @@ namespace tests
 
             style = "null";
             Assert.Empty(Client.ArrayToStringWithSpecifiedStyle(list, prefix, style));
+
+            var item0 = new TestQueryModelItems
+            {
+                Description = "TEST1",
+                ItemId = 1
+            };
+            var item1 = new TestQueryModelItems
+            {
+                Description = "TEST2",
+                ItemId = 2
+            };
+            var item2 = new TestQueryModel
+            { 
+                ServerGroupId = "TEST3"
+            };
+            list.Add(item0);
+            list.Add(item1);
+            list.Add(item2);
+
+            style = "repeatList";
+            Assert.Equal("test.1=test&test.2=testStyle&test.3.Description=TEST1&test.3.ItemId=1&test.4.Description=TEST2&test.4.ItemId=2&test.5.ItemGroupId=TEST3", Client.ArrayToStringWithSpecifiedStyle(list, prefix, style));
+
+            style = "json";
+            Assert.Equal("[\"test\",\"testStyle\",{\"Description\":\"TEST1\",\"ItemId\":1},{\"Description\":\"TEST2\",\"ItemId\":2},{\"ItemGroupId\":\"TEST3\"}]", Client.ArrayToStringWithSpecifiedStyle(list, prefix, style));
+
         }
 
         [Fact]
