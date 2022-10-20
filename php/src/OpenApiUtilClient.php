@@ -423,7 +423,7 @@ class OpenApiUtilClient
 
         foreach ($items as $key => $value) {
             $pos = \is_int($key) ? $key + 1 : $key;
-            
+
             if ($value instanceof Model) {
                 $value = $value->toMap();
             } elseif (\is_object($value)) {
@@ -436,6 +436,9 @@ class OpenApiUtilClient
                     self::flatten($value, $delimiter, $prepend . $pos . $delimiter)
                 );
             } else {
+                if (\is_bool($value)) {
+                    $value = true === $value ? 'true' : 'false';
+                }
                 $flatten[$prepend . $pos] = $value;
             }
         }
