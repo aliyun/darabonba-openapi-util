@@ -5,6 +5,8 @@ import com.aliyun.openapiutil.PaserObjectTest.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -23,11 +25,17 @@ public class ClientTest {
         Assert.assertNull(targetClass.test);
         Assert.assertNull(targetClass.empty);
         Assert.assertNull(targetClass.body);
-
+        List<UrlList> list = new LinkedList<>();
+        UrlList urlList = new UrlList();
+        urlList.url=new FileInputStream(new File("/Users/kingboom/Documents/image-20210817213413519.png"));
+        list.add(urlList);
+        sourceClass.list = list;
         Client.convert(sourceClass, targetClass);
         Assert.assertEquals("test", targetClass.test);
         Assert.assertNull(targetClass.empty);
         Assert.assertNull(targetClass.body);
+        Assert.assertNotNull(sourceClass.list);
+        Assert.assertNull(targetClass.list);
     }
 
     @Test

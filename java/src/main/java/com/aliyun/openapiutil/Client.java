@@ -57,6 +57,18 @@ public class Client {
         TeaModel teaModel = (TeaModel) bodyClass.newInstance();
         for (Field field : fields) {
             field.setAccessible(true);
+            if(List.class.isAssignableFrom(field.getType())) {
+                if(field.getClass().getDeclaredFields().length!=0){
+                    Field[] listFields = field.getClass().getDeclaredFields();
+                    for (Field listField : listFields) {
+                        if(InputStream.class.isAssignableFrom(field.getType())){
+                            field.set(teaModel, null);
+                            break;
+                        }
+                    }
+                }
+                continue;
+            }
             if (InputStream.class.isAssignableFrom(field.getType())) {
                 continue;
             }
