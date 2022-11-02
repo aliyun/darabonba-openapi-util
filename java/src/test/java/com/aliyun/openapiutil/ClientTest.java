@@ -5,6 +5,8 @@ import com.aliyun.openapiutil.PaserObjectTest.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -28,6 +30,29 @@ public class ClientTest {
         Assert.assertEquals("test", targetClass.test);
         Assert.assertNull(targetClass.empty);
         Assert.assertNull(targetClass.body);
+
+        InputStream stream = new ByteArrayInputStream("str".getBytes("UTF-8"));
+        List<InputStream> list = new ArrayList<InputStream>();
+        list.add(stream);
+        list.add(stream);
+        sourceClass.listObject = list;
+
+        List<SourceClass.UrlList> urlList = new ArrayList<SourceClass.UrlList>();
+        SourceClass.UrlList urlList1 = new SourceClass.UrlList();
+        urlList1.urlObject = stream;
+        urlList.add(urlList1);
+        urlList.add(urlList1);
+        sourceClass.urlListObject = urlList;
+
+        sourceClass.bodyObject = stream;
+        Client.convert(sourceClass, targetClass);
+
+        Assert.assertEquals("test", targetClass.test);
+        Assert.assertNull(targetClass.empty);
+        Assert.assertNull(targetClass.body);
+        Assert.assertNotNull(sourceClass.urlListObject);
+        Assert.assertNull(targetClass.urlList.get(0).url);
+        Assert.assertEquals(0, targetClass.list.size());
     }
 
     @Test
@@ -159,7 +184,7 @@ public class ClientTest {
         SourceClass model = new SourceClass();
         query.put("model", model);
         result = Client.query(query);
-        Assert.assertEquals("test", result.get("model.test"));
+        Assert.assertEquals("test", result.get("model.Test"));
 
     }
 
@@ -266,7 +291,7 @@ public class ClientTest {
         Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey1.MapValueString"));
         Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey2.MapValueString"));
 
-        PaserObjectTest result = (PaserObjectTest)Client.mapToFlatStyle(test);
+        PaserObjectTest result = (PaserObjectTest) Client.mapToFlatStyle(test);
         Map<String, Object> flatAfter = new HashMap<String, Object>();
         flatAfter.put("paserObjectTest", result);
         Map<String, String> flatAfterQuery = Client.query(flatAfter);
@@ -398,10 +423,10 @@ public class ClientTest {
                 "boXuKfMmVjmmz0XhaDUC/JkqSwIiaZi+47M21e9BTp1218NA6VaPgJJHeJr4sNOn" +
                 "Ysx+1cwXO5cuZg==-----END RSA PRIVATE KEY-----\n\r\r";
 
-        byte[] signature = Client.SignatureMethod(null,null,null);
+        byte[] signature = Client.SignatureMethod(null, null, null);
         Assert.assertNull(Client.hexEncode(signature));
 
-        signature = Client.SignatureMethod("","secret","ACS3-HMAC-SM3");
+        signature = Client.SignatureMethod("", "secret", "ACS3-HMAC-SM3");
         Assert.assertEquals("71e9db0344cd62427ccb824234214e14a0a54fe80adfb46bd12453270961dd5b", Client.hexEncode(signature));
 
         signature = Client.SignatureMethod("source", "secret", "ACS3-HMAC-SM3");
