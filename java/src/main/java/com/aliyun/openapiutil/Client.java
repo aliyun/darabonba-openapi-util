@@ -15,6 +15,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
@@ -52,25 +53,44 @@ public class Client {
         if (body == null || content == null) {
             return;
         }
-        Class bodyClass = body.getClass();
-        Class contentClass = content.getClass();
-        Field[] fields = bodyClass.getDeclaredFields();
-        TeaModel teaModel = (TeaModel) bodyClass.newInstance();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            if (InputStream.class.isAssignableFrom(field.getType())) {
-                continue;
+        Map<String, Object> bodyMap = body.toMap();
+        bodyMap = (Map<String, Object>) exceptStream(bodyMap);
+        TeaModel.toModel(bodyMap, content);
+    }
+
+    private static Object exceptStream(Object object) throws Exception {
+        if (object instanceof List) {
+            List<Object> list = new ArrayList<Object>();
+            for (int i = 0; i < ((List) object).size(); i++) {
+                Object item = ((List) object).get(i);
+                if (null != item) {
+                    item = exceptStream(item);
+                    if (null != item) {
+                        list.add(item);
+                    }
+                } else {
+                    list.add(item);
+                }
             }
-            field.set(teaModel, field.get(body));
+            return list;
+        } else if (object instanceof Map) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            for (Map.Entry<String, Object> entry : ((Map<String, Object>) object).entrySet()) {
+                Object item = entry.getValue();
+                if (null != item) {
+                    item = exceptStream(item);
+                    if (null != item) {
+                        map.put(entry.getKey(), item);
+                    }
+                } else {
+                    map.put(entry.getKey(), item);
+                }
+            }
+            return map;
+        } else if (object instanceof InputStream || object instanceof OutputStream) {
+            return null;
         }
-        Gson gson = new Gson();
-        String jsonString = gson.toJson(teaModel);
-        Object outPut = gson.fromJson(jsonString, contentClass);
-        fields = outPut.getClass().getFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            field.set(content, field.get(outPut));
-        }
+        return object;
     }
 
     /**
@@ -414,7 +434,7 @@ public class Client {
     /**
      * Parse map with flat style
      *
-     * @param object  the object
+     * @param object the object
      * @return the object
      */
     public static Object mapToFlatStyle(Object object) throws Exception {
