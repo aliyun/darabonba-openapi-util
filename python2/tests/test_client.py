@@ -229,6 +229,16 @@ class TestClient(unittest.TestCase):
         self.assertEqual('', t6)
         self.assertEqual('', t7)
 
+        model = self.TestConvertSubModel()
+        res = Client.array_to_string_with_specified_style({'requestId': 'subTest', 'id': 2}, prefix, 'json')
+        self.assertEqual('{"requestId": "subTest", "id": 2}', res)
+        res = Client.array_to_string_with_specified_style(model, prefix, 'json')
+        self.assertEqual('{"requestId": "subTest", "id": 2}', res)
+        res = Client.array_to_string_with_specified_style([model], prefix, 'json')
+        self.assertEqual('[{"requestId": "subTest", "id": 2}]', res)
+        res = Client.array_to_string_with_specified_style({'model': model}, prefix, 'json')
+        self.assertEqual('{"model": {"requestId": "subTest", "id": 2}}', res)
+
     def test_parse_to_map(self):
         self.assertIsNone(Client.parse_to_map(None))
 

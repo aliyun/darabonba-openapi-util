@@ -4,6 +4,7 @@ package com.aliyun.openapiutil;
 import com.aliyun.tea.*;
 import com.aliyun.tea.utils.StringUtils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.bouncycastle.crypto.digests.SM3Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -383,41 +384,28 @@ public class Client {
     /**
      * Parse array into a string with specified style
      *
-     * @param array  the array
+     * @param object  the object
      * @param prefix the prefix string
      * @return the string
      * @style specified style e.g. repeatList
      */
-    public static String arrayToStringWithSpecifiedStyle(Object array, String prefix, String style) throws Exception {
-        if (null == array) {
+    public static String arrayToStringWithSpecifiedStyle(Object object, String prefix, String style) throws Exception {
+        if (null == object) {
             return "";
         }
         switch (style) {
             case "repeatList":
                 Map<String, Object> map = new HashMap<String, Object>();
-                map.put(prefix, array);
+                map.put(prefix, object);
                 return toFormWithSymbol(map, "&&");
             case "simple":
             case "spaceDelimited":
             case "pipeDelimited":
-                return flatArray((List) array, style);
+                return flatArray((List) object, style);
             case "json":
-                Class clazz = array.getClass();
-                List list = new ArrayList();
-                if (List.class.isAssignableFrom(clazz)) {
-                    list = (List) array;
-                }
-                if (list.size() > 0) {
-                    if (TeaModel.class.isAssignableFrom(list.get(0).getClass())) {
-                        List<TeaModel> teaModels = (List<TeaModel>) array;
-                        List<Map<String, Object>> mapList = new ArrayList<>();
-                        for (TeaModel teaModel : teaModels) {
-                            mapList.add(teaModel.toMap());
-                        }
-                        return new Gson().toJson(mapList);
-                    }
-                }
-                return new Gson().toJson(array);
+                Object parsedObject = TeaModel.parseObject(object);
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                return gson.toJson(parsedObject);
             default:
                 return "";
         }
@@ -595,7 +583,6 @@ public class Client {
             secret = checkRSASecret(secret);
             Signature rsaSign = Signature.getInstance("SHA256withRSA");
             KeyFactory kf = KeyFactory.getInstance("RSA");
-            System.out.println(secret);
             byte[] keySpec = Base64.decodeBase64(secret);
             PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(keySpec));
             rsaSign.initSign(privateKey);

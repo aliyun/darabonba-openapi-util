@@ -283,7 +283,7 @@ class Client(object):
                 canonicalized_query_string += f'&{quote(k, safe="~", encoding="utf-8")}=' \
                                               f'{quote(queries[k], safe="~", encoding="utf-8")}'
 
-        string_to_sign = f'{method}&%2F&{quote_plus(canonicalized_query_string[1:], safe="~",encoding="utf-8")}'
+        string_to_sign = f'{method}&%2F&{quote_plus(canonicalized_query_string[1:], safe="~", encoding="utf-8")}'
 
         digest_maker = hmac.new(bytes(secret + '&', encoding="utf-8"),
                                 bytes(string_to_sign, encoding="utf-8"),
@@ -320,7 +320,7 @@ class Client(object):
         elif style == 'pipeDelimited':
             return '|'.join(map(str, array))
         elif style == 'json':
-            return Util.to_jsonstring(array)
+            return Util.to_jsonstring(Client._parse_to_dict(array))
         else:
             return ''
 

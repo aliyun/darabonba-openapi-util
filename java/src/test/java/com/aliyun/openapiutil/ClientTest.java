@@ -216,6 +216,21 @@ public class ClientTest {
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
         Assert.assertEquals("[\"test\",\"testStyle\"]", result);
 
+        PaserObjectTest test = new PaserObjectTest();
+        Map<String, String> object = new HashMap<>();
+
+        style = "json";
+        result = Client.arrayToStringWithSpecifiedStyle(object, prefix, style);
+        Assert.assertEquals("{}", result);
+        result = Client.arrayToStringWithSpecifiedStyle(test, prefix, style);
+        Assert.assertEquals("{}", result);
+        object.put("key", "value");
+        test.object = object;
+        result = Client.arrayToStringWithSpecifiedStyle(object, prefix, style);
+        Assert.assertEquals("{\"key\":\"value\"}", result);
+        result = Client.arrayToStringWithSpecifiedStyle(test, prefix, style);
+        Assert.assertEquals("{\"object\":{\"key\":\"value\"}}", result);
+
         style = "null";
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
         Assert.assertEquals("", result);
