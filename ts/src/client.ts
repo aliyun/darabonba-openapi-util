@@ -344,7 +344,7 @@ export default class Client {
       replaceRepeatList(target, array, prefix);
       return querystring.stringify(target, '&&');
     } else if (style === 'json') {
-      return JSON.stringify(array);
+      return JSON.stringify(toMap(array));
     } else if (style === 'simple') {
       return array.join(',');
     } else if (style === 'spaceDelimited') {

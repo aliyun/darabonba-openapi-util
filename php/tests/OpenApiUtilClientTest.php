@@ -151,6 +151,48 @@ class OpenApiUtilClientTest extends TestCase
             )
         );
 
+        $test     = new ParseModel([
+            'str'   => 'A',
+            'model' => new ParseModel(['str' => 'sub model']),
+            'array' => [1, 2, 3],
+        ]);
+        $this->assertEquals(
+            '{"str":"A","model":{"str":"sub model","model":null,"array":null},"array":[1,2,3]}',
+            OpenApiUtilClient::arrayToStringWithSpecifiedStyle(
+                $test,
+                'instance',
+                'json'
+            )
+        );
+        // model item in array
+        $test     = [
+            new ParseModel([
+                'str' => 'A',
+            ]),
+        ];
+        $this->assertEquals(
+            '[{"str":"A","model":null,"array":null}]',
+            OpenApiUtilClient::arrayToStringWithSpecifiedStyle(
+                $test,
+                'instance',
+                'json'
+            )
+        );
+        // model item in map
+        $test = [
+            'model' => new ParseModel([
+                'str' => 'A',
+            ]),
+        ];
+        $this->assertEquals(
+            '{"model":{"str":"A","model":null,"array":null}}',
+            OpenApiUtilClient::arrayToStringWithSpecifiedStyle(
+                $test,
+                'instance',
+                'json'
+            )
+        );
+
         $this->assertEquals(
             'ok,test,2,3',
             OpenApiUtilClient::arrayToStringWithSpecifiedStyle(
@@ -356,6 +398,12 @@ class OpenApiUtilClientTest extends TestCase
                         'array' => null,
                     ],
                 ],
+            ],
+            'expectedJsonStr' => [
+                '["NotArray"]',
+                'NotArray',
+                'NotArray',
+                'NotArray',
             ],
         ];
     }

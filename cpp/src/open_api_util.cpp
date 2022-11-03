@@ -315,7 +315,7 @@ string Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
     } else if (sty == "pipeDelimited") {
       result = flat_vec(*vec_ptr, "|");;
     } else if (sty == "json") {
-      result = Darabonba_Util::Client::toJSONString(array);
+      result = Darabonba_Util::Client::toJSONString(_parseToMap(array));
     }
     return result;
   }

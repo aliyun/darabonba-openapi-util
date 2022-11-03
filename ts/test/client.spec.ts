@@ -305,6 +305,41 @@ describe('Tea Util', function () {
     assert.strictEqual(str, '');
     str = Client.arrayToStringWithSpecifiedStyle(null, 'instance', 'json');
     assert.strictEqual(str, '');
+
+    class MyModel extends $tea.Model {
+      requestId: string;
+      id: number;
+      static names(): { [key: string]: string } {
+        return {
+          requestId: 'requestId',
+          id: 'id',
+        };
+      }
+
+      static types(): { [key: string]: any } {
+        return {
+          requestId: 'string',
+          id: 'number',
+        };
+      }
+
+      constructor(map: { [key: string]: any }) {
+        super(map);
+      }
+    }
+
+    const model = new MyModel({
+      requestId: 'subTest',
+      id: 2,
+    });
+    str = Client.arrayToStringWithSpecifiedStyle({ requestId: 'subTest', id: 2, }, 'instance', 'json');
+    assert.strictEqual(str, '{"requestId":"subTest","id":2}');
+    str = Client.arrayToStringWithSpecifiedStyle(model, 'instance', 'json');
+    assert.strictEqual(str, '{"requestId":"subTest","id":2}');
+    str = Client.arrayToStringWithSpecifiedStyle([model], 'instance', 'json');
+    assert.strictEqual(str, '[{"requestId":"subTest","id":2}]');
+    str = Client.arrayToStringWithSpecifiedStyle({ model }, 'instance', 'json');
+    assert.strictEqual(str, '{"model":{"requestId":"subTest","id":2}}');
   })
 
   it('parseToMap should ok', function () {

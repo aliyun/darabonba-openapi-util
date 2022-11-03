@@ -226,6 +226,16 @@ class TestClient(unittest.TestCase):
         self.assertEqual('', t6)
         self.assertEqual('', t7)
 
+        model = self.TestConvertSubModel()
+        res = Client.array_to_string_with_specified_style({'requestId': 'subTest', 'id': 2}, prefix, 'json')
+        self.assertEqual('{"requestId": "subTest", "id": 2}', res)
+        res = Client.array_to_string_with_specified_style(model, prefix, 'json')
+        self.assertEqual('{"requestId": "subTest", "id": 2}', res)
+        res = Client.array_to_string_with_specified_style([model], prefix, 'json')
+        self.assertEqual('[{"requestId": "subTest", "id": 2}]', res)
+        res = Client.array_to_string_with_specified_style({'model': model}, prefix, 'json')
+        self.assertEqual('{"model": {"requestId": "subTest", "id": 2}}', res)
+
     def test_parse_to_map(self):
         self.assertIsNone(Client.parse_to_map(None))
 
@@ -329,7 +339,7 @@ class TestClient(unittest.TestCase):
     def test_get_encode_path(self):
         res = Client.get_encode_path('/path/ test')
         self.assertEqual('/path/%20test', res)
-    
+
     def test_get_encode_param(self):
         res = Client.get_encode_param('a/b/c/ test')
         self.assertEqual('a%2Fb%2Fc%2F%20test', res)

@@ -319,7 +319,7 @@ class Client(object):
         elif style == 'pipeDelimited':
             return '|'.join(map(str, array))
         elif style == 'json':
-            return Util.to_jsonstring(array)
+            return Util.to_jsonstring(Client._parse_to_dict(array))
         else:
             return ''
 
