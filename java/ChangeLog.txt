@@ -1,3 +1,7 @@
+2022-11-08 Version: 0.2.0
+1. Resolve stream deeply in convert.
+2. Improve json parse for any input.
+
 2021-12-03 Version: 0.1.14
 1. Fix signedHeaders.
 
