@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.IO;
 using AlibabaCloud.OpenApiUtil;
 
 using tests.Models;
@@ -37,6 +37,37 @@ namespace tests
             Assert.Equal("test", mapModel.RequestId);
             Assert.Equal(0, mapModel.ExtendId);
             Assert.Equal(2, mapModel.SubModel.Id);
+            Assert.Equal(2, mapModel.Dict.Count);
+            Assert.Equal(0, mapModel.NoMap);
+
+            Stream stream = new MemoryStream(Encoding.UTF8.GetBytes("str"));
+            model.UrlObject = stream;
+
+            List<Stream> list = new List<Stream> {
+                stream,
+                stream
+            };
+            model.ListObject = list;
+
+            TestConvertModel.UrlList urlList = new TestConvertModel.UrlList
+            {
+                UrlObject = stream
+            };
+            List<TestConvertModel.UrlList> urlLists = new List<TestConvertModel.UrlList> {
+                urlList,
+                urlList
+            };
+            model.UrlListObject = urlLists;
+            Client.Convert(model, mapModel);
+            Assert.Equal("test", mapModel.RequestId);
+            Assert.Equal(0, mapModel.ExtendId);
+            Assert.Equal(2, mapModel.SubModel.Id);
+            Assert.Equal(2, mapModel.Dict.Count);
+            Assert.Equal(0, mapModel.NoMap);
+            Assert.Null(mapModel.Url);
+            Assert.Empty(mapModel.list);
+            Assert.NotNull(mapModel.urlList);
+            Assert.Null(mapModel.urlList[0].Url);
         }
 
         [Fact]
@@ -188,7 +219,7 @@ namespace tests
                 ItemId = 2
             };
             var item2 = new TestQueryModel
-            { 
+            {
                 ServerGroupId = "TEST3"
             };
             list.Add(item0);

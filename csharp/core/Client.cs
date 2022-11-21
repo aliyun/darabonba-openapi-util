@@ -33,29 +33,62 @@ namespace AlibabaCloud.OpenApiUtil
          */
         public static void Convert(TeaModel body, TeaModel content)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            Type type = body.GetType();
-            PropertyInfo[] properties = type.GetProperties();
-            for (int i = 0; i < properties.Length; i++)
+            if (body == null || content == null)
             {
-                PropertyInfo p = properties[i];
-                var propertyType = p.PropertyType;
-                if (!typeof(Stream).IsAssignableFrom(propertyType))
+                return;
+            }
+            Dictionary<string, object> dict = body.ToMap();
+            dict = (Dictionary<string, object>)ExceptStream(dict);
+            TeaModel.ToObject(dict, content);
+        }
+
+        internal static object ExceptStream(object obj)
+        {
+            if (typeof(IList).IsAssignableFrom(obj.GetType()) && !typeof(Array).IsAssignableFrom(obj.GetType()))
+            {
+                List<object> array = new List<object>();
+                foreach (var temp in (IList)obj)
                 {
-                    dict[p.Name] = p.GetValue(body);
+                    if (temp != null)
+                    {
+                        object item = ExceptStream(temp);
+                        if (item != null)
+                        {
+                            array.Add(item);
+                        }
+                    }
+                    else {
+                        array.Add(temp);
+                    }
                 }
+                return array;
             }
-
-            string jsonStr = JsonConvert.SerializeObject(dict);
-            TeaModel tempModel = (TeaModel) JsonConvert.DeserializeObject(jsonStr, content.GetType());
-
-            Type outType = content.GetType();
-            PropertyInfo[] outPropertyies = outType.GetProperties();
-            foreach (PropertyInfo p in outPropertyies)
+            else if (typeof(IDictionary).IsAssignableFrom(obj.GetType()))
             {
-                var outPropertyType = p.PropertyType;
-                p.SetValue(content, p.GetValue(tempModel));
+                Dictionary<string, object> dict = ((IDictionary)obj).Keys.Cast<string>()
+                    .ToDictionary(key => key, key => ((IDictionary)obj)[key]);
+                Dictionary<string, object> result = new Dictionary<string, object>();
+                foreach (var keypair in dict)
+                {
+                    if (keypair.Value != null)
+                    {
+                        object item = ExceptStream(keypair.Value);
+                        if (item != null)
+                        {
+                            result.Add(keypair.Key, item);
+                        }
+                    }
+                    else {
+                        result.Add(keypair.Key, keypair.Value);
+                    }
+                }
+                return result;
             }
+            else if (typeof(Stream).IsAssignableFrom(obj.GetType()))
+            {
+                return null;
+            }
+            return obj;
         }
 
         /**
@@ -213,7 +246,7 @@ namespace AlibabaCloud.OpenApiUtil
                 case "simple":
                 case "spacedelimited":
                 case "pipedelimited":
-                    return FlatArray((IList) array, style);
+                    return FlatArray((IList)array, style);
                 case "json":
                     return JsonConvert.SerializeObject(ToJsonObject(array));
                 default:
@@ -232,7 +265,7 @@ namespace AlibabaCloud.OpenApiUtil
             }
 
             Type type = input.GetType();
-            var map = (Dictionary<string, object>) TeaModelExtensions.ToMapFactory(type, input);
+            var map = (Dictionary<string, object>)TeaModelExtensions.ToMapFactory(type, input);
 
             return map;
         }
@@ -387,7 +420,7 @@ namespace AlibabaCloud.OpenApiUtil
                     }
                     else
                     {
-                        tmp[lowerKey] = new List<string> {keypair.Value.ToSafeString().Trim()};
+                        tmp[lowerKey] = new List<string> { keypair.Value.ToSafeString().Trim() };
                     }
                 }
             }
@@ -489,8 +522,8 @@ namespace AlibabaCloud.OpenApiUtil
 
             if (typeof(IDictionary).IsAssignableFrom(obj.GetType()))
             {
-                Dictionary<string, object> dicIn = ((IDictionary) obj).Keys.Cast<string>()
-                    .ToDictionary(key => key, key => ((IDictionary) obj)[key]);
+                Dictionary<string, object> dicIn = ((IDictionary)obj).Keys.Cast<string>()
+                    .ToDictionary(key => key, key => ((IDictionary)obj)[key]);
                 foreach (var keypair in dicIn)
                 {
                     string keyName = parentKey + "." + keypair.Key;
@@ -519,7 +552,7 @@ namespace AlibabaCloud.OpenApiUtil
             else if (typeof(IList).IsAssignableFrom(obj.GetType()) && !typeof(Array).IsAssignableFrom(obj.GetType()))
             {
                 int index = 1;
-                foreach (var temp in (IList) obj)
+                foreach (var temp in (IList)obj)
                 {
                     TileDict(dicOut, temp, parentKey + "." + index.ToSafeString());
                     index++;
@@ -529,7 +562,7 @@ namespace AlibabaCloud.OpenApiUtil
             {
                 if (obj.GetType() == typeof(byte[]))
                 {
-                    dicOut.Add(parentKey.TrimStart('.'), Encoding.UTF8.GetString((byte[]) obj));
+                    dicOut.Add(parentKey.TrimStart('.'), Encoding.UTF8.GetString((byte[])obj));
 
                 }
                 else
@@ -557,7 +590,7 @@ namespace AlibabaCloud.OpenApiUtil
                 }
                 else
                 {
-                    stringBuilder.Append("%").Append(string.Format(CultureInfo.InvariantCulture, "{0:X2}", (int) c));
+                    stringBuilder.Append("%").Append(string.Format(CultureInfo.InvariantCulture, "{0:X2}", (int)c));
                 }
             }
 
@@ -596,8 +629,8 @@ namespace AlibabaCloud.OpenApiUtil
 
             if (typeof(IDictionary).IsAssignableFrom(obj.GetType()))
             {
-                Dictionary<string, object> dicIn = ((IDictionary) obj).Keys.Cast<string>()
-                    .ToDictionary(key => key, key => ((IDictionary) obj)[key]);
+                Dictionary<string, object> dicIn = ((IDictionary)obj).Keys.Cast<string>()
+                    .ToDictionary(key => key, key => ((IDictionary)obj)[key]);
                 Dictionary<string, object> result = new Dictionary<string, object>();
                 foreach (var keypair in dicIn)
                 {
@@ -617,7 +650,7 @@ namespace AlibabaCloud.OpenApiUtil
             else if (typeof(IList).IsAssignableFrom(obj.GetType()) && !typeof(Array).IsAssignableFrom(obj.GetType()))
             {
                 List<object> array = new List<object>();
-                foreach (var temp in (IList) obj)
+                foreach (var temp in (IList)obj)
                 {
                     array.Add(ToJsonObject(temp));
                 }
