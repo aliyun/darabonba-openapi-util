@@ -1,10 +1,12 @@
 import unittest
 import os
 import binascii
+from io import BytesIO
 
 from alibabacloud_openapi_util.client import Client, signature_method, get_canonical_query_string
 from Tea.request import TeaRequest
 from Tea.model import TeaModel
+from tests.models import SourceModel, SourceModelUrlListObject, TargetModel, TargetModelUrlList
 
 module_path = os.path.dirname(__file__)
 
@@ -207,6 +209,30 @@ class TestClient(unittest.TestCase):
             self.assertIsNotNone(map_model)
             self.assertEqual("test", map_model.requestId)
             self.assertEqual(0, map_model.extendId)
+        by = bytes('test', 'utf-8')
+        stream = BytesIO()
+        stream.write(by)
+        url_list_object = SourceModelUrlListObject(
+            url_object=stream
+        )
+        source = SourceModel(
+            test='test',
+            body_object=stream,
+            list_object=[
+                stream
+            ],
+            url_list_object=[
+                url_list_object
+            ]
+        )
+        target = TargetModel()
+        Client.convert(source, target)
+        self.assertEqual("test", target.test)
+        self.assertIsNone(target.empty)
+        self.assertIsNone(target.body)
+        self.assertIsNotNone(len(target.list))
+        self.assertIsNotNone(target.url_list[0])
+        self.assertIsNone(target.url_list[0].url)
 
     def test_array_to_string_with_specified_style(self):
         array = ['ok', 'test', 2, 3]
