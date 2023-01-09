@@ -105,7 +105,7 @@ function getAuthorizationQueryString(query: { [key: string]: string }): string {
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     let param = key + '='
-    if (typeof query[key] !== 'undefined' && query[key] !== null ) {
+    if (typeof query[key] !== 'undefined' && query[key] !== null) {
       param = param + encode(query[key])
     }
     canonicalQueryArray.push(param)
@@ -234,9 +234,29 @@ export default class Client {
         if (isModelClass(types[key])) {
           output[key] = new types[key](output[key]);
           Client.convert(inputModel[key], output[key]);
-          continue;
+        } else if (types[key] && types[key].type === 'array') {
+          output[key] = inputModel[key].map(function (d) {
+            if (isModelClass(types[key].itemType)) {
+              var item = new types[key].itemType({});
+              Client.convert(d, item);
+              return item;
+            }
+            return d;
+          });
+        } else if (types[key] && types[key].type === 'map') {
+          output[key] = {};
+          Object.keys(inputModel[key]).map(function (d) {
+            if (isModelClass(types[key].valueType)) {
+              var item = new types[key].valueType({});
+              Client.convert(inputModel[key][d], item);
+              output[key][d] = item;
+            } else {
+              output[key][d] = inputModel[key][d];
+            }
+          });
+        } else {
+          output[key] = inputModel[key];
         }
-        output[key] = inputModel[key];
       }
     }
   }

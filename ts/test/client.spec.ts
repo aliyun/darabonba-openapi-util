@@ -2,6 +2,7 @@ import * as $tea from '@alicloud/tea-typescript';
 import assert from 'assert';
 import 'mocha';
 import Client from '../src/client';
+import { Readable } from 'stream';
 
 describe('Tea Util', function () {
   it('Module should ok', function () {
@@ -12,10 +13,12 @@ describe('Tea Util', function () {
     class SubGrant extends $tea.Model {
       grant: string;
       other: string;
+      urlObject?: Readable;
       static names(): { [key: string]: string } {
         return {
           grant: 'Grant',
           other: 'Other',
+          urlObject: 'url',
         };
       }
 
@@ -23,6 +26,7 @@ describe('Tea Util', function () {
         return {
           grant: 'string',
           other: 'string',
+          urlObject: 'Readable',
         };
       }
 
@@ -34,10 +38,12 @@ describe('Tea Util', function () {
     class SubGrantBak extends $tea.Model {
       grant: string;
       diff: string;
+      url?: string;
       static names(): { [key: string]: string } {
         return {
           grant: 'Grant',
-          diff: 'Diff'
+          diff: 'Diff',
+          url: 'url',
         };
       }
 
@@ -45,6 +51,7 @@ describe('Tea Util', function () {
         return {
           grant: 'string',
           diff: 'string',
+          url: 'string',
         };
       }
 
@@ -55,15 +62,30 @@ describe('Tea Util', function () {
 
     class Grant extends $tea.Model {
       subGrant: SubGrant;
+      test?: string;
+      empty?: number;
+      bodyObject?: Readable;
+      listObject?: Readable[];
+      urlList?: SubGrant[];
       static names(): { [key: string]: string } {
         return {
           subGrant: 'SubGrant',
+          test: 'Test',
+          empty: 'empty',
+          bodyObject: 'body',
+          listObject: 'list',
+          urlList: 'urlList',
         };
       }
 
       static types(): { [key: string]: any } {
         return {
           subGrant: SubGrant,
+          test: 'string',
+          empty: 'number',
+          bodyObject: 'Readable',
+          listObject: { 'type': 'array', 'itemType': 'Readable' },
+          urlList: { 'type': 'array', 'itemType': SubGrant },
         };
       }
 
@@ -74,15 +96,30 @@ describe('Tea Util', function () {
 
     class GrantBak extends $tea.Model {
       subGrant: SubGrantBak;
+      test?: string;
+      empty?: number;
+      body?: Readable;
+      list?: string[];
+      urlList?: SubGrantBak[];
       static names(): { [key: string]: string } {
         return {
           subGrant: 'SubGrant',
+          test: 'Test',
+          empty: 'empty',
+          body: 'body',
+          list: 'list',
+          urlList: 'urlList',
         };
       }
 
       static types(): { [key: string]: any } {
         return {
           subGrant: SubGrantBak,
+          test: 'string',
+          empty: 'number',
+          body: 'Readable',
+          list: { 'type': 'array', 'itemType': 'string' },
+          urlList: { 'type': 'array', 'itemType': SubGrantBak },
         };
       }
 
@@ -90,6 +127,25 @@ describe('Tea Util', function () {
         super(map);
       }
     }
+
+    class BytesReadable extends Readable {
+      value: Buffer
+
+      constructor(value: string | Buffer) {
+        super();
+        if (typeof value === 'string') {
+          this.value = Buffer.from(value);
+        } else if (Buffer.isBuffer(value)) {
+          this.value = value;
+        }
+      }
+
+      _read() {
+        this.push(this.value);
+        this.push(null);
+      }
+    }
+
     let inputModel: $tea.Model = new Grant({
       subGrant: new SubGrant({ grant: 'test', other: 'other' }),
     });
@@ -105,6 +161,30 @@ describe('Tea Util', function () {
     assert.strictEqual(outputModel.subGrant.grant, 'test');
     assert.strictEqual(outputModel.subGrant.other, undefined);
     assert.strictEqual(outputModel.subGrant.diff, undefined);
+
+    let stream = new BytesReadable('test');
+    inputModel = new Grant({
+      subGrant: new SubGrant({ grant: 'test', other: 'other', urlObject: stream }),
+      test: 'test',
+      bodyObject: stream,
+      listObject: [stream],
+      urlList: [
+        new SubGrant({ grant: 'test', other: 'other', urlObject: stream })
+      ],
+    });
+    outputModel = new GrantBak({});
+    Client.convert(inputModel, outputModel);
+    assert.strictEqual(outputModel.subGrant.grant, 'test');
+    assert.strictEqual(outputModel.subGrant.other, undefined);
+    assert.strictEqual(outputModel.subGrant.diff, undefined);
+    assert.strictEqual(outputModel.subGrant.url, undefined);
+    assert.strictEqual(outputModel.test, 'test');
+    assert.strictEqual(outputModel.empty, undefined);
+    assert.strictEqual(outputModel.body, undefined);
+    assert.ok(outputModel.urlList[0] !== null);
+    assert.strictEqual(outputModel.urlList[0].url, undefined);
+    assert.strictEqual(outputModel.urlList[0].grant, 'test');
+    assert.strictEqual(outputModel.urlList[0].other, undefined);
   });
 
   it('getSignature', function () {

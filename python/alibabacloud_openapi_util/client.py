@@ -119,13 +119,29 @@ class Client(object):
 
         @return: void
         """
-        pros = {}
-        body_map = body.to_map()
-        for k, v in body_map.items():
-            if not isinstance(v, STREAM_CLASS):
-                pros[k] = copy.deepcopy(v)
+        body_map = Client._except_stream(body.to_map())
+        content.from_map(body_map)
 
-        content.from_map(pros)
+    @staticmethod
+    def _except_stream(val):
+        if isinstance(val, dict):
+            result = {}
+            for k, v in val.items():
+                result[k] = Client._except_stream(v)
+            return result
+        elif isinstance(val, list):
+            result = []
+            for i in val:
+                if i is not None:
+                    item = Client._except_stream(i)
+                    if item is not None:
+                        result.append(item)
+                else:
+                    result.append(Client._except_stream(i))
+            return result
+        elif isinstance(val, STREAM_CLASS):
+            return None
+        return val
 
     @staticmethod
     def _get_canonicalized_headers(headers):
