@@ -230,7 +230,7 @@ export default class Client {
     let types = constructor.types();
     // let constructor = <any>output.constructor;
     for (let key of Object.keys(constructor.names())) {
-      if (inputModel[key]) {
+      if (inputModel[key] !== null && inputModel[key] !== undefined) {
         if (isModelClass(types[key])) {
           output[key] = new types[key](output[key]);
           Client.convert(inputModel[key], output[key]);
