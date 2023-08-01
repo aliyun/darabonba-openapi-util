@@ -67,6 +67,7 @@ describe('Tea Util', function () {
       bodyObject?: Readable;
       listObject?: Readable[];
       urlList?: SubGrant[];
+      boolAttr?:boolean;
       static names(): { [key: string]: string } {
         return {
           subGrant: 'SubGrant',
@@ -75,6 +76,7 @@ describe('Tea Util', function () {
           bodyObject: 'body',
           listObject: 'list',
           urlList: 'urlList',
+          boolAttr: 'boolean'
         };
       }
 
@@ -86,6 +88,7 @@ describe('Tea Util', function () {
           bodyObject: 'Readable',
           listObject: { 'type': 'array', 'itemType': 'Readable' },
           urlList: { 'type': 'array', 'itemType': SubGrant },
+          boolAttr: 'boolean'
         };
       }
 
@@ -101,6 +104,7 @@ describe('Tea Util', function () {
       body?: Readable;
       list?: string[];
       urlList?: SubGrantBak[];
+      boolAttr?:boolean;
       static names(): { [key: string]: string } {
         return {
           subGrant: 'SubGrant',
@@ -109,6 +113,7 @@ describe('Tea Util', function () {
           body: 'body',
           list: 'list',
           urlList: 'urlList',
+          boolAttr: 'boolean'
         };
       }
 
@@ -120,6 +125,7 @@ describe('Tea Util', function () {
           body: 'Readable',
           list: { 'type': 'array', 'itemType': 'string' },
           urlList: { 'type': 'array', 'itemType': SubGrantBak },
+          boolAttr: 'boolean'
         };
       }
 
@@ -148,14 +154,17 @@ describe('Tea Util', function () {
 
     let inputModel: $tea.Model = new Grant({
       subGrant: new SubGrant({ grant: 'test', other: 'other' }),
+      boolAttr: false,
     });
     let outputModel: $tea.Model = new GrantBak({
       subGrant: new SubGrantBak({ grant: 'test', diff: 'diff' }),
+      boolAttr: true
     });
     Client.convert(inputModel, outputModel);
     assert.strictEqual(outputModel.subGrant.grant, 'test');
     assert.strictEqual(outputModel.subGrant.other, undefined);
     assert.strictEqual(outputModel.subGrant.diff, 'diff');
+    assert.strictEqual(outputModel.boolAttr, false);
     outputModel = new GrantBak({});
     Client.convert(inputModel, outputModel);
     assert.strictEqual(outputModel.subGrant.grant, 'test');
