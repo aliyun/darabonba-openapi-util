@@ -1,7 +1,7 @@
 {
   "scope": "alibabacloud",
   "name": "OpenApiUtil",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "main": "./main.tea",
   "maintainers": [
     {
@@ -10,7 +10,7 @@
     }
   ],
   "releases": {
-    "ts": "@alicloud/openapi-util:^0.3.1",
+    "ts": "@alicloud/openapi-util:^0.3.2",
     "go": "github.com/alibabacloud-go/openapi-util/service:v0.1.0",
     "csharp": "AlibabaCloud.OpenApiUtil:1.1.1",
     "java": "com.aliyun:openapiutil:0.2.1",
@@ -65,7 +65,7 @@
   },
   "releaselog": {
     "changelog": [
-      "[php/ts/python/python2]resolve stream deeply in convert"
+      "[ts]fix: tea.Model will lose the attribute that can be converted to false in convert method"
     ],
     "compatible": true
   }
