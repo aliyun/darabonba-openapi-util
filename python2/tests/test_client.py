@@ -248,7 +248,7 @@ class TestClient(unittest.TestCase):
         t6 = Client.array_to_string_with_specified_style(array, prefix, 'piDelimited')
         t7 = Client.array_to_string_with_specified_style(None, prefix, 'pipeDelimited')
         self.assertEqual('instance.1=ok&&instance.2=test&&instance.3=2&&instance.4=3', t1)
-        self.assertEqual('["ok", "test", 2, 3]', t2)
+        self.assertEqual('["ok","test",2,3]', t2)
         self.assertEqual('ok,test,2,3', t3)
         self.assertEqual('ok test 2 3', t4)
         self.assertEqual('ok|test|2|3', t5)
@@ -257,13 +257,13 @@ class TestClient(unittest.TestCase):
 
         model = self.TestConvertSubModel()
         res = Client.array_to_string_with_specified_style({'requestId': 'subTest', 'id': 2}, prefix, 'json')
-        self.assertEqual('{"requestId": "subTest", "id": 2}', res)
+        self.assertEqual('{"requestId":"subTest","id":2}', res)
         res = Client.array_to_string_with_specified_style(model, prefix, 'json')
-        self.assertEqual('{"requestId": "subTest", "id": 2}', res)
+        self.assertEqual('{"requestId":"subTest","id":2}', res)
         res = Client.array_to_string_with_specified_style([model], prefix, 'json')
-        self.assertEqual('[{"requestId": "subTest", "id": 2}]', res)
+        self.assertEqual('[{"requestId":"subTest","id":2}]', res)
         res = Client.array_to_string_with_specified_style({'model': model}, prefix, 'json')
-        self.assertEqual('{"model": {"requestId": "subTest", "id": 2}}', res)
+        self.assertEqual('{"model":{"requestId":"subTest","id":2}}', res)
 
     def test_parse_to_map(self):
         self.assertIsNone(Client.parse_to_map(None))
