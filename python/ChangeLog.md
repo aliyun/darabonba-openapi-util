@@ -1,3 +1,9 @@
+### 2023-10-23 Version 0.2.2
+* Fix: remove reassigning headers.
+
+### 2023-01-10 Version 0.2.1
+* Resolve stream deeply in convert.
+
 ### 2022-11-08 Version 0.2.0
 * Improve json parse for any input.
 
