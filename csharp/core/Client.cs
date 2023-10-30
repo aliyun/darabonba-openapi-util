@@ -166,7 +166,7 @@ namespace AlibabaCloud.OpenApiUtil
          */
         public static string GetTimestamp()
         {
-            return DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            return DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
         }
 
         /**
