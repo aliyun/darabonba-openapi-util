@@ -168,6 +168,9 @@ namespace tests
             Assert.Contains("T", Client.GetTimestamp());
 
             Assert.Contains("Z", Client.GetTimestamp());
+
+            Assert.DoesNotContain(".", Client.GetTimestamp());
+            
         }
 
         [Fact]
