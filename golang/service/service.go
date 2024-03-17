@@ -633,3 +633,40 @@ func shaHmac1(source, secret string) []byte {
 	hmac.Write([]byte(source))
 	return hmac.Sum(nil)
 }
+
+func getTimeLeft(rateLimit *string) (_result *int64) {
+	if rateLimit != nil {
+		pairs := strings.Split(tea.StringValue(rateLimit), ",")
+		for _, pair := range pairs {
+			kv := strings.Split(pair, ":")
+			if len(kv) == 2 {
+				key, value := kv[0], kv[1]
+				if key == "TimeLeft" {
+					timeLeftValue, err := strconv.ParseInt(value, 10, 64)
+					if err != nil {
+						return nil
+					}
+					return tea.Int64(timeLeftValue)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+/**
+ * Get throttling param
+ * @param the response headers
+ * @return time left
+ */
+func GetThrottlingTimeLeft(headers map[string]*string) (_result *int64) {
+	rateLimitForUserApi := headers["X-RateLimit-User-API"]
+	rateLimitForUser := headers["X-RateLimit-User"]
+	timeLeftForUserApi := getTimeLeft(rateLimitForUserApi)
+	timeLeftForUser := getTimeLeft(rateLimitForUser)
+	if tea.Int64Value(timeLeftForUserApi) > tea.Int64Value(timeLeftForUser) {
+		return timeLeftForUserApi
+	} else {
+		return timeLeftForUser
+	}
+}

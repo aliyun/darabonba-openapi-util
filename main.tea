@@ -125,3 +125,10 @@ static function getEncodePath(path: string): string;
  * @return encoded param
  */
 static function getEncodeParam(param: string): string;
+
+/**
+ * Get throttling param
+ * @param the response headers
+ * @return time left
+ */
+static function getThrottlingTimeLeft(headers: map[string]string): long;

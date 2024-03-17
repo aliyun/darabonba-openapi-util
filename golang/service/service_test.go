@@ -255,3 +255,40 @@ func Test_SignatureMethod(t *testing.T) {
 	res = SignatureMethod(priKey, "source", "ACS3-RSA-SHA256")
 	utils.AssertEqual(t, "a00b88ae04f651a8ab645e724949ff435bbb2cf9a37aa54323024477f8031f4e13dc948484c5c5a81ba53a55eb0571dffccc1e953c93269d6da23ed319e0f1ef699bcc9823a646574628ae1b70ed569b5a07d139dda28996b5b9231f5ba96141f0893deec2fbf54a0fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12", tea.StringValue(HexEncode(res)))
 }
+
+func Test_GetThrottlingTimeLeft(t *testing.T) {
+	headers := map[string]*string{
+		"X-RateLimit-User-API": nil,
+		"X-RateLimit-User":     nil,
+	}
+	timeLeft := GetThrottlingTimeLeft(headers)
+	utils.AssertNil(t, timeLeft)
+
+	headers = map[string]*string{
+		"X-RateLimit-User-API": nil,
+		"X-RateLimit-User":     tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
+	}
+	timeLeft = GetThrottlingTimeLeft(headers)
+	utils.AssertEqual(t, int64(2000), tea.Int64Value(timeLeft))
+
+	headers = map[string]*string{
+		"X-RateLimit-User-API": tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
+		"X-RateLimit-User":     nil,
+	}
+	timeLeft = GetThrottlingTimeLeft(headers)
+	utils.AssertEqual(t, int64(2000), tea.Int64Value(timeLeft))
+
+	headers = map[string]*string{
+		"X-RateLimit-User-API": tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
+		"X-RateLimit-User":     tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
+	}
+	timeLeft = GetThrottlingTimeLeft(headers)
+	utils.AssertEqual(t, int64(2000), tea.Int64Value(timeLeft))
+
+	headers = map[string]*string{
+		"X-RateLimit-User-API": tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
+		"X-RateLimit-User":     tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
+	}
+	timeLeft = GetThrottlingTimeLeft(headers)
+	utils.AssertEqual(t, int64(0), tea.Int64Value(timeLeft))
+}
