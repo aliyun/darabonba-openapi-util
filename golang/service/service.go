@@ -31,7 +31,7 @@ import (
 	"time"
 
 	util "github.com/alibabacloud-go/tea-utils/service"
-	"github.com/alibabacloud-go/tea/tea"
+	"github.com/alibabacloud-go/tea/v2/tea"
 	"github.com/tjfoc/gmsm/sm3"
 )
 
