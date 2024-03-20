@@ -660,8 +660,8 @@ func getTimeLeft(rateLimit *string) (_result *int64) {
  * @return time left
  */
 func GetThrottlingTimeLeft(headers map[string]*string) (_result *int64) {
-	rateLimitForUserApi := headers["X-RateLimit-User-API"]
-	rateLimitForUser := headers["X-RateLimit-User"]
+	rateLimitForUserApi := headers["x-ratelimit-user-api"]
+	rateLimitForUser := headers["x-ratelimit-user"]
 	timeLeftForUserApi := getTimeLeft(rateLimitForUserApi)
 	timeLeftForUser := getTimeLeft(rateLimitForUser)
 	if tea.Int64Value(timeLeftForUserApi) > tea.Int64Value(timeLeftForUser) {
