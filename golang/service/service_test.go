@@ -258,36 +258,36 @@ func Test_SignatureMethod(t *testing.T) {
 
 func Test_GetThrottlingTimeLeft(t *testing.T) {
 	headers := map[string]*string{
-		"X-RateLimit-User-API": nil,
-		"X-RateLimit-User":     nil,
+		"x-ratelimit-user-api": nil,
+		"x-ratelimit-user":     nil,
 	}
 	timeLeft := GetThrottlingTimeLeft(headers)
 	utils.AssertNil(t, timeLeft)
 
 	headers = map[string]*string{
-		"X-RateLimit-User-API": nil,
-		"X-RateLimit-User":     tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
+		"x-ratelimit-user-api": nil,
+		"x-ratelimit-user":     tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
 	}
 	timeLeft = GetThrottlingTimeLeft(headers)
 	utils.AssertEqual(t, int64(2000), tea.Int64Value(timeLeft))
 
 	headers = map[string]*string{
-		"X-RateLimit-User-API": tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
-		"X-RateLimit-User":     nil,
+		"x-ratelimit-user-api": tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
+		"x-ratelimit-user":     nil,
 	}
 	timeLeft = GetThrottlingTimeLeft(headers)
 	utils.AssertEqual(t, int64(2000), tea.Int64Value(timeLeft))
 
 	headers = map[string]*string{
-		"X-RateLimit-User-API": tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
-		"X-RateLimit-User":     tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
+		"x-ratelimit-user-api": tea.String("Limit:1,Remain:0,TimeLeft:2000,Reset:1234"),
+		"x-ratelimit-user":     tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
 	}
 	timeLeft = GetThrottlingTimeLeft(headers)
 	utils.AssertEqual(t, int64(2000), tea.Int64Value(timeLeft))
 
 	headers = map[string]*string{
-		"X-RateLimit-User-API": tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
-		"X-RateLimit-User":     tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
+		"x-ratelimit-user-api": tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
+		"x-ratelimit-user":     tea.String("Limit:1,Remain:0,TimeLeft:0,Reset:1234"),
 	}
 	timeLeft = GetThrottlingTimeLeft(headers)
 	utils.AssertEqual(t, int64(0), tea.Int64Value(timeLeft))
