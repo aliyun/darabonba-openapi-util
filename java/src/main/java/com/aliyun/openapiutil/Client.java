@@ -635,7 +635,7 @@ public class Client {
 
     public static String getEncodeParam(String param) throws UnsupportedEncodingException {
         if (StringUtils.isEmpty(param)) {
-            return param;
+            return "";
         }
         return percentEncode(param);
     }

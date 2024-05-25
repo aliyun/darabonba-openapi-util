@@ -400,6 +400,9 @@ class OpenApiUtilClient
      */
     public static function getEncodeParam($param)
     {
+        if (null === $param) {
+            return '';
+        }
         return rawurlencode($param);
     }
 

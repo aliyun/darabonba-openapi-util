@@ -385,6 +385,10 @@ namespace AlibabaCloud.OpenApiUtil
         /// <returns>encoded param</returns>
         public static string GetEncodeParam(string param)
         {
+            if (param == null)
+            {
+                return "";
+            }
             return PercentEncode(param);
         }
 

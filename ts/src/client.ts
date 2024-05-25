@@ -104,7 +104,7 @@ function getAuthorizationQueryString(query: { [key: string]: string }): string {
   const keys = !query ? [] : Object.keys(query).sort();
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    let param = key + '='
+    let param = encode(key) + '='
     if (typeof query[key] !== 'undefined' && query[key] !== null) {
       param = param + encode(query[key])
     }
