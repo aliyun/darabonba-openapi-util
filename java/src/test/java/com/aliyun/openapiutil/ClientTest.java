@@ -2,8 +2,8 @@ package com.aliyun.openapiutil;
 
 import com.aliyun.tea.TeaRequest;
 import com.aliyun.openapiutil.PaserObjectTest.*;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -17,19 +17,19 @@ public class ClientTest {
         SourceClass sourceClass = new SourceClass();
         TargetClass targetClass = new TargetClass();
         Client.convert(null, targetClass);
-        Assert.assertNull(targetClass.test);
-        Assert.assertNull(targetClass.empty);
-        Assert.assertNull(targetClass.body);
+        Assertions.assertNull(targetClass.test);
+        Assertions.assertNull(targetClass.empty);
+        Assertions.assertNull(targetClass.body);
 
         Client.convert(sourceClass, null);
-        Assert.assertNull(targetClass.test);
-        Assert.assertNull(targetClass.empty);
-        Assert.assertNull(targetClass.body);
+        Assertions.assertNull(targetClass.test);
+        Assertions.assertNull(targetClass.empty);
+        Assertions.assertNull(targetClass.body);
 
         Client.convert(sourceClass, targetClass);
-        Assert.assertEquals("test", targetClass.test);
-        Assert.assertNull(targetClass.empty);
-        Assert.assertNull(targetClass.body);
+        Assertions.assertEquals("test", targetClass.test);
+        Assertions.assertNull(targetClass.empty);
+        Assertions.assertNull(targetClass.body);
 
         InputStream stream = new ByteArrayInputStream("str".getBytes("UTF-8"));
         List<InputStream> list = new ArrayList<InputStream>();
@@ -47,19 +47,19 @@ public class ClientTest {
         sourceClass.bodyObject = stream;
         Client.convert(sourceClass, targetClass);
 
-        Assert.assertEquals("test", targetClass.test);
-        Assert.assertNull(targetClass.empty);
-        Assert.assertNull(targetClass.body);
-        Assert.assertNotNull(sourceClass.urlListObject);
-        Assert.assertNull(targetClass.urlList.get(0).url);
-        Assert.assertEquals(0, targetClass.list.size());
+        Assertions.assertEquals("test", targetClass.test);
+        Assertions.assertNull(targetClass.empty);
+        Assertions.assertNull(targetClass.body);
+        Assertions.assertNotNull(sourceClass.urlListObject);
+        Assertions.assertNull(targetClass.urlList.get(0).url);
+        Assertions.assertEquals(0, targetClass.list.size());
     }
 
     @Test
     public void getStringToSignTest() throws Exception {
         TeaRequest request = new TeaRequest();
         String signature = Client.getStringToSign(request);
-        Assert.assertEquals("GET\n\n\n\n\nnull", signature);
+        Assertions.assertEquals("GET\n\n\n\n\nnull", signature);
 
         new Client();
         Map<String, String> requestMap = new HashMap<>();
@@ -76,7 +76,7 @@ public class ClientTest {
         request.query = requestMap;
         request.pathname = "/test";
         signature = Client.getStringToSign(request);
-        Assert.assertEquals("GET\n" +
+        Assertions.assertEquals("GET\n" +
                         "accept\n" +
                         "content-md5\n" +
                         "content-type\n" +
@@ -93,23 +93,23 @@ public class ClientTest {
         TeaRequest request = new TeaRequest();
         String stringToSign = Client.getStringToSign(request);
         String signature = Client.getROASignature(stringToSign, "sk");
-        Assert.assertEquals("gyDNeagg5mpqgcAIZEfocyrreho=", signature);
+        Assertions.assertEquals("gyDNeagg5mpqgcAIZEfocyrreho=", signature);
     }
 
     @Test
     public void toFormTest() throws Exception {
         Map<String, Object> map = new HashMap<>();
         String result = Client.toForm(null);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
 
         result = Client.toForm(map);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
 
         map.put("form", "test");
         map.put("param", "test");
         map.put("nullTest", null);
         result = Client.toForm(map);
-        Assert.assertEquals("form=test&param=test", result);
+        Assertions.assertEquals("form=test&param=test", result);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class ClientTest {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(new SimpleTimeZone(0, "UTC"));
         Date date = df.parse(Client.getTimestamp());
-        Assert.assertNotNull(date);
+        Assertions.assertNotNull(date);
     }
 
     @Test
@@ -158,33 +158,33 @@ public class ClientTest {
         query.put("map", firstMap);
 
         Map<String, String> result = Client.query(null);
-        Assert.assertEquals(0, result.size());
+        Assertions.assertEquals(0, result.size());
 
         result = Client.query(query);
-        Assert.assertEquals("test", result.get("StringTest"));
-        Assert.assertNull(result.get("nullTest"));
-        Assert.assertEquals("1", result.get("IntegerTest"));
+        Assertions.assertEquals("test", result.get("StringTest"));
+        Assertions.assertNull(result.get("nullTest"));
+        Assertions.assertEquals("1", result.get("IntegerTest"));
 
-        Assert.assertEquals("1", result.get("list.1"));
-        Assert.assertNull(result.get("list.2"));
-        Assert.assertEquals("1", result.get("IntegerTest"));
-        Assert.assertEquals("2", result.get("list.3.IntegerTest"));
-        Assert.assertNull(result.get("list.3.nulTest"));
-        Assert.assertEquals("test", result.get("list.3.StringTest"));
-        Assert.assertEquals("1", result.get("list.4.1"));
+        Assertions.assertEquals("1", result.get("list.1"));
+        Assertions.assertNull(result.get("list.2"));
+        Assertions.assertEquals("1", result.get("IntegerTest"));
+        Assertions.assertEquals("2", result.get("list.3.IntegerTest"));
+        Assertions.assertNull(result.get("list.3.nulTest"));
+        Assertions.assertEquals("test", result.get("list.3.StringTest"));
+        Assertions.assertEquals("1", result.get("list.4.1"));
 
-        Assert.assertEquals("1", result.get("map.firstMapList.1"));
-        Assert.assertNull(result.get("map.nullTest"));
-        Assert.assertEquals("2", result.get("map.IntegerTest"));
-        Assert.assertEquals("test", result.get("map.StringTest"));
-        Assert.assertNull(result.get("map.firstMapMap.nullTest"));
-        Assert.assertEquals("2", result.get("map.firstMapMap.IntegerTest"));
-        Assert.assertEquals("test", result.get("map.firstMapMap.StringTest"));
+        Assertions.assertEquals("1", result.get("map.firstMapList.1"));
+        Assertions.assertNull(result.get("map.nullTest"));
+        Assertions.assertEquals("2", result.get("map.IntegerTest"));
+        Assertions.assertEquals("test", result.get("map.StringTest"));
+        Assertions.assertNull(result.get("map.firstMapMap.nullTest"));
+        Assertions.assertEquals("2", result.get("map.firstMapMap.IntegerTest"));
+        Assertions.assertEquals("test", result.get("map.firstMapMap.StringTest"));
 
         SourceClass model = new SourceClass();
         query.put("model", model);
         result = Client.query(query);
-        Assert.assertEquals("test", result.get("model.Test"));
+        Assertions.assertEquals("test", result.get("model.Test"));
 
     }
 
@@ -196,13 +196,13 @@ public class ClientTest {
         map.put("body", "test");
         teaRequest.query = map;
         String result = Client.getRPCSignature(map, "GET", "secret");
-        Assert.assertEquals("XlUyV4sXjOuX5FnjUz9IF9tm5rU=", result);
+        Assertions.assertEquals("XlUyV4sXjOuX5FnjUz9IF9tm5rU=", result);
     }
 
     @Test
     public void arrayToStringWithSpecifiedStyleTest() throws Exception {
         String result = Client.arrayToStringWithSpecifiedStyle(null, null, null);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
 
         String prefix = "test";
         String style = "repeatList";
@@ -211,56 +211,56 @@ public class ClientTest {
         list.add("test");
         list.add("symbol");
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertTrue("test.1=test&&test.2=symbol".equals(result) || "test.2=symbol&&test.1=test".equals(result));
+        Assertions.assertTrue("test.1=test&&test.2=symbol".equals(result) || "test.2=symbol&&test.1=test".equals(result));
 
         list.remove(1);
         style = "simple";
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
         list.add("testStyle");
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("test,testStyle", result);
+        Assertions.assertEquals("test,testStyle", result);
 
         style = "spaceDelimited";
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("test testStyle", result);
+        Assertions.assertEquals("test testStyle", result);
 
         style = "pipeDelimited";
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("test|testStyle", result);
+        Assertions.assertEquals("test|testStyle", result);
 
         style = "json";
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
-        Assert.assertEquals("[]", result);
+        Assertions.assertEquals("[]", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("[\"test\",\"testStyle\"]", result);
+        Assertions.assertEquals("[\"test\",\"testStyle\"]", result);
 
         PaserObjectTest test = new PaserObjectTest();
         Map<String, String> object = new HashMap<>();
 
         style = "json";
         result = Client.arrayToStringWithSpecifiedStyle(object, prefix, style);
-        Assert.assertEquals("{}", result);
+        Assertions.assertEquals("{}", result);
         result = Client.arrayToStringWithSpecifiedStyle(test, prefix, style);
-        Assert.assertEquals("{}", result);
+        Assertions.assertEquals("{}", result);
         object.put("key", "value");
         test.object = object;
         result = Client.arrayToStringWithSpecifiedStyle(object, prefix, style);
-        Assert.assertEquals("{\"key\":\"value\"}", result);
+        Assertions.assertEquals("{\"key\":\"value\"}", result);
         result = Client.arrayToStringWithSpecifiedStyle(test, prefix, style);
-        Assert.assertEquals("{\"object\":{\"key\":\"value\"}}", result);
+        Assertions.assertEquals("{\"object\":{\"key\":\"value\"}}", result);
 
         style = "null";
         result = Client.arrayToStringWithSpecifiedStyle(emptyList, prefix, style);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
         result = Client.arrayToStringWithSpecifiedStyle(list, prefix, style);
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
     }
 
     @Test
@@ -286,24 +286,24 @@ public class ClientTest {
         Map<String, Object> flatBefore = new HashMap<String, Object>();
         flatBefore.put("paserObjectTest", test);
         Map<String, String> flatBeforeQuery = Client.query(flatBefore);
-        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.object.key1"));
-        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.object.key2"));
-        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey1.MapValueString"));
-        Assert.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey2.MapValueString"));
+        Assertions.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.object.key1"));
+        Assertions.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.object.key2"));
+        Assertions.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey1.MapValueString"));
+        Assertions.assertTrue(flatBeforeQuery.containsKey("paserObjectTest.SubType.List.1.Map.mapkey2.MapValueString"));
 
         PaserObjectTest result = (PaserObjectTest) Client.mapToFlatStyle(test);
         Map<String, Object> flatAfter = new HashMap<String, Object>();
         flatAfter.put("paserObjectTest", result);
         Map<String, String> flatAfterQuery = Client.query(flatAfter);
-        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.object.#4#key1"));
-        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.object.#4#key2"));
-        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.SubType.List.1.Map.#7#mapkey2.MapValueString"));
-        Assert.assertTrue(flatAfterQuery.containsKey("paserObjectTest.SubType.List.1.Map.#7#mapkey1.MapValueString"));
+        Assertions.assertTrue(flatAfterQuery.containsKey("paserObjectTest.object.#4#key1"));
+        Assertions.assertTrue(flatAfterQuery.containsKey("paserObjectTest.object.#4#key2"));
+        Assertions.assertTrue(flatAfterQuery.containsKey("paserObjectTest.SubType.List.1.Map.#7#mapkey2.MapValueString"));
+        Assertions.assertTrue(flatAfterQuery.containsKey("paserObjectTest.SubType.List.1.Map.#7#mapkey1.MapValueString"));
     }
 
     @Test
     public void parseToMapTest() {
-        Assert.assertNull(Client.parseToMap(null));
+        Assertions.assertNull(Client.parseToMap(null));
 
         PaserObjectTest test = new PaserObjectTest();
         List<String> stringList = new ArrayList<>();
@@ -328,62 +328,62 @@ public class ClientTest {
         List subList = (List) subMap.get("List");
         Map subMapValue = (Map) subList.get(0);
         Map map = (Map) subMapValue.get("Map");
-        Assert.assertEquals("string", ((Map) map.get("mapValueTest")).get("MapValueString"));
+        Assertions.assertEquals("string", ((Map) map.get("mapValueTest")).get("MapValueString"));
     }
 
     @Test
     public void getEndpointTest() {
-        Assert.assertEquals("cc-internal.abc.com",
+        Assertions.assertEquals("cc-internal.abc.com",
                 Client.getEndpoint("cc.abc.com", false, "internal"));
 
-        Assert.assertEquals("oss-accelerate.aliyuncs.com",
+        Assertions.assertEquals("oss-accelerate.aliyuncs.com",
                 Client.getEndpoint("", true, "accelerate"));
 
-        Assert.assertEquals("test",
+        Assertions.assertEquals("test",
                 Client.getEndpoint("test", true, "test"));
     }
 
     @Test
     public void hexEncodeTest() throws Exception {
         String result = Client.hexEncode(null);
-        Assert.assertNull(result);
+        Assertions.assertNull(result);
 
         result = Client.hexEncode("".getBytes(Client.UTF8));
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
 
         byte[] hash = Client.hash("test".getBytes(Client.UTF8), "ACS3-HMAC-SHA256");
         result = Client.hexEncode(hash);
-        Assert.assertEquals("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", result);
+        Assertions.assertEquals("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", result);
 
         hash = Client.hash("test".getBytes(Client.UTF8), "ACS3-RSA-SHA256");
         result = Client.hexEncode(hash);
-        Assert.assertEquals("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", result);
+        Assertions.assertEquals("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", result);
 
         hash = Client.hash("test".getBytes(Client.UTF8), "ACS3-HMAC-SM3");
         result = Client.hexEncode(hash);
-        Assert.assertEquals("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", result);
+        Assertions.assertEquals("55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", result);
     }
 
     @Test
     public void getEncodePathTest() throws Exception {
         String result = Client.getEncodePath("");
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
         result = Client.getEncodePath("test");
-        Assert.assertEquals("test", result);
+        Assertions.assertEquals("test", result);
         result = Client.getEncodePath("/");
-        Assert.assertEquals("/", result);
+        Assertions.assertEquals("/", result);
         result = Client.getEncodePath("/path/ test");
-        Assert.assertEquals("/path/%20test", result);
+        Assertions.assertEquals("/path/%20test", result);
         result = Client.getEncodePath("/path/#test");
-        Assert.assertEquals("/path/%23test", result);
+        Assertions.assertEquals("/path/%23test", result);
         result = Client.getEncodePath("/path/\"test");
-        Assert.assertEquals("/path/%22test", result);
+        Assertions.assertEquals("/path/%22test", result);
     }
 
     @Test
     public void getEncodeParamTest() throws Exception {
         String result = Client.getEncodeParam("a/b/c/ test");
-        Assert.assertEquals("a%2Fb%2Fc%2F%20test", result);
+        Assertions.assertEquals("a%2Fb%2Fc%2F%20test", result);
     }
 
     @Test
@@ -402,7 +402,7 @@ public class ClientTest {
 
         String auth = Client.getAuthorization(req, "ACS3-HMAC-SHA256",
                 "55e12e91650d2fec56ec74e1d3e4ddbfce2ef3a65890c2a19ecf88a307e76a23", "acesskey", "secret");
-        Assert.assertEquals("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=02e81f9f3cc8839151b0c7278024cbc4bfc9fa786085a0b8305f825f17b5dae7", auth);
+        Assertions.assertEquals("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=02e81f9f3cc8839151b0c7278024cbc4bfc9fa786085a0b8305f825f17b5dae7", auth);
     }
 
     @Test
@@ -424,16 +424,16 @@ public class ClientTest {
                 "Ysx+1cwXO5cuZg==-----END RSA PRIVATE KEY-----\n\r\r";
 
         byte[] signature = Client.SignatureMethod(null, null, null);
-        Assert.assertNull(Client.hexEncode(signature));
+        Assertions.assertNull(Client.hexEncode(signature));
 
         signature = Client.SignatureMethod("", "secret", "ACS3-HMAC-SM3");
-        Assert.assertEquals("71e9db0344cd62427ccb824234214e14a0a54fe80adfb46bd12453270961dd5b", Client.hexEncode(signature));
+        Assertions.assertEquals("71e9db0344cd62427ccb824234214e14a0a54fe80adfb46bd12453270961dd5b", Client.hexEncode(signature));
 
         signature = Client.SignatureMethod("source", "secret", "ACS3-HMAC-SM3");
-        Assert.assertEquals("b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8", Client.hexEncode(signature));
+        Assertions.assertEquals("b9ff646822f41ef647c1416fa2b8408923828abc0464af6706e18db3e8553da8", Client.hexEncode(signature));
 
         signature = Client.SignatureMethod("source", priKey, "ACS3-RSA-SHA256");
-        Assert.assertEquals("a00b88ae04f651a8ab645e724949ff435bbb2cf9a37aa54323024477f8031f4e13dc948484c5c5a81ba53a55eb0571dffccc1e953c93269d6da23ed319e0f1ef699bcc9823a646574628ae1b70ed569b5a07d139dda28996b5b9231f5ba96141f0893deec2fbf54a0fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12", Client.hexEncode(signature));
+        Assertions.assertEquals("a00b88ae04f651a8ab645e724949ff435bbb2cf9a37aa54323024477f8031f4e13dc948484c5c5a81ba53a55eb0571dffccc1e953c93269d6da23ed319e0f1ef699bcc9823a646574628ae1b70ed569b5a07d139dda28996b5b9231f5ba96141f0893deec2fbf54a0fa2c203b8ae74dd26f457ac29c873745a5b88273d2b3d12", Client.hexEncode(signature));
     }
 
 }
