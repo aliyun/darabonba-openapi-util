@@ -3,7 +3,13 @@
 
 ## Alibaba Cloud OpenApi Util
 
-[![Travis Build Status](https://travis-ci.org/aliyun/darabonba-openapi-util.svg?branch=master)](https://travis-ci.org/aliyun/darabonba-openapi-util)
+[![Golang CI](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/go.yml/badge.svg)](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/go.yml)
+[![Java CI](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/java.yml/badge.svg)](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/java.yml)
+[![Python CI](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/python.yml/badge.svg)](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/python.yml)
+[![TypeScript CI](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/ts.yml/badge.svg)](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/ts.yml)
+[![.NET CI](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/csharp.yml/badge.svg)](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/csharp.yml)
+[![Swift CI](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/swift.yml/badge.svg)](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/swift.yml)
+[![PHP CI](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/php.yml/badge.svg)](https://github.com/aliyun/darabonba-openapi-util/actions/workflows/php.yml)
 [![codecov](https://codecov.io/gh/aliyun/darabonba-openapi-util/branch/master/graph/badge.svg)](https://codecov.io/gh/aliyun/darabonba-openapi-util)
 
 ## 安装
