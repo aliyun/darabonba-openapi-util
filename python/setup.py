@@ -37,7 +37,7 @@ URL = "https://github.com/aliyun/darabonba-openapi-util"
 
 TOPDIR = os.path.dirname(__file__) or "."
 VERSION = __import__(PACKAGE).__version__
-REQUIRES = ["alibabacloud_tea_util>=0.0.2", "cryptography>=3.0.0"]
+REQUIRES = ["alibabacloud_tea_util>=0.3.13, <1.0.0", "cryptography>=3.0.0"]
 
 desc_file = open("README.md", encoding='utf-8')
 try:
