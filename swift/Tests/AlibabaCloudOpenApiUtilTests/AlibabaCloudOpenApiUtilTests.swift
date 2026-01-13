@@ -30,12 +30,13 @@ class TestModel: TeaModel {
         return map
     }
     
-    public override func fromMap(_ dict: [String: Any]) -> Void {
+    public override func fromMap(_ dict: [String: Any?]?) -> Void {
+        guard let dict = dict else { return }
         if dict.keys.contains("num") {
-            self.num = dict["num"] as! Int
+            self.num = dict["num"] as? Int
         }
         if dict.keys.contains("str") {
-            self.str = dict["str"] as! String
+            self.str = dict["str"] as? String
         }
     }
 }
@@ -67,12 +68,13 @@ class TestModel2: TeaModel {
         return map
     }
     
-    public override func fromMap(_ dict: [String: Any]) -> Void {
+    public override func fromMap(_ dict: [String: Any?]?) -> Void {
+        guard let dict = dict else { return }
         if dict.keys.contains("num") {
-            self.num = dict["num"] as! Int
+            self.num = dict["num"] as? Int
         }
         if dict.keys.contains("str1") {
-            self.str1 = dict["str1"] as! String
+            self.str1 = dict["str1"] as? String
         }
     }
 }
@@ -220,9 +222,6 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
     func testArrayToStringWithSpecifiedStyle() {
     }
 
-    func testMapToFlatStyle() {
-    }
-
     func testParseToMap() {
     }
 
@@ -267,7 +266,7 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         XCTAssertEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=02e81f9f3cc8839151b0c7278024cbc4bfc9fa786085a0b8305f825f17b5dae7", auth)
     }
 
-    static var allTests = [
+    static var allTests: [(String, (AlibabaCloudOpenApiUtilTests) -> () throws -> Void)] = [
         ("testConvert", testConvert),
         ("testGetStringToSign", testGetStringToSign),
         ("testGetROASignature", testGetROASignature),
@@ -283,7 +282,6 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         ("testGetEncodePath", testGetEncodePath),
         ("testGetEncodeParam", testGetEncodeParam),
         ("testGetAuthorization", testGetAuthorization),
-        ("testMapToFlatStyle", testMapToFlatStyle),
     ]
     
     func testMapToFlatStyle() {
