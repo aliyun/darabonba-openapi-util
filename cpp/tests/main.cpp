@@ -386,3 +386,60 @@ TEST(tests, getEncodeParam) {
   );
   ASSERT_EQ("a%2Fb%2Fc%2F%20test", res);
 }
+
+TEST(tests, mapToFlatStyle) {
+  // Test with null-like empty any
+  boost::any empty;
+  boost::any result = Alibabacloud_OpenApiUtil::Client::mapToFlatStyle(empty);
+  ASSERT_TRUE(result.empty());
+
+  // Test with vector
+  auto vec = make_shared<vector<boost::any>>();
+  vec->push_back(string("a"));
+  vec->push_back(string("b"));
+  vec->push_back(string("c"));
+  boost::any vecAny = vec;
+  result = Alibabacloud_OpenApiUtil::Client::mapToFlatStyle(vecAny);
+  ASSERT_TRUE(result.type() == typeid(vector<boost::any>));
+  vector<boost::any> resultVec = boost::any_cast<vector<boost::any>>(result);
+  ASSERT_EQ(3, resultVec.size());
+  ASSERT_EQ("a", boost::any_cast<string>(resultVec[0]));
+
+  // Test with simple map
+  auto mp = make_shared<map<string, boost::any>>();
+  (*mp)["key"] = string("value");
+  (*mp)["name"] = string("test");
+  boost::any mapAny = mp;
+  result = Alibabacloud_OpenApiUtil::Client::mapToFlatStyle(mapAny);
+  ASSERT_TRUE(result.type() == typeid(map<string, boost::any>));
+  map<string, boost::any> resultMap = boost::any_cast<map<string, boost::any>>(result);
+  ASSERT_TRUE(resultMap.find("#3#key") != resultMap.end());
+  ASSERT_EQ("value", boost::any_cast<string>(resultMap["#3#key"]));
+  ASSERT_TRUE(resultMap.find("#4#name") != resultMap.end());
+  ASSERT_EQ("test", boost::any_cast<string>(resultMap["#4#name"]));
+
+  // Test with nested map
+  auto outerMap = make_shared<map<string, boost::any>>();
+  auto innerMap = make_shared<map<string, boost::any>>();
+  (*innerMap)["inner"] = string("value");
+  (*outerMap)["outer"] = boost::any(innerMap);
+  boost::any nestedMapAny = outerMap;
+  result = Alibabacloud_OpenApiUtil::Client::mapToFlatStyle(nestedMapAny);
+  ASSERT_TRUE(result.type() == typeid(map<string, boost::any>));
+  resultMap = boost::any_cast<map<string, boost::any>>(result);
+  ASSERT_TRUE(resultMap.find("#5#outer") != resultMap.end());
+  
+  // Test with vector containing maps
+  auto vecWithMaps = make_shared<vector<boost::any>>();
+  auto map1 = make_shared<map<string, boost::any>>();
+  (*map1)["key"] = string("value1");
+  vecWithMaps->push_back(boost::any(map1));
+  auto map2 = make_shared<map<string, boost::any>>();
+  (*map2)["key"] = string("value2");
+  vecWithMaps->push_back(boost::any(map2));
+  boost::any vecWithMapsAny = vecWithMaps;
+  result = Alibabacloud_OpenApiUtil::Client::mapToFlatStyle(vecWithMapsAny);
+  ASSERT_TRUE(result.type() == typeid(vector<boost::any>));
+  resultVec = boost::any_cast<vector<boost::any>>(result);
+  ASSERT_EQ(2, resultVec.size());
+}

@@ -222,21 +222,37 @@ open class Client {
     }
     
     public static func mapToFlatStyle(_ input: Any?) -> Any {
+        if input == nil {
+            return input as Any
+        }
         if input is Array<Any> {
             var list: [Any] = []
             for item in input as! Array<Any> {
                 list.append(mapToFlatStyle(item))
             }
             return list
+        } else if input is TeaModel {
+            // For TeaModel, convert to map, flatten the map entries, and return modified model
+            let modelMap = (input as! TeaModel).toMap()
+            var flatMap: [String: Any] = [:]
+            for (key, value) in modelMap {
+                if value is Dictionary<String, Any> {
+                    var nestedFlatMap: [String: Any] = [:]
+                    for (nestedKey, nestedVal) in value as! [String: Any] {
+                        nestedFlatMap["#\(nestedKey.count)#\(nestedKey)"] = mapToFlatStyle(nestedVal)
+                    }
+                    flatMap[key] = nestedFlatMap
+                } else {
+                    flatMap[key] = mapToFlatStyle(value)
+                }
+            }
+            // Create a new instance from the flattened map
+            let model = input as! TeaModel
+            model.fromMap(flatMap)
+            return model
         } else if input is Dictionary<String, Any> {
             var dict : [String : Any] = [:]
             for (key, value) in input as! [String : Any] {
-                dict["#\(key.count)#\(key)"] = mapToFlatStyle(value)
-            }
-            return dict
-        } else if input is TeaModel {
-            var dict : [String : Any] = [:]
-            for (key, value) in (input as! TeaModel).toMap() {
                 dict["#\(key.count)#\(key)"] = mapToFlatStyle(value)
             }
             return dict
