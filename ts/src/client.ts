@@ -491,4 +491,51 @@ export default class Client {
     }
     return encode(param);
   }
+
+  /**
+   * Transform a map to a flat style map where keys are prefixed with length info.
+   * Map keys are transformed from "key" to "#length#key" format.
+   * @param object the input object (can be a Model, Array, Map, or other types)
+   * @return the transformed object
+   */
+  static mapToFlatStyle(object: any): any {
+    if (object === null || object === undefined) {
+      return object;
+    }
+
+    if (Array.isArray(object)) {
+      const list: any[] = [];
+      for (let i = 0; i < object.length; i++) {
+        list.push(Client.mapToFlatStyle(object[i]));
+      }
+      return list;
+    } else if (object instanceof $tea.Model || (object && object.toMap && typeof object.toMap === 'function')) {
+      // Handle TeaModel instances
+      const map = object instanceof $tea.Model ? $tea.toMap(object) : object.toMap();
+      const result: { [key: string]: any } = {};
+      for (const key of Object.keys(map)) {
+        const value = map[key];
+        if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value) && !(value instanceof $tea.Model) && !(value.toMap && typeof value.toMap === 'function')) {
+          // It's a plain Map/object
+          const flatMap: { [key: string]: any } = {};
+          for (const entryKey of Object.keys(value)) {
+            flatMap[`#${entryKey.length}#${entryKey}`] = Client.mapToFlatStyle(value[entryKey]);
+          }
+          result[key] = flatMap;
+        } else {
+          result[key] = Client.mapToFlatStyle(value);
+        }
+      }
+      return result;
+    } else if (typeof object === 'object') {
+      // Handle plain Map/object
+      const flatMap: { [key: string]: any } = {};
+      for (const key of Object.keys(object)) {
+        flatMap[`#${key.length}#${key}`] = Client.mapToFlatStyle(object[key]);
+      }
+      return flatMap;
+    }
+
+    return object;
+  }
 }
