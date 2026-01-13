@@ -437,7 +437,7 @@ class Client(object):
         Map keys are transformed from "key" to "#length#key" format.
 
         @param obj: the input object (can be a TeaModel, list, dict, or other types)
-        @return: the transformed object
+        @return: the transformed object.
         """
         if obj is None:
             return obj
