@@ -429,3 +429,40 @@ class Client(object):
     @staticmethod
     def get_encode_param(param):
         return quote(param, safe='~', encoding="utf-8")
+
+    @staticmethod
+    def map_to_flat_style(obj):
+        """
+        Transform a map to a flat style map where keys are prefixed with length info.
+        Map keys are transformed from "key" to "#length#key" format.
+
+        @param obj: the input object (can be a TeaModel, list, dict, or other types)
+        @return: the transformed object.
+        """
+        if obj is None:
+            return obj
+
+        if isinstance(obj, list):
+            result = []
+            for item in obj:
+                result.append(Client.map_to_flat_style(item))
+            return result
+        elif isinstance(obj, TeaModel):
+            obj_map = obj.to_map()
+            result = {}
+            for key, value in obj_map.items():
+                if isinstance(value, dict) and not isinstance(value, TeaModel):
+                    flat_map = {}
+                    for entry_key, entry_value in value.items():
+                        flat_map[f'#{len(entry_key)}#{entry_key}'] = Client.map_to_flat_style(entry_value)
+                    result[key] = flat_map
+                else:
+                    result[key] = Client.map_to_flat_style(value)
+            return result
+        elif isinstance(obj, dict):
+            flat_map = {}
+            for key, value in obj.items():
+                flat_map[f'#{len(key)}#{key}'] = Client.map_to_flat_style(value)
+            return flat_map
+
+        return obj
