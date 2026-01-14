@@ -610,4 +610,77 @@ describe('Tea Util', function () {
     assert.strictEqual(str, 'a%2Fb%2Fc%2F%20test');
   });
 
+it('mapToFlatStyle should ok', function () {
+    // Test null/undefined
+    assert.strictEqual(Client.mapToFlatStyle(null), null);
+    assert.strictEqual(Client.mapToFlatStyle(undefined), undefined);
+
+    // Test primitive values
+    assert.strictEqual(Client.mapToFlatStyle('test'), 'test');
+    assert.strictEqual(Client.mapToFlatStyle(123), 123);
+    assert.strictEqual(Client.mapToFlatStyle(true), true);
+
+    // Test plain Map/object
+    const map = { key1: 'value1', key2: 'value2' };
+    const flatMap = Client.mapToFlatStyle(map);
+    assert.strictEqual(flatMap['#4#key1'], 'value1');
+    assert.strictEqual(flatMap['#4#key2'], 'value2');
+
+    // Test nested Map
+    const nestedMap = {
+      outerKey: {
+        innerKey: 'innerValue'
+      }
+    };
+    const flatNestedMap = Client.mapToFlatStyle(nestedMap);
+    assert.strictEqual(flatNestedMap['#8#outerKey']['#8#innerKey'], 'innerValue');
+
+    // Test Array
+    const arr = ['item1', 'item2'];
+    const flatArr = Client.mapToFlatStyle(arr);
+    assert.deepStrictEqual(flatArr, ['item1', 'item2']);
+
+    // Test Array with Map elements
+    const arrWithMap = [{ key: 'value' }];
+    const flatArrWithMap = Client.mapToFlatStyle(arrWithMap);
+    assert.strictEqual(flatArrWithMap[0]['#3#key'], 'value');
+
+    // Test TeaModel
+    class TestModel extends $tea.Model {
+      name: string;
+      tags: { [key: string]: string };
+      static names(): { [key: string]: string } {
+        return {
+          name: 'name',
+          tags: 'tags',
+        };
+      }
+
+      static types(): { [key: string]: any } {
+        return {
+          name: 'string',
+          tags: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+        };
+      }
+
+      constructor(map: { [key: string]: any }) {
+        super(map);
+      }
+    }
+
+    const model = new TestModel({
+      name: 'testName',
+      tags: { tagKey: 'tagValue' }
+    });
+    const flatModel = Client.mapToFlatStyle(model);
+    assert.strictEqual(flatModel['name'], 'testName');
+    assert.strictEqual(flatModel['tags']['#6#tagKey'], 'tagValue');
+
+    // Test Array of TeaModels
+    const modelArray = [model];
+    const flatModelArray = Client.mapToFlatStyle(modelArray);
+    assert.strictEqual(flatModelArray[0]['name'], 'testName');
+    assert.strictEqual(flatModelArray[0]['tags']['#6#tagKey'], 'tagValue');
+  });
+  
 });

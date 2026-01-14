@@ -403,3 +403,60 @@ class TestClient(unittest.TestCase):
 
     def test_get_canonical_query_string(self):
         self.assertEqual('test=%20~%2F%2A-%2B', get_canonical_query_string({'test': ' ~/*-+'}))
+
+    def test_map_to_flat_style(self):
+        # Test None
+        self.assertIsNone(Client.map_to_flat_style(None))
+
+        # Test primitive values
+        self.assertEqual('test', Client.map_to_flat_style('test'))
+        self.assertEqual(123, Client.map_to_flat_style(123))
+        self.assertEqual(True, Client.map_to_flat_style(True))
+
+        # Test plain dict
+        map_obj = {'key1': 'value1', 'key2': 'value2'}
+        flat_map = Client.map_to_flat_style(map_obj)
+        self.assertEqual('value1', flat_map['#4#key1'])
+        self.assertEqual('value2', flat_map['#4#key2'])
+
+        # Test nested dict
+        nested_map = {
+            'outerKey': {
+                'innerKey': 'innerValue'
+            }
+        }
+        flat_nested_map = Client.map_to_flat_style(nested_map)
+        self.assertEqual('innerValue', flat_nested_map['#8#outerKey']['#8#innerKey'])
+
+        # Test list
+        arr = ['item1', 'item2']
+        flat_arr = Client.map_to_flat_style(arr)
+        self.assertEqual(['item1', 'item2'], flat_arr)
+
+        # Test list with dict elements
+        arr_with_dict = [{'key': 'value'}]
+        flat_arr_with_dict = Client.map_to_flat_style(arr_with_dict)
+        self.assertEqual('value', flat_arr_with_dict[0]['#3#key'])
+
+        # Test TeaModel
+        class TestModel(TeaModel):
+            def __init__(self):
+                self.name = 'testName'
+                self.tags = {'tagKey': 'tagValue'}
+
+            def to_map(self):
+                return {
+                    'name': self.name,
+                    'tags': self.tags
+                }
+
+        model = TestModel()
+        flat_model = Client.map_to_flat_style(model)
+        self.assertEqual('testName', flat_model['name'])
+        self.assertEqual('tagValue', flat_model['tags']['#6#tagKey'])
+
+        # Test list of TeaModels
+        model_list = [model]
+        flat_model_list = Client.map_to_flat_style(model_list)
+        self.assertEqual('testName', flat_model_list[0]['name'])
+        self.assertEqual('tagValue', flat_model_list[0]['tags']['#6#tagKey'])

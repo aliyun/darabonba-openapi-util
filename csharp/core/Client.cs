@@ -656,5 +656,66 @@ namespace AlibabaCloud.OpenApiUtil
             }
             return obj;
         }
+        
+        /// <summary>
+        /// Transform a map to a flat style map where keys are prefixed with length info.
+        /// Map keys are transformed from "key" to "#length#key" format.
+        /// </summary>
+        /// <param name="obj">the input object (can be a TeaModel, List, Dictionary, or other types)</param>
+        /// <returns>the transformed object</returns>
+        public static object MapToFlatStyle(object obj)
+        {
+            if (obj == null)
+            {
+                return obj;
+            }
+
+            if (typeof(IList).IsAssignableFrom(obj.GetType()) && !typeof(Array).IsAssignableFrom(obj.GetType()))
+            {
+                List<object> list = new List<object>();
+                foreach (var item in (IList)obj)
+                {
+                    list.Add(MapToFlatStyle(item));
+                }
+                return list;
+            }
+            else if (typeof(TeaModel).IsAssignableFrom(obj.GetType()))
+            {
+                Dictionary<string, object> objMap = (Dictionary<string, object>)((TeaModel)obj).ToMap();
+                Dictionary<string, object> result = new Dictionary<string, object>();
+                foreach (var keypair in objMap)
+                {
+                    if (keypair.Value != null && typeof(IDictionary).IsAssignableFrom(keypair.Value.GetType()))
+                    {
+                        Dictionary<string, object> flatMap = new Dictionary<string, object>();
+                        Dictionary<string, object> valueDict = ((IDictionary)keypair.Value).Keys.Cast<string>()
+                            .ToDictionary(key => key, key => ((IDictionary)keypair.Value)[key]);
+                        foreach (var entry in valueDict)
+                        {
+                            flatMap.Add(string.Format("#{0}#{1}", entry.Key.Length, entry.Key), MapToFlatStyle(entry.Value));
+                        }
+                        result.Add(keypair.Key, flatMap);
+                    }
+                    else
+                    {
+                        result.Add(keypair.Key, MapToFlatStyle(keypair.Value));
+                    }
+                }
+                return result;
+            }
+            else if (typeof(IDictionary).IsAssignableFrom(obj.GetType()))
+            {
+                Dictionary<string, object> flatMap = new Dictionary<string, object>();
+                Dictionary<string, object> dicIn = ((IDictionary)obj).Keys.Cast<string>()
+                    .ToDictionary(key => key, key => ((IDictionary)obj)[key]);
+                foreach (var keypair in dicIn)
+                {
+                    flatMap.Add(string.Format("#{0}#{1}", keypair.Key.Length, keypair.Key), MapToFlatStyle(keypair.Value));
+                }
+                return flatMap;
+            }
+
+            return obj;
+        }
     }
 }
