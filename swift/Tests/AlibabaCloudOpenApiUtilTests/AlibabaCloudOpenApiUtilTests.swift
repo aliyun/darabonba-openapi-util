@@ -30,12 +30,13 @@ class TestModel: TeaModel {
         return map
     }
     
-    public override func fromMap(_ dict: [String: Any]) -> Void {
+    public override func fromMap(_ dict: [String: Any?]?) -> Void {
+        guard let dict = dict else { return }
         if dict.keys.contains("num") {
-            self.num = dict["num"] as! Int
+            self.num = dict["num"] as? Int
         }
         if dict.keys.contains("str") {
-            self.str = dict["str"] as! String
+            self.str = dict["str"] as? String
         }
     }
 }
@@ -67,12 +68,13 @@ class TestModel2: TeaModel {
         return map
     }
     
-    public override func fromMap(_ dict: [String: Any]) -> Void {
+    public override func fromMap(_ dict: [String: Any?]?) -> Void {
+        guard let dict = dict else { return }
         if dict.keys.contains("num") {
-            self.num = dict["num"] as! Int
+            self.num = dict["num"] as? Int
         }
         if dict.keys.contains("str1") {
-            self.str1 = dict["str1"] as! String
+            self.str1 = dict["str1"] as? String
         }
     }
 }
@@ -220,9 +222,6 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
     func testArrayToStringWithSpecifiedStyle() {
     }
 
-    func testMapToFlatStyle() {
-    }
-
     func testParseToMap() {
     }
 
@@ -267,7 +266,7 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         XCTAssertEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=02e81f9f3cc8839151b0c7278024cbc4bfc9fa786085a0b8305f825f17b5dae7", auth)
     }
 
-    static var allTests = [
+    static var allTests: [(String, (AlibabaCloudOpenApiUtilTests) -> () throws -> Void)] = [
         ("testConvert", testConvert),
         ("testGetStringToSign", testGetStringToSign),
         ("testGetROASignature", testGetROASignature),
@@ -284,4 +283,61 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         ("testGetEncodeParam", testGetEncodeParam),
         ("testGetAuthorization", testGetAuthorization),
     ]
+    
+    func testMapToFlatStyle() {
+        // Test with nil
+        let nilResult = Client.mapToFlatStyle(nil)
+        XCTAssertNil(nilResult as? String)
+        
+        // Test with array
+        let array: [Any] = ["a", "b", "c"]
+        let arrayResult = Client.mapToFlatStyle(array)
+        XCTAssertTrue(arrayResult is [Any])
+        let resultArray = arrayResult as! [Any]
+        XCTAssertEqual(3, resultArray.count)
+        XCTAssertEqual("a", resultArray[0] as! String)
+        
+        // Test with dictionary
+        let dict: [String: Any] = ["key": "value", "name": "test"]
+        let dictResult = Client.mapToFlatStyle(dict)
+        XCTAssertTrue(dictResult is [String: Any])
+        let resultDict = dictResult as! [String: Any]
+        XCTAssertEqual("value", resultDict["#3#key"] as! String)
+        XCTAssertEqual("test", resultDict["#4#name"] as! String)
+        
+        // Test with nested dictionary
+        let nestedDict: [String: Any] = [
+            "outer": [
+                "inner": "value"
+            ]
+        ]
+        let nestedResult = Client.mapToFlatStyle(nestedDict)
+        XCTAssertTrue(nestedResult is [String: Any])
+        let nestedResultDict = nestedResult as! [String: Any]
+        XCTAssertNotNil(nestedResultDict["#5#outer"])
+        let innerDict = nestedResultDict["#5#outer"] as! [String: Any]
+        XCTAssertEqual("value", innerDict["#5#inner"] as! String)
+        
+        // Test with array containing dictionaries
+        let arrayWithDicts: [Any] = [
+            ["key": "value1"],
+            ["key": "value2"]
+        ]
+        let arrayWithDictsResult = Client.mapToFlatStyle(arrayWithDicts)
+        XCTAssertTrue(arrayWithDictsResult is [Any])
+        let resultArrayWithDicts = arrayWithDictsResult as! [Any]
+        XCTAssertEqual(2, resultArrayWithDicts.count)
+        let firstDict = resultArrayWithDicts[0] as! [String: Any]
+        XCTAssertEqual("value1", firstDict["#3#key"] as! String)
+        
+        // Test with TeaModel containing map field
+        let model = TestModel()
+        model.num = 100
+        model.str = "test"
+        let modelResult = Client.mapToFlatStyle(model)
+        XCTAssertTrue(modelResult is TestModel)
+        let resultModel = modelResult as! TestModel
+        XCTAssertEqual(100, resultModel.num)
+        XCTAssertEqual("test", resultModel.str)
+    }
 }

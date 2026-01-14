@@ -564,3 +564,50 @@ string Client::getEncodeParam(shared_ptr<string> param) {
   }
   return res;
 }
+
+boost::any Client::mapToFlatStyle(const boost::any &input) {
+  if (can_cast<vector<boost::any>>(input)) {
+    shared_ptr<vector<boost::any>> vecPtr = any_casts<vector<boost::any>>(input);
+    vector<boost::any> list;
+    if (vecPtr) {
+      for (const auto &item : *vecPtr) {
+        list.push_back(mapToFlatStyle(item));
+      }
+    }
+    return list;
+  } else if (can_cast<Darabonba::Model>(input)) {
+    shared_ptr<Darabonba::Model> modelPtr = any_casts<Darabonba::Model>(input);
+    if (modelPtr) {
+      map<string, boost::any> modelMap = modelPtr->toMap();
+      for (auto &it : modelMap) {
+        if (can_cast<map<string, boost::any>>(it.second)) {
+          shared_ptr<map<string, boost::any>> mapPtr = any_casts<map<string, boost::any>>(it.second);
+          if (mapPtr) {
+            map<string, boost::any> flatMap;
+            for (const auto &entry : *mapPtr) {
+              string flatKey = "#" + to_string(entry.first.length()) + "#" + entry.first;
+              flatMap[flatKey] = mapToFlatStyle(entry.second);
+            }
+            it.second = flatMap;
+          }
+        } else {
+          it.second = mapToFlatStyle(it.second);
+        }
+      }
+      modelPtr->fromMap(modelMap);
+      return modelPtr;
+    }
+    return input;
+  } else if (can_cast<map<string, boost::any>>(input)) {
+    shared_ptr<map<string, boost::any>> mapPtr = any_casts<map<string, boost::any>>(input);
+    map<string, boost::any> flatMap;
+    if (mapPtr) {
+      for (const auto &entry : *mapPtr) {
+        string flatKey = "#" + to_string(entry.first.length()) + "#" + entry.first;
+        flatMap[flatKey] = mapToFlatStyle(entry.second);
+      }
+    }
+    return flatMap;
+  }
+  return input;
+}

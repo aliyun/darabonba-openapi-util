@@ -42,6 +42,7 @@ public:
                                  shared_ptr<string> accessKeySecret);
   static string getEncodePath(shared_ptr<string> path);
   static string getEncodeParam(shared_ptr<string> param);
+  static boost::any mapToFlatStyle(const boost::any &input);
 
   Client() {};
   virtual ~Client() = default;
