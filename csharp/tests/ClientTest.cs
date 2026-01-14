@@ -353,5 +353,77 @@ namespace tests
             Assert.Equal("TEST2", dictionary1["Items.2.Description"]);
             Assert.Equal("2", dictionary1["Items.2.ItemId"]);
         }
+        
+        [Fact]
+        public void Test_MapToFlatStyle()
+        {
+            // Test null
+            Assert.Null(Client.MapToFlatStyle(null));
+
+            // Test primitive values
+            Assert.Equal("test", Client.MapToFlatStyle("test"));
+            Assert.Equal(123, Client.MapToFlatStyle(123));
+            Assert.Equal(true, Client.MapToFlatStyle(true));
+
+            // Test plain Dictionary
+            var map = new Dictionary<string, object>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            };
+            var flatMap = (Dictionary<string, object>)Client.MapToFlatStyle(map);
+            Assert.Equal("value1", flatMap["#4#key1"]);
+            Assert.Equal("value2", flatMap["#4#key2"]);
+
+            // Test nested Dictionary
+            var nestedMap = new Dictionary<string, object>
+            {
+                { "outerKey", new Dictionary<string, object>
+                    {
+                        { "innerKey", "innerValue" }
+                    }
+                }
+            };
+            var flatNestedMap = (Dictionary<string, object>)Client.MapToFlatStyle(nestedMap);
+            var innerMap = (Dictionary<string, object>)flatNestedMap["#8#outerKey"];
+            Assert.Equal("innerValue", innerMap["#8#innerKey"]);
+
+            // Test List
+            var arr = new List<object> { "item1", "item2" };
+            var flatArr = (List<object>)Client.MapToFlatStyle(arr);
+            Assert.Equal("item1", flatArr[0]);
+            Assert.Equal("item2", flatArr[1]);
+
+            // Test List with Dictionary elements
+            var arrWithDict = new List<object>
+            {
+                new Dictionary<string, object> { { "key", "value" } }
+            };
+            var flatArrWithDict = (List<object>)Client.MapToFlatStyle(arrWithDict);
+            var dictElement = (Dictionary<string, object>)flatArrWithDict[0];
+            Assert.Equal("value", dictElement["#3#key"]);
+
+            // Test TeaModel
+            var modelWithTags = new TestConvertMapModel
+            {
+                RequestId = "testName",
+                Dict = new Dictionary<string, object>
+                {
+                    { "tagKey", "tagValue" }
+                }
+            };
+            var flatModel = (Dictionary<string, object>)Client.MapToFlatStyle(modelWithTags);
+            Assert.Equal("testName", flatModel["RequestId"]);
+            var tagsMap = (Dictionary<string, object>)flatModel["Dict"];
+            Assert.Equal("tagValue", tagsMap["#6#tagKey"]);
+
+            // Test List of TeaModels
+            var modelList = new List<object> { modelWithTags };
+            var flatModelList = (List<object>)Client.MapToFlatStyle(modelList);
+            var firstModel = (Dictionary<string, object>)flatModelList[0];
+            Assert.Equal("testName", firstModel["RequestId"]);
+            var firstModelTags = (Dictionary<string, object>)firstModel["Dict"];
+            Assert.Equal("tagValue", firstModelTags["#6#tagKey"]);
+        }
     }
 }
