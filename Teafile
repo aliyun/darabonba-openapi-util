@@ -18,7 +18,7 @@
     "python": "alibabacloud_openapi_util:0.2.4",
     "python2": "alibabacloud_openapi_util_py2:0.1.2",
     "cpp": "alibabacloud-sdk-cpp/openapi-util:master",
-    "swift": "alibabacloud-sdk-swift/openapi-util:1.0.1"
+    "swift": "alibabacloud-sdk-swift/openapi-util:1.0.2"
   },
   "csharp": {
     "namespace": "AlibabaCloud.OpenApiUtil",
