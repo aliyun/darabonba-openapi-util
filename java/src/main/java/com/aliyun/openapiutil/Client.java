@@ -55,6 +55,18 @@ public class Client {
         }
         Map<String, Object> bodyMap = body.toMap();
         bodyMap = (Map<String, Object>) exceptStream(bodyMap);
+        // Skip shrink-style mismatches: a String field of content sharing the same
+        // NameInMap key with a Map/List value of body will be overwritten by
+        // arrayToStringWithSpecifiedStyle later, copying it here only triggers
+        // useless cast events in TeaModel.confirmType.
+        for (Field field : content.getClass().getFields()) {
+            NameInMap anno = field.getAnnotation(NameInMap.class);
+            String key = anno == null ? field.getName() : anno.value();
+            Object value = bodyMap.get(key);
+            if (String.class.equals(field.getType()) && (value instanceof Map || value instanceof List)) {
+                bodyMap.remove(key);
+            }
+        }
         TeaModel.toModel(bodyMap, content);
     }
 

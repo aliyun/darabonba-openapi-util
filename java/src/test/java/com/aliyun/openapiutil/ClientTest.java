@@ -1,5 +1,7 @@
 package com.aliyun.openapiutil;
 
+import com.aliyun.tea.NameInMap;
+import com.aliyun.tea.TeaModel;
 import com.aliyun.tea.TeaRequest;
 import com.aliyun.openapiutil.PaserObjectTest.*;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +13,51 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ClientTest {
+
+    public static class ShrinkSourceClass extends TeaModel {
+        @NameInMap("Filters")
+        public List<Map<String, Object>> filters;
+
+        @NameInMap("Tags")
+        public Map<String, Object> tags;
+
+        @NameInMap("Test")
+        public String test = "test";
+
+        public String plainName = "plain";
+    }
+
+    public static class ShrinkTargetClass extends TeaModel {
+        @NameInMap("Filters")
+        public String filtersShrink;
+
+        @NameInMap("Tags")
+        public String tagsShrink;
+
+        @NameInMap("Test")
+        public String test;
+
+        public String plainName;
+    }
+
+    @Test
+    public void convertSkipShrinkFieldTest() throws Exception {
+        ShrinkSourceClass source = new ShrinkSourceClass();
+        Map<String, Object> filter = new HashMap<String, Object>();
+        filter.put("Operator", "IN");
+        filter.put("Name", "policyId");
+        filter.put("Value", Arrays.asList("po-000001bctotzplhahu1d"));
+        source.filters = new ArrayList<Map<String, Object>>();
+        source.filters.add(filter);
+        source.tags = new HashMap<String, Object>();
+        source.tags.put("env", "test");
+        ShrinkTargetClass target = new ShrinkTargetClass();
+        Client.convert(source, target);
+        Assertions.assertNull(target.filtersShrink);      // shrink List→String 被跳过
+        Assertions.assertNull(target.tagsShrink);         // shrink Map→String 被跳过
+        Assertions.assertEquals("test", target.test);     // 类型匹配字段正常拷贝
+        Assertions.assertEquals("plain", target.plainName); // 无 NameInMap 时用字段名
+    }
 
     @Test
     public void convertTest() throws Exception {
