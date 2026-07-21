@@ -134,7 +134,7 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         XCTAssertEqual("OmuTAr79tpI6CRoAdmzKRq5lHs0=", signature)
     }
 
-    func testToForm() async throws {
+    func testToForm() {
         var dict: [String: Any] = [:]
         var result: String = Client.toForm(nil)
         XCTAssertEqual("", result)
@@ -147,13 +147,13 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         XCTAssertEqual("form=test&param=test", result)
     }
 
-    func testGetTimeStamp() async throws {
+    func testGetTimeStamp() {
         XCTAssertNotNil(Client.getTimestamp())
         XCTAssertTrue(Client.getTimestamp().contains("T"))
         XCTAssertTrue(Client.getTimestamp().contains("Z"))
     }
 
-    func testQuery() async throws {
+    func testQuery() {
         var dict: [String: Any] = [:]
         dict["StringTest"] = "test"
         dict["IntegerTest"] = 1
