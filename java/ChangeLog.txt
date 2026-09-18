@@ -1,3 +1,6 @@
+2026-09-18 Version: 0.2.3
+1. Update org.bouncycastle:bcprov-jdk18on from 1.78.1 to 1.84 (CVE-2025-14813, CVE-2026-5598, CVE-2025-8916, CVE-2026-0636).
+
 2024-10-31 Version: 0.2.2
 1. Update org.bouncycastle:bcpkix-jdk15on to org.bouncycastle:bcprov-jdk18on.
 
