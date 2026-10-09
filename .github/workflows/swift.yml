@@ -5,6 +5,10 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+
+permissions:
+  contents: read
+
 defaults:
   run:
     shell: bash
@@ -16,8 +20,47 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Check out Tea for PR validation
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      uses: actions/checkout@v4
+      with:
+        repository: aliyun/tea-swift
+        ref: 71901ca834f3bf40b01bb1320197dad0bfab1be6
+        path: .swift-ci/tea-swift
+        persist-credentials: false
+    - name: Prepare unpublished Swift dependencies
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      run: python3 "$GITHUB_WORKSPACE/.swift-ci/tea-swift/.github/scripts/prepare-swift-dependencies.py" "$GITHUB_WORKSPACE/swift"
     - name: Build
       run: swift build -v
     - name: Run tests
       run: swift test -v
+
+  linux:
+    name: Swift ${{ matrix.swift }} on Linux
+    runs-on: ubuntu-latest
+    container: swift:${{ matrix.swift }}
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: ["5.10-jammy", "6.1-jammy"]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Check out Tea for PR validation
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      uses: actions/checkout@v4
+      with:
+        repository: aliyun/tea-swift
+        ref: 71901ca834f3bf40b01bb1320197dad0bfab1be6
+        path: .swift-ci/tea-swift
+        persist-credentials: false
+    - name: Prepare unpublished Swift dependencies
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      run: python3 "$GITHUB_WORKSPACE/.swift-ci/tea-swift/.github/scripts/prepare-swift-dependencies.py" "$GITHUB_WORKSPACE/swift"
+    - name: Run tests
+      run: swift test
