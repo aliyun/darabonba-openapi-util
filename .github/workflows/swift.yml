@@ -5,6 +5,10 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+
+permissions:
+  contents: read
+
 defaults:
   run:
     shell: bash
@@ -12,12 +16,76 @@ defaults:
 
 jobs:
   build:
-
-    runs-on: macos-latest
-
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Use each Xcode's bundled compiler and SDK together.
+          - os: macos-15
+            xcode_select: /Applications/Xcode_16.app/Contents/Developer
+            name: Swift 6.0 (Xcode 16.0) on macos-15
+          - os: macos-15
+            xcode_select: /Applications/Xcode_16.4.app/Contents/Developer
+            name: Swift 6.1 (Xcode 16.4) on macos-15
+          - os: macos-15
+            xcode_select: /Applications/Xcode_26.0.1.app/Contents/Developer
+            name: Swift 6.2 (Xcode 26.0.1) on macos-15
+          - os: macos-26
+            xcode_select: /Applications/Xcode_26.6.app/Contents/Developer
+            name: Swift 6.3 (Xcode 26.6) on macos-26
+          - os: xcode-27
+            xcode_select: /Applications/Xcode_27.app/Contents/Developer
+            name: Swift 6.4 (Xcode 27.0) on xcode-27
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Check out Tea for PR validation
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      uses: actions/checkout@v4
+      with:
+        repository: aliyun/tea-swift
+        ref: 9689419769550fe126b9399379c07cd76d9bff39
+        path: .swift-ci/tea-swift
+        persist-credentials: false
+    - name: Select Xcode
+      run: sudo xcode-select -s "${{ matrix.xcode_select }}"
+    - name: Verify toolchain
+      run: |
+        xcodebuild -version
+        swift --version
+    - name: Prepare unpublished Swift dependencies
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      run: python3 "$GITHUB_WORKSPACE/.swift-ci/tea-swift/.github/scripts/prepare-swift-dependencies.py" "$GITHUB_WORKSPACE/swift"
     - name: Build
       run: swift build -v
     - name: Run tests
       run: swift test -v
+
+  linux:
+    name: Swift ${{ matrix.swift }} on Linux
+    runs-on: ubuntu-latest
+    container: swift:${{ matrix.swift }}
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: ["5.9.0-jammy", "5.10.1-jammy", "6.0.3-jammy", "6.1.3-jammy", "6.2.4-jammy", "6.3.3-jammy", "6.4.0-jammy"]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Check out Tea for PR validation
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      uses: actions/checkout@v4
+      with:
+        repository: aliyun/tea-swift
+        ref: 9689419769550fe126b9399379c07cd76d9bff39
+        path: .swift-ci/tea-swift
+        persist-credentials: false
+    - name: Prepare unpublished Swift dependencies
+      if: github.event_name == 'pull_request' && github.event.pull_request.number == 154
+      run: python3 "$GITHUB_WORKSPACE/.swift-ci/tea-swift/.github/scripts/prepare-swift-dependencies.py" "$GITHUB_WORKSPACE/swift"
+    - name: Run tests
+      run: swift test
