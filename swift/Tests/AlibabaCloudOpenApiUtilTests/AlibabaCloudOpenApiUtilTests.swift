@@ -266,24 +266,6 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         XCTAssertEqual("ACS3-HMAC-SHA256 Credential=acesskey,SignedHeaders=x-acs-test,Signature=02e81f9f3cc8839151b0c7278024cbc4bfc9fa786085a0b8305f825f17b5dae7", auth)
     }
 
-    static var allTests: [(String, (AlibabaCloudOpenApiUtilTests) -> () throws -> Void)] = [
-        ("testConvert", testConvert),
-        ("testGetStringToSign", testGetStringToSign),
-        ("testGetROASignature", testGetROASignature),
-        ("testToForm", testToForm),
-        ("testGetTimeStamp", testGetTimeStamp),
-        ("testQuery", testQuery),
-        ("testGetRPCSignature", testGetRPCSignature),
-        ("testArrayToStringWithSpecifiedStyle", testArrayToStringWithSpecifiedStyle),
-        ("testMapToFlatStyle", testMapToFlatStyle),
-        ("testParseToMap", testParseToMap),
-        ("testGetEndpoint", testGetEndpoint),
-        ("testHexEncode", testHexEncode),
-        ("testGetEncodePath", testGetEncodePath),
-        ("testGetEncodeParam", testGetEncodeParam),
-        ("testGetAuthorization", testGetAuthorization),
-    ]
-    
     func testMapToFlatStyle() {
         // Test with nil
         let nilResult = Client.mapToFlatStyle(nil)
