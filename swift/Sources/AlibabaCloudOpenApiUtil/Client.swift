@@ -82,6 +82,14 @@ open class Client {
         return r.toBase64()
     }
 
+    public static func getROASignatureWithSHA256(_ stringToSign: String?, _ secret: String?) -> String {
+        if stringToSign == nil || secret == nil {
+            return ""
+        }
+        let r: [UInt8] = try! HMAC(key: secret!, variant: .sha256).authenticate(stringToSign!.bytes)
+        return r.toBase64()
+    }
+
     public static func toForm(_ filter: [String:Any]?) -> String {
         return toFormWithSymbol(filter: filter, symbol: SEPARATOR)
     }
@@ -151,6 +159,14 @@ open class Client {
     }
 
     public static func getRPCSignature(_ signedParams: [String: String]?, _ method: String?, _ secret: String?) -> String {
+        return getRPCSignature(signedParams, method, secret, .sha1)
+    }
+
+    public static func getRPCSignatureWithSHA256(_ signedParams: [String: String]?, _ method: String?, _ secret: String?) -> String {
+        return getRPCSignature(signedParams, method, secret, .sha256)
+    }
+
+    private static func getRPCSignature(_ signedParams: [String: String]?, _ method: String?, _ secret: String?, _ variant: HMAC.Variant) -> String {
         if signedParams == nil || method == nil || secret == nil || secret!.isEmpty{
             return ""
         }
@@ -176,7 +192,7 @@ open class Client {
         stringToSign.append("/".urlEncode())
         stringToSign.append(SEPARATOR)
         stringToSign.append(canonicalizedQueryString.urlEncode())
-        let r: [UInt8] = try! HMAC(key: "\(secret!)\(SEPARATOR)", variant: .sha1).authenticate(stringToSign.bytes)
+        let r: [UInt8] = try! HMAC(key: "\(secret!)\(SEPARATOR)", variant: variant).authenticate(stringToSign.bytes)
         return r.toBase64()
     }
 

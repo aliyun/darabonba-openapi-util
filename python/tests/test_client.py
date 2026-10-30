@@ -72,6 +72,10 @@ class TestClient(unittest.TestCase):
         result = Client.get_rpcsignature(query, 'GET', 'secret')
         self.assertEqual("XlUyV4sXjOuX5FnjUz9IF9tm5rU=", result)
 
+    def test_sha256_signatures(self):
+        self.assertEqual('feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=', Client.get_roasignature_with_sha256('stringtosign', 'secret'))
+        self.assertEqual('RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=', Client.get_rpcsignature_with_sha256({'a': 'b'}, 'GET', 'secret'))
+
     def test_get_timestamp(self):
         self.assertIsNotNone(Client.get_timestamp())
 

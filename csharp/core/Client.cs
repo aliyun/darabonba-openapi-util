@@ -129,6 +129,15 @@ namespace AlibabaCloud.OpenApiUtil
             return System.Convert.ToBase64String(signData);
         }
 
+        public static string GetROASignatureWithSHA256(string stringToSign, string secret)
+        {
+            using (KeyedHashAlgorithm algorithm = CryptoConfig.CreateFromName("HMACSHA256") as KeyedHashAlgorithm)
+            {
+                algorithm.Key = Encoding.UTF8.GetBytes(secret);
+                return System.Convert.ToBase64String(algorithm.ComputeHash(Encoding.UTF8.GetBytes(stringToSign.ToCharArray())));
+            }
+        }
+
         /**
          * Parse filter into a form string
          * @param filter object
@@ -188,6 +197,16 @@ namespace AlibabaCloud.OpenApiUtil
          */
         public static string GetRPCSignature(Dictionary<string, string> signedParams, string method, string secret)
         {
+            return GetRPCSignature(signedParams, method, secret, "HMACSHA1");
+        }
+
+        public static string GetRPCSignatureWithSHA256(Dictionary<string, string> signedParams, string method, string secret)
+        {
+            return GetRPCSignature(signedParams, method, secret, "HMACSHA256");
+        }
+
+        private static string GetRPCSignature(Dictionary<string, string> signedParams, string method, string secret, string algorithmName)
+        {
             List<string> sortedKeys = signedParams.Keys.ToList();
             sortedKeys.Sort(StringComparer.Ordinal);
             StringBuilder canonicalizedQueryString = new StringBuilder();
@@ -209,9 +228,8 @@ namespace AlibabaCloud.OpenApiUtil
             stringToSign.Append(SEPARATOR);
             stringToSign.Append(PercentEncode(
                 canonicalizedQueryString.ToString().Substring(1)));
-            System.Diagnostics.Debug.WriteLine("GetRPCSignature:stringToSign is " + stringToSign.ToString());
             byte[] signData;
-            using (KeyedHashAlgorithm algorithm = CryptoConfig.CreateFromName("HMACSHA1") as KeyedHashAlgorithm)
+            using (KeyedHashAlgorithm algorithm = CryptoConfig.CreateFromName(algorithmName) as KeyedHashAlgorithm)
             {
                 algorithm.Key = Encoding.UTF8.GetBytes(secret + SEPARATOR);
                 signData = algorithm.ComputeHash(Encoding.UTF8.GetBytes(stringToSign.ToString().ToCharArray()));

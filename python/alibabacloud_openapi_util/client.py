@@ -196,6 +196,11 @@ class Client(object):
         return signature
 
     @staticmethod
+    def get_roasignature_with_sha256(string_to_sign, secret):
+        hash_val = hmac.new(secret.encode('utf-8'), string_to_sign.encode('utf-8'), hashlib.sha256).digest()
+        return base64.b64encode(hash_val).decode('utf-8')
+
+    @staticmethod
     def _object_handler(key, value, out):
         if value is None:
             return
@@ -274,6 +279,14 @@ class Client(object):
 
         @return: the signature
         """
+        return Client._get_rpcsignature(signed_params, method, secret, hashlib.sha1)
+
+    @staticmethod
+    def get_rpcsignature_with_sha256(signed_params, method, secret):
+        return Client._get_rpcsignature(signed_params, method, secret, hashlib.sha256)
+
+    @staticmethod
+    def _get_rpcsignature(signed_params, method, secret, digest):
         queries = signed_params.copy()
         keys = list(queries.keys())
         keys.sort()
@@ -289,7 +302,7 @@ class Client(object):
 
         digest_maker = hmac.new(bytes(secret + '&', encoding="utf-8"),
                                 bytes(string_to_sign, encoding="utf-8"),
-                                digestmod=hashlib.sha1)
+                                digestmod=digest)
         hash_bytes = digest_maker.digest()
         signed_str = str(base64.b64encode(hash_bytes), encoding="utf-8")
 

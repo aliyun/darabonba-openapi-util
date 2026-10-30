@@ -109,6 +109,16 @@ TEST(tests_Client, test_getROASignature) {
   ASSERT_EQ("XGXDWA78AEvx/wmfxKoVCq/afWw=", signature);
 }
 
+TEST(tests_Client, test_sha256Signatures) {
+  ASSERT_EQ("feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=",
+            Alibabacloud_OpenApiUtil::Client::getROASignatureWithSHA256(
+                make_shared<string>("stringtosign"), make_shared<string>("secret")));
+  ASSERT_EQ("RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=",
+            Alibabacloud_OpenApiUtil::Client::getRPCSignatureWithSHA256(
+                make_shared<map<string, string>>(map<string, string>{{"a", "b"}}),
+                make_shared<string>("GET"), make_shared<string>("secret")));
+}
+
 TEST(tests_Client, test_toForm) {
   shared_ptr<map<string, boost::any>> filter(new map<string, boost::any>({
                                                                              {"client", string("test")},

@@ -180,6 +180,12 @@ func GetROASignature(stringToSign *string, secret *string) (_result *string) {
 	return tea.String(signedStr)
 }
 
+func GetROASignatureWithSHA256(stringToSign *string, secret *string) *string {
+	h := hmac.New(sha256.New, []byte(tea.StringValue(secret)))
+	io.WriteString(h, tea.StringValue(stringToSign))
+	return tea.String(base64.StdEncoding.EncodeToString(h.Sum(nil)))
+}
+
 func GetEndpoint(endpoint *string, server *bool, endpointType *string) *string {
 	if tea.StringValue(endpointType) == "internal" {
 		strs := strings.Split(tea.StringValue(endpoint), ".")
@@ -488,6 +494,13 @@ func GetRPCSignature(signedParams map[string]*string, method *string, secret *st
 	stringToSign := buildRpcStringToSign(signedParams, tea.StringValue(method))
 	signature := sign(stringToSign, tea.StringValue(secret), "&")
 	return tea.String(signature)
+}
+
+func GetRPCSignatureWithSHA256(signedParams map[string]*string, method *string, secret *string) *string {
+	stringToSign := buildRpcStringToSign(signedParams, tea.StringValue(method))
+	h := hmac.New(sha256.New, []byte(tea.StringValue(secret)+"&"))
+	io.WriteString(h, stringToSign)
+	return tea.String(base64.StdEncoding.EncodeToString(h.Sum(nil)))
 }
 
 /**
