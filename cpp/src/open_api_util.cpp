@@ -15,6 +15,8 @@
 using namespace std;
 using namespace Alibabacloud_OpenApiUtil;
 
+boost::any _parseToMap(const boost::any &input);
+
 void Alibabacloud_OpenApiUtil::Client::convert(
     shared_ptr<Darabonba::Model> body, shared_ptr<Darabonba::Model> content) {
   map<string, boost::any> props;
@@ -89,6 +91,13 @@ string Alibabacloud_OpenApiUtil::Client::getROASignature(
   return base64::encode_from_array(hash_val, sha1::HASH_SIZE);
 }
 
+string Alibabacloud_OpenApiUtil::Client::getROASignatureWithSHA256(
+    shared_ptr<string> stringToSign, shared_ptr<string> secret) {
+  boost::uint8_t hash_val[sha256::HASH_SIZE];
+  hmac<sha256>::calc(*stringToSign, *secret, hash_val);
+  return base64::encode_from_array(hash_val, sha256::HASH_SIZE);
+}
+
 void flatten(map<string, string> &res, std::string prefix, boost::any curr) {
   if (typeid(map<string, boost::any>) == curr.type()) {
     map<string, boost::any> m = boost::any_cast<map<string, boost::any>>(curr);
@@ -157,7 +166,7 @@ string Alibabacloud_OpenApiUtil::Client::toForm(
   }
 
   return Darabonba_Util::Client::toFormString(
-      make_shared<map<string, boost::any>>(
+      std::make_shared<map<string, boost::any>>(
           Darabonba_Util::Client::anyifyMapValue(
               make_shared<map<string, string>>(res))));
 }
@@ -256,6 +265,18 @@ string Alibabacloud_OpenApiUtil::Client::getRPCSignature(
   boost::uint8_t hash_val[sha1::HASH_SIZE];
   hmac<sha1>::calc(str, s, hash_val);
   return base64::encode_from_array(hash_val, sha1::HASH_SIZE);
+}
+
+string Alibabacloud_OpenApiUtil::Client::getRPCSignatureWithSHA256(
+    shared_ptr<map<string, string>> signedParams, shared_ptr<string> method,
+    shared_ptr<string> secret) {
+  map<string, string> sp = signedParams ? *signedParams : map<string, string>();
+  string m = method ? *method : "";
+  string s = (secret ? *secret : "") + "&";
+  std::string str = strToSign(std::move(m), sp);
+  boost::uint8_t hash_val[sha256::HASH_SIZE];
+  hmac<sha256>::calc(str, s, hash_val);
+  return base64::encode_from_array(hash_val, sha256::HASH_SIZE);
 }
 
 string flat_repeat_vec(vector<boost::any> arr, string prefix) {

@@ -125,6 +125,13 @@ namespace tests
         }
 
         [Fact]
+        public void Test_SHA256Signatures()
+        {
+            Assert.Equal("feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=", Client.GetROASignatureWithSHA256("stringtosign", "secret"));
+            Assert.Equal("RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=", Client.GetRPCSignatureWithSHA256(new Dictionary<string, string> { { "a", "b" } }, "GET", "secret"));
+        }
+
+        [Fact]
         public void Test_ToForm()
         {
             Assert.Empty(Client.ToForm(null));

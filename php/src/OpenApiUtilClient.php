@@ -96,6 +96,11 @@ class OpenApiUtilClient
         return base64_encode(hash_hmac('sha1', $stringToSign, $secret, true));
     }
 
+    public static function getROASignatureWithSHA256($stringToSign, $secret)
+    {
+        return base64_encode(hash_hmac('sha256', $stringToSign, $secret, true));
+    }
+
     /**
      * Parse filter into a form string.
      *
@@ -177,6 +182,11 @@ class OpenApiUtilClient
         $signMethod = 'HMAC-SHA1';
 
         return self::encode($signMethod, $strToSign, $secret);
+    }
+
+    public static function getRPCSignatureWithSHA256($signedParams, $method, $secret)
+    {
+        return self::encode('HMAC-SHA256', self::getRpcStrToSign($method, $signedParams), $secret . '&');
     }
 
     /**

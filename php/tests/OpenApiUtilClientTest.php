@@ -91,6 +91,12 @@ class OpenApiUtilClientTest extends TestCase
         $this->assertEquals('OmuTAr79tpI6CRoAdmzKRq5lHs0=', OpenApiUtilClient::getROASignature('stringtosign', 'secret'));
     }
 
+    public function testSHA256Signatures()
+    {
+        $this->assertEquals('feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=', OpenApiUtilClient::getROASignatureWithSHA256('stringtosign', 'secret'));
+        $this->assertEquals('RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=', OpenApiUtilClient::getRPCSignatureWithSHA256(['a' => 'b'], 'GET', 'secret'));
+    }
+
     public function testToForm()
     {
         $this->assertEquals('bool=true&client=test&strs.1=str1&strs.2=str2&strs.3=false&tag.key=value', OpenApiUtilClient::toForm([

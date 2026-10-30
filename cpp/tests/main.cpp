@@ -109,6 +109,16 @@ TEST(tests_Client, test_getROASignature) {
   ASSERT_EQ("XGXDWA78AEvx/wmfxKoVCq/afWw=", signature);
 }
 
+TEST(tests_Client, test_sha256Signatures) {
+  ASSERT_EQ("feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=",
+            Alibabacloud_OpenApiUtil::Client::getROASignatureWithSHA256(
+                make_shared<string>("stringtosign"), make_shared<string>("secret")));
+  ASSERT_EQ("RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=",
+            Alibabacloud_OpenApiUtil::Client::getRPCSignatureWithSHA256(
+                make_shared<map<string, string>>(map<string, string>{{"a", "b"}}),
+                make_shared<string>("GET"), make_shared<string>("secret")));
+}
+
 TEST(tests_Client, test_toForm) {
   shared_ptr<map<string, boost::any>> filter(new map<string, boost::any>({
                                                                              {"client", string("test")},
@@ -198,37 +208,37 @@ TEST(tests_Client, test_arrayToStringWithSpecifiedStyle) {
   vector<boost::any> array = {"ok", "test", 2, 3};
   shared_ptr<string> prefix(new string("instance"));
   string t1 = Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
-      make_shared<vector<boost::any>>(array),
+      std::make_shared<vector<boost::any>>(array),
       prefix,
       make_shared<string>("repeatList")
   );
 
   string t2 = Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
-      make_shared<vector<boost::any>>(array),
+      std::make_shared<vector<boost::any>>(array),
       prefix,
       make_shared<string>("json")
   );
 
   string t3 = Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
-      make_shared<vector<boost::any>>(array),
+      std::make_shared<vector<boost::any>>(array),
       prefix,
       make_shared<string>("simple")
   );
 
   string t4 = Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
-      make_shared<vector<boost::any>>(array),
+      std::make_shared<vector<boost::any>>(array),
       prefix,
       make_shared<string>("spaceDelimited")
   );
 
   string t5 = Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
-      make_shared<vector<boost::any>>(array),
+      std::make_shared<vector<boost::any>>(array),
       prefix,
       make_shared<string>("pipeDelimited")
   );
 
   string t6 = Alibabacloud_OpenApiUtil::Client::arrayToStringWithSpecifiedStyle(
-      make_shared<vector<boost::any>>(array),
+      std::make_shared<vector<boost::any>>(array),
       prefix,
       make_shared<string>("piDelimited")
   );
@@ -308,7 +318,7 @@ public:
       query = make_shared<map<string, string>>(toMap1);
     }
     if (m.find("body") != m.end()) {
-      body = make_shared<boost::any>(boost::any_cast<boost::any>(m["body"]));
+      body = std::make_shared<boost::any>(boost::any_cast<boost::any>(m["body"]));
     }
   }
 
@@ -320,9 +330,9 @@ public:
 };
 
 TEST(tests, parseToMap) {
-  shared_ptr<map<string, boost::any>> m = make_shared<map<string, boost::any>>(
+  shared_ptr<map<string, boost::any>> m = std::make_shared<map<string, boost::any>>(
       map<string, boost::any>(
-          {{"foo", make_shared<vector<boost::any>>(vector<boost::any>({string("bar")}))}}
+          {{"foo", std::make_shared<vector<boost::any>>(vector<boost::any>({string("bar")}))}}
     )
   );
   map<string, boost::any> msa = Alibabacloud_OpenApiUtil::Client::parseToMap(m);

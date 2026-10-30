@@ -290,6 +290,10 @@ export default class Client {
     return kitx.sha1(utf8Buff, secret, 'base64') as string;
   }
 
+  static getROASignatureWithSHA256(stringToSign: string, secret: string): string {
+    return crypto.createHmac('sha256', secret).update(stringToSign, 'utf8').digest('base64');
+  }
+
   /**
    * Parse filter into a form string
    * @param filter object
@@ -346,6 +350,12 @@ export default class Client {
     var stringToSign = `${method}&${encode('/')}&${encode(canonicalized)}`;
     const key = secret + '&';
     return <string>kitx.sha1(stringToSign, key, 'base64');
+  }
+
+  static getRPCSignatureWithSHA256(signedParams: { [key: string]: string }, method: string, secret: string): string {
+    const canonicalized = canonicalize(normalize(signedParams));
+    const stringToSign = `${method}&${encode('/')}&${encode(canonicalized)}`;
+    return crypto.createHmac('sha256', secret + '&').update(stringToSign, 'utf8').digest('base64');
   }
 
   /**

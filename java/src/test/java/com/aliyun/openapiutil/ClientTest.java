@@ -97,6 +97,14 @@ public class ClientTest {
     }
 
     @Test
+    public void sha256SignaturesTest() throws Exception {
+        Map<String, String> map = new HashMap<>();
+        map.put("a", "b");
+        Assertions.assertEquals("feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=", Client.getROASignatureWithSHA256("stringtosign", "secret"));
+        Assertions.assertEquals("RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=", Client.getRPCSignatureWithSHA256(map, "GET", "secret"));
+    }
+
+    @Test
     public void toFormTest() throws Exception {
         Map<String, Object> map = new HashMap<>();
         String result = Client.toForm(null);

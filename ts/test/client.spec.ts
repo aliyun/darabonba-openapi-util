@@ -200,6 +200,11 @@ describe('Tea Util', function () {
     assert.deepStrictEqual(Client.getROASignature('stringtosign', 'secret'), 'OmuTAr79tpI6CRoAdmzKRq5lHs0=');
   });
 
+  it('signs RPC and ROA requests with SHA256', function () {
+    assert.strictEqual(Client.getROASignatureWithSHA256('stringtosign', 'secret'), 'feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=');
+    assert.strictEqual(Client.getRPCSignatureWithSHA256({ a: 'b' }, 'GET', 'secret'), 'RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=');
+  });
+
   it('toForm', function () {
     const data: { [key: string]: any } = {
       val1: 'string',

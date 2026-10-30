@@ -52,6 +52,7 @@ jobs:
           libssl-dev \
           libcurl4-openssl-dev \
           libboost-all-dev \
+          libcpprest-dev \
           uuid-dev \
           lcov
     
@@ -72,14 +73,22 @@ jobs:
       shell: pwsh
       run: |
         $vcpkgRoot = "$env:RUNNER_TEMP\vcpkg"
+        $vcpkgCommit = "6f29f12e82a8293156836ad81cc9bf5af41fe836"
         if (Test-Path $vcpkgRoot) {
           Write-Host "vcpkg already exists, using existing installation"
         } else {
-          git clone https://github.com/Microsoft/vcpkg.git $vcpkgRoot
-          & "$vcpkgRoot\bootstrap-vcpkg.bat"
+          git clone --no-checkout https://github.com/Microsoft/vcpkg.git $vcpkgRoot
+          if ($LASTEXITCODE -ne 0) { throw "Failed to clone vcpkg" }
         }
+        git -C $vcpkgRoot fetch --depth 1 origin $vcpkgCommit
+        if ($LASTEXITCODE -ne 0) { throw "Failed to fetch vcpkg commit" }
+        git -C $vcpkgRoot checkout --detach $vcpkgCommit
+        if ($LASTEXITCODE -ne 0) { throw "Failed to check out vcpkg commit" }
+        & "$vcpkgRoot\bootstrap-vcpkg.bat"
+        if ($LASTEXITCODE -ne 0) { throw "Failed to bootstrap vcpkg" }
         echo "VCPKG_ROOT=$vcpkgRoot" >> $env:GITHUB_ENV
         echo "vcpkg-root=$vcpkgRoot" >> $env:GITHUB_OUTPUT
+        echo "vcpkg-commit=$vcpkgCommit" >> $env:GITHUB_OUTPUT
 
     - name: Cache vcpkg
       if: runner.os == 'Windows'
@@ -87,9 +96,7 @@ jobs:
       id: vcpkg-cache
       with:
         path: ${{ steps.setup-vcpkg.outputs.vcpkg-root }}/installed
-        key: ${{ runner.os }}-vcpkg-boost-cpprest-openssl-x64-windows-v2
-        restore-keys: |
-          ${{ runner.os }}-vcpkg-
+        key: ${{ runner.os }}-vcpkg-boost-cpprest-openssl-x64-windows-${{ steps.setup-vcpkg.outputs.vcpkg-commit }}
 
     - name: Install dependencies (Windows)
       if: runner.os == 'Windows'
@@ -100,6 +107,7 @@ jobs:
         if (-not $cacheHit) {
           Write-Host "Cache miss, installing vcpkg packages..."
           & "$vcpkgRoot\vcpkg.exe" install boost:x64-windows cpprestsdk:x64-windows openssl:x64-windows
+          if ($LASTEXITCODE -ne 0) { throw "Failed to install vcpkg packages" }
         } else {
           Write-Host "Cache hit! Using cached vcpkg packages."
         }
@@ -145,11 +153,14 @@ jobs:
         # macOS 需要指定 OpenSSL 路径
         OPENSSL_ROOT_DIR=$(brew --prefix openssl)
         BOOST_ROOT=$(brew --prefix boost)
+        CPPREST_ROOT=$(brew --prefix cpprestsdk)
         cmake -B build \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_UNIT_TESTS=ON \
-          -DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR \
-          -DBOOST_ROOT=$BOOST_ROOT
+          -DOPENSSL_ROOT_DIR="$OPENSSL_ROOT_DIR" \
+          -DBOOST_ROOT="$BOOST_ROOT" \
+          -DCMAKE_PREFIX_PATH="$CPPREST_ROOT;$OPENSSL_ROOT_DIR;$BOOST_ROOT" \
+          -DCMAKE_CXX_FLAGS="-I$CPPREST_ROOT/include -I$OPENSSL_ROOT_DIR/include"
 
     - name: Configure CMake (Linux)
       if: runner.os == 'Linux'

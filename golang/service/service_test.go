@@ -17,6 +17,11 @@ func Test_GetROASignature(t *testing.T) {
 	utils.AssertEqual(t, 28, len(tea.StringValue(signature)))
 }
 
+func Test_SHA256Signatures(t *testing.T) {
+	utils.AssertEqual(t, "feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=", tea.StringValue(GetROASignatureWithSHA256(tea.String("stringtosign"), tea.String("secret"))))
+	utils.AssertEqual(t, "RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=", tea.StringValue(GetRPCSignatureWithSHA256(map[string]*string{"a": tea.String("b")}, tea.String("GET"), tea.String("secret"))))
+}
+
 func Test_Sorter(t *testing.T) {
 	tmp := map[string]string{
 		"key":   "ccp",

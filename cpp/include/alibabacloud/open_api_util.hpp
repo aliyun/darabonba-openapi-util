@@ -19,12 +19,17 @@ public:
   static string getStringToSign(shared_ptr<Darabonba::Request> request);
   static string getROASignature(shared_ptr<string> stringToSign,
                                 shared_ptr<string> secret);
+  static string getROASignatureWithSHA256(shared_ptr<string> stringToSign,
+                                          shared_ptr<string> secret);
   static string toForm(shared_ptr<map<string, boost::any>> filter);
   static string getTimestamp();
   static map<string, string> query(shared_ptr<map<string, boost::any>> filter);
   static string getRPCSignature(shared_ptr<map<string, string>> signedParams,
                                 shared_ptr<string> method,
                                 shared_ptr<string> secret);
+  static string getRPCSignatureWithSHA256(shared_ptr<map<string, string>> signedParams,
+                                          shared_ptr<string> method,
+                                          shared_ptr<string> secret);
   static string arrayToStringWithSpecifiedStyle(const boost::any &array,
                                                 shared_ptr<string> prefix,
                                                 shared_ptr<string> style);
