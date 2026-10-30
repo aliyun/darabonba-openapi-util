@@ -15,6 +15,8 @@
 using namespace std;
 using namespace Alibabacloud_OpenApiUtil;
 
+boost::any _parseToMap(const boost::any &input);
+
 void Alibabacloud_OpenApiUtil::Client::convert(
     shared_ptr<Darabonba::Model> body, shared_ptr<Darabonba::Model> content) {
   map<string, boost::any> props;
@@ -164,7 +166,7 @@ string Alibabacloud_OpenApiUtil::Client::toForm(
   }
 
   return Darabonba_Util::Client::toFormString(
-      make_shared<map<string, boost::any>>(
+      std::make_shared<map<string, boost::any>>(
           Darabonba_Util::Client::anyifyMapValue(
               make_shared<map<string, string>>(res))));
 }

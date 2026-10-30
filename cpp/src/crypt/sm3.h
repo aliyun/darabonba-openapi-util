@@ -234,7 +234,7 @@ public:
   void result(boost::uint8_t digest[HASH_SIZE])
   {
     vector<uint32_t> res_arr = hash_msg(intermediate_hash_);
-    char s[BLOCK_SIZE];
+    char s[BLOCK_SIZE + 1];
     sprintf(s, "%08x%08x%08x%08x%08x%08x%08x%08x",
             res_arr[0], res_arr[1], res_arr[2],
             res_arr[3], res_arr[4], res_arr[5],
