@@ -53,6 +53,7 @@ jobs:
           libcurl4-openssl-dev \
           libboost-all-dev \
           libcpprest-dev \
+          libjsoncpp-dev \
           uuid-dev \
           lcov
     
@@ -64,7 +65,8 @@ jobs:
           cmake \
           openssl \
           boost \
-          cpprestsdk
+          cpprestsdk \
+          jsoncpp
     
     # ============ Windows 依赖安装 ============
     - name: Setup vcpkg (Windows)
@@ -96,7 +98,7 @@ jobs:
       id: vcpkg-cache
       with:
         path: ${{ steps.setup-vcpkg.outputs.vcpkg-root }}/installed
-        key: ${{ runner.os }}-vcpkg-boost-cpprest-openssl-x64-windows-${{ steps.setup-vcpkg.outputs.vcpkg-commit }}
+        key: ${{ runner.os }}-vcpkg-boost-cpprest-jsoncpp-openssl-x64-windows-${{ steps.setup-vcpkg.outputs.vcpkg-commit }}
 
     - name: Install dependencies (Windows)
       if: runner.os == 'Windows'
@@ -106,7 +108,7 @@ jobs:
         $cacheHit = "${{ steps.vcpkg-cache.outputs.cache-hit }}" -eq "true"
         if (-not $cacheHit) {
           Write-Host "Cache miss, installing vcpkg packages..."
-          & "$vcpkgRoot\vcpkg.exe" install boost:x64-windows cpprestsdk:x64-windows openssl:x64-windows
+          & "$vcpkgRoot\vcpkg.exe" install boost:x64-windows cpprestsdk:x64-windows jsoncpp:x64-windows openssl:x64-windows
           if ($LASTEXITCODE -ne 0) { throw "Failed to install vcpkg packages" }
         } else {
           Write-Host "Cache hit! Using cached vcpkg packages."
@@ -154,12 +156,13 @@ jobs:
         OPENSSL_ROOT_DIR=$(brew --prefix openssl)
         BOOST_ROOT=$(brew --prefix boost)
         CPPREST_ROOT=$(brew --prefix cpprestsdk)
+        JSONCPP_ROOT=$(brew --prefix jsoncpp)
         cmake -B build \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_UNIT_TESTS=ON \
           -DOPENSSL_ROOT_DIR="$OPENSSL_ROOT_DIR" \
           -DBOOST_ROOT="$BOOST_ROOT" \
-          -DCMAKE_PREFIX_PATH="$CPPREST_ROOT;$OPENSSL_ROOT_DIR;$BOOST_ROOT" \
+          -DCMAKE_PREFIX_PATH="$CPPREST_ROOT;$OPENSSL_ROOT_DIR;$BOOST_ROOT;$JSONCPP_ROOT" \
           -DCMAKE_CXX_FLAGS="-include curl/curl.h -I$CPPREST_ROOT/include -I$OPENSSL_ROOT_DIR/include"
 
     - name: Configure CMake (Linux)
