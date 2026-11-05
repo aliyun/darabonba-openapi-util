@@ -18,10 +18,14 @@ else()
     FetchContent_Populate(_darabonba_util)
     message(STATUS "Added darabonba_util source : ${_darabonba_util_SOURCE_DIR}")
     message(STATUS "Added darabonba_util binary : ${_darabonba_util_BINARY_DIR}")
+    set(_OPENAPI_ENABLE_UNIT_TESTS ${ENABLE_UNIT_TESTS})
+    set(ENABLE_UNIT_TESTS OFF)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
     add_subdirectory(
       ${_darabonba_util_SOURCE_DIR}
       ${_darabonba_util_BINARY_DIR}
     )
+    set(ENABLE_UNIT_TESTS ${_OPENAPI_ENABLE_UNIT_TESTS})
   endif()
   target_include_directories(alibabacloud_open_api_util PRIVATE "${_darabonba_util_SOURCE_DIR}/include")
   if(ENABLE_UNIT_TESTS)

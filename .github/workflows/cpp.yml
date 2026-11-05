@@ -73,7 +73,7 @@ jobs:
       shell: pwsh
       run: |
         $vcpkgRoot = "$env:RUNNER_TEMP\vcpkg"
-        $vcpkgCommit = "6f29f12e82a8293156836ad81cc9bf5af41fe836"
+        $vcpkgCommit = "709070d97b80b5abe8e86804ed9729455c0416db"
         if (Test-Path $vcpkgRoot) {
           Write-Host "vcpkg already exists, using existing installation"
         } else {
@@ -160,7 +160,7 @@ jobs:
           -DOPENSSL_ROOT_DIR="$OPENSSL_ROOT_DIR" \
           -DBOOST_ROOT="$BOOST_ROOT" \
           -DCMAKE_PREFIX_PATH="$CPPREST_ROOT;$OPENSSL_ROOT_DIR;$BOOST_ROOT" \
-          -DCMAKE_CXX_FLAGS="-I$CPPREST_ROOT/include -I$OPENSSL_ROOT_DIR/include"
+          -DCMAKE_CXX_FLAGS="-include curl/curl.h -I$CPPREST_ROOT/include -I$OPENSSL_ROOT_DIR/include"
 
     - name: Configure CMake (Linux)
       if: runner.os == 'Linux'
