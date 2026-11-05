@@ -157,6 +157,7 @@ jobs:
         BOOST_ROOT=$(brew --prefix boost)
         CPPREST_ROOT=$(brew --prefix cpprestsdk)
         JSONCPP_ROOT=$(brew --prefix jsoncpp)
+        # cpprestsdk defines dllimport, which conflicts with the system curl header.
         cmake -B build \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_UNIT_TESTS=ON \
