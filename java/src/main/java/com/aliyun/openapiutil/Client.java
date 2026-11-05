@@ -269,6 +269,15 @@ public class Client {
         return Base64.encodeBase64String(signData);
     }
 
+    public static String getROASignatureWithSHA256(String stringToSign, String secret) throws Exception {
+        if (StringUtils.isEmpty(secret)) {
+            return secret;
+        }
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret.getBytes(UTF8), "HmacSHA256"));
+        return Base64.encodeBase64String(mac.doFinal(stringToSign.getBytes(UTF8)));
+    }
+
     /**
      * Parse filter into a form string
      *
@@ -365,6 +374,14 @@ public class Client {
      * @return the signature
      */
     public static String getRPCSignature(java.util.Map<String, String> signedParams, String method, String secret) throws Exception {
+        return getRPCSignature(signedParams, method, secret, ALGORITHM_NAME);
+    }
+
+    public static String getRPCSignatureWithSHA256(java.util.Map<String, String> signedParams, String method, String secret) throws Exception {
+        return getRPCSignature(signedParams, method, secret, "HmacSHA256");
+    }
+
+    private static String getRPCSignature(java.util.Map<String, String> signedParams, String method, String secret, String algorithm) throws Exception {
         if (signedParams == null || StringUtils.isEmpty(secret)) {
             return secret;
         }
@@ -388,8 +405,8 @@ public class Client {
         stringToSign.append(SEPARATOR);
         stringToSign.append(percentEncode(
                 canonicalizedQueryString.toString().substring(1)));
-        Mac mac = Mac.getInstance(ALGORITHM_NAME);
-        mac.init(new SecretKeySpec((secret + SEPARATOR).getBytes(URL_ENCODING), ALGORITHM_NAME));
+        Mac mac = Mac.getInstance(algorithm);
+        mac.init(new SecretKeySpec((secret + SEPARATOR).getBytes(URL_ENCODING), algorithm));
         byte[] signData = mac.doFinal(stringToSign.toString().getBytes(URL_ENCODING));
         return Base64.encodeBase64String(signData);
 

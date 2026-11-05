@@ -134,6 +134,11 @@ final class AlibabaCloudOpenApiUtilTests: XCTestCase {
         XCTAssertEqual("OmuTAr79tpI6CRoAdmzKRq5lHs0=", signature)
     }
 
+    func testSHA256Signatures() {
+        XCTAssertEqual("feV/SlLITI3IeDK7MyNlBiHatwwp8sbQ6Orgw/9Blco=", Client.getROASignatureWithSHA256("stringtosign", "secret"))
+        XCTAssertEqual("RtsLKdnBrOOHbXXNBvh4BR6G72oLdy2q21mD0CY77TA=", Client.getRPCSignatureWithSHA256(["a": "b"], "GET", "secret"))
+    }
+
     func testToForm() async throws {
         var dict: [String: Any] = [:]
         var result: String = Client.toForm(nil)
